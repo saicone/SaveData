@@ -1,0 +1,177 @@
+# Plugin configuration
+plugin:
+  log-level: 3
+
+# PlaceholderAPI hook configuration
+placeholder:
+  # Register or not the placeholder expansion
+  register: true
+  # The names to use for placeholder
+  names:
+    - 'data'
+    - 'savedata'
+    - 'sd'
+
+# Database configuration
+database:
+  # Database id, must be unique
+  default:
+    # Current database types:
+    #
+    # FILE = Save data on files
+    # SQL  = Save data on SQL database
+    type: FILE
+    # Data tables configuration
+    table:
+      # The table to save global data (this data is always loaded)
+      global: 'global'
+      # The table to save player data (this data is only loaded if the player is online)
+      player: 'player'
+    # File type configuration
+    file:
+      # Current file types:
+      #
+      # JSON = Save data on .json file
+      # YAML = Save data on .yml file
+      type: JSON
+      # Path to save data
+      path: 'plugins/SaveData/data/file'
+  # Database id
+  mysql:
+    # Enable or not this database
+    enabled: false
+    type: SQL
+    table:
+      global: 'global_data'
+      player: 'players_data'
+    # Sql type configuration
+    sql:
+      # Driver class
+      driver: 'com.saicone.lib.mysql.cj.jdbc.Driver'
+      # URL to connect
+      url: 'jdbc:mysql://localhost:3306/database'
+      # Database user
+      username: 'root'
+      # Database password
+      password: 'password'
+      # Pool size
+      pool-size: 10
+      # URL flags
+      flags:
+        - 'useSSL=false'
+      # Messenger configuration
+      messenger:
+        # Enable or not a messenger instance on this database to mantain data updated
+        # on every server that use the database
+        enabled: false
+        # Table prefix for messenger instance
+        prefix: 'data'
+      # Statement query configuration
+      statement:
+        create: 'CREATE TABLE IF NOT EXISTS `<name>` (`id` VARCHAR(255) NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET = utf8mb4'
+        insert: 'INSERT INTO `<name>` (`id`, `data`) VALUES(?, ?) ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)'
+        delete: 'DELETE FROM `<name>` WHERE `id` = ?'
+        select: 'SELECT * FROM `<name>` WHERE `id` = ?'
+        select-all: 'SELECT ALL * FROM <name>'
+  mariadb:
+    enabled: false
+    type: SQL
+    table:
+      global: 'global_data'
+      player: 'players_data'
+    sql:
+      driver: 'com.saicone.lib.mariadb.jdbc.Driver'
+      url: 'jdbc:mariadb://localhost:3306/database'
+      username: 'root'
+      password: 'password'
+      pool-size: 10
+      flags:
+        - 'useSSL=false'
+      messenger:
+        enabled: false
+        prefix: 'data'
+      statement:
+        create: 'CREATE TABLE IF NOT EXISTS `<name>` (`id` VARCHAR(255) NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET = utf8mb4'
+        insert: 'INSERT INTO `<name>` (`id`, `data`) VALUES(?, ?) ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)'
+        delete: 'DELETE FROM `<name>` WHERE `id` = ?'
+        select: 'SELECT * FROM `<name>` WHERE `id` = ?'
+        select-all: 'SELECT ALL * FROM <name>'
+  postgresql:
+    enabled: false
+    type: SQL
+    table:
+      global: 'global_data'
+      player: 'players_data'
+    sql:
+      driver: 'com.saicone.lib.postgresql.ds.PGSimpleDataSource'
+      url: 'jdbc:postgresql://localhost:3306/database'
+      username: 'root'
+      password: 'password'
+      pool-size: 10
+      flags:
+        - 'useSSL=false'
+      messenger:
+        enabled: false
+        prefix: 'data'
+      statement:
+        create: 'CREATE TABLE IF NOT EXISTS `<name>` (`id` VARCHAR(255) NOT NULL PRIMARY KEY, `data` TEXT NOT NULL) DEFAULT CHARSET = utf8mb4'
+        insert: 'INSERT INTO `<name>` (`id`, `data`) VALUES(?, ?) ON CONFLICT (`id`) DO UPDATE SET `data` = EXCLUDED.`data`'
+        delete: 'DELETE FROM `<name>` WHERE `id` = ?'
+        select: 'SELECT * FROM `<name>` WHERE `id` = ?'
+        select-all: 'SELECT ALL * FROM <name>'
+  sqlite:
+    enabled: false
+    type: SQL
+    table:
+      global: 'global_data'
+      player: 'players_data'
+    sql:
+      driver: 'org.sqlite.JDBC'
+      # Instead of other sql databases, sqlite save data in single file
+      url: 'jdbc:sqlite:plugins/SaveData/data/sql/sqlite.db'
+      statement:
+        create: 'CREATE TABLE IF NOT EXISTS `<name>` (`id` VARCHAR(255) NOT NULL PRIMARY KEY, `data` TEXT NOT NULL) DEFAULT CHARSET = utf8mb4'
+        insert: 'INSERT OR REPLACE INTO `<name>` (`id`, `data`) VALUES(?, ?)'
+        delete: 'DELETE FROM `<name>` WHERE `id` = ?'
+        select: 'SELECT * FROM `<name>` WHERE `id` = ?'
+        select-all: 'SELECT ALL * FROM <name>'
+  h2:
+    enabled: false
+    type: SQL
+    table:
+      global: 'global_data'
+      player: 'players_data'
+    sql:
+      driver: 'com.saicone.lib.h2.Driver'
+      # Instead of other sql databases, h2 save data in single file
+      url: 'jdbc:h2:plugins/SaveData/data/sql/h2.db'
+      statement:
+        create: 'CREATE TABLE IF NOT EXISTS `<name>` (`id` VARCHAR(255) NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET = utf8mb4'
+        insert: 'MERGE INTO `<name>` (`id`, `data`) KEY (`id`) VALUES(?, ?)'
+        delete: 'DELETE FROM `<name>` WHERE `id` = ?'
+        select: 'SELECT * FROM `<name>` WHERE `id` = ?'
+        select-all: 'SELECT ALL * FROM <name>'
+
+
+# Libraries to load when plugin is loaded, add any as you want
+library:
+  mysql-driver:
+    path: 'mysql:mysql-connector-java:8.0.30'
+    relocate:
+      - from: 'com.mysql'
+        to: 'com.saicone.lib.mysql'
+  mariadb-driver:
+    path: 'org.mariadb.jdbc:mariadb-java-client:2.7.2'
+    relocate:
+      - from: 'org.mariadb'
+        to: 'com.saicone.lib.mariadb'
+  postgresql-driver:
+    path: 'org.postgresql:postgresql:42.2.19'
+    relocate:
+      - from: 'org.postgresql'
+        to: 'com.saicone.lib.postgresql'
+  h2-driver:
+    path: 'com.h2database:h2:1.4.199'
+    relocate:
+      - from: 'org.h2'
+        to: 'com.saicone.lib.h2'

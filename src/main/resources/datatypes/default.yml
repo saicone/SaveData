@@ -1,0 +1,47 @@
+# This is an example file with various types of data
+#
+# You can create more files inside /datatypes folder and sub folders
+
+# data id, must be unique across files with the same used database
+points:
+  # Available data types:
+  #
+  # STRING  = text data type
+  # CHAR    = one character data type
+  # BOOLEAN = true or false
+  # BYTE    = number between -128 to 127
+  # SHORT   = number between -32,768 to 32,767
+  # INTEGER = number between -322,147,483,648 to 322,147,483,647
+  # LONG    = number between -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 (use it for large count)
+  # FLOAT   = fractional number, that stores 6-7 decimal digits
+  # DOUBLE  = fractional number, that stores 15 decimal digits (use it for currency numbers)
+  type: INTEGER
+  # Override the current id (optional)
+  id: 'default.points'
+  # Default value (optional)
+  default: 0
+  # Minimum value (optional)
+  min: 0
+  # Maximum value (optional)
+  max: 40000
+
+money:
+  type: DOUBLE
+  default: 0.0
+  # Number format (optional)
+  format: '#.##'
+
+nick:
+  type: STRING
+  default: '&f%player_name%'
+  # True to parse placeholders from PlaceholderAPI
+  papi: true
+  # True to parse color codes
+  color: true
+
+color:
+  type: STRING
+  default: '&f'
+  color: true
+  # Permission to manipulate this data (optional)
+  permission: savedata.color.edit

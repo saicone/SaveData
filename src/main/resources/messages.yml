@@ -1,0 +1,36 @@
+plugin:
+  no-permission: '&cYou don''t have permission'
+
+command:
+  help:
+    - '&6SaveData commands:'
+    - ''
+    - '&e/{0} reload'
+    - '&e/{0} global <id> <operator> <database> <data id> [value]'
+    - '&e/{0} player <name> <operator> <database> <data id> [value]'
+    - ''
+    - '&6Operators:'
+    - '&eset &8- &7Set the value'
+    - '&eget &8- &7Get the value'
+    - '&eadd &8- &7Add an amount to value'
+    - '&edelete &8- &7Delete value'
+    - '&esubstract &8- &7Reduce an amount from value'
+    - '&emultiply &8- &7Multiply the value'
+    - '&edivide &8- &7Divide the value'
+  reload: '&aThe plugin was successfully reloaded! [&f{0} ms&a]'
+  data:
+    get: '&aThe data for name &f{0}&a, inside database &f{1}&a, with id &f{2} &ais: &e{3}'
+    edit:
+      - '&a=Data edit &f(name = &b{0}&f, database = &b{1}&f, id = &b{2}&f)'
+      - '  &aBefore: &f{3}'
+      - '  &aAfter: &f{4}'
+      - '  &aTime: &f{5} ms'
+    error:
+      operator: '&cThe operator &6{0} &ccannot be used here'
+      id: '&cThe data type id &6{0} &cdoesn''t exists'
+      value: '&cThe value &6{0} &ccannot be converted to required type'
+      modify: '&cCannot modify the required value (There''s not a default value set in config)'
+  error:
+    player: '&cThe player &6{0} &cis not online'
+    database: '&cThe database &6{0} &cdoesn''t exists'
+    datatype: '&cThe data type &6{0} &cdoesn''t exists'
