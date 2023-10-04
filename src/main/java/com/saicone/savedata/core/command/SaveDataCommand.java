@@ -62,13 +62,17 @@ public class SaveDataCommand extends Command {
         final Type type;
         final Object name;
         if (args[0].equalsIgnoreCase("player")) {
-            final Player player = Bukkit.getPlayer(args[1]);
-            if (player == null) {
-                Lang.COMMAND_ERROR_PLAYER.sendTo(sender, args[1]);
-                return true;
-            }
             type = Type.PLAYER;
-            name = player.getUniqueId();
+            final Player player = Bukkit.getPlayer(args[1]);
+            if (player != null) {
+                name = player.getUniqueId();
+            } else {
+                name = plugin.getDataCore().getLinkedPlayers().get(args[1]);
+                if (name == null) {
+                    Lang.COMMAND_ERROR_PLAYER.sendTo(sender, args[1]);
+                    return true;
+                }
+            }
         } else {
             type = Type.GLOBAL;
             name = args[1];

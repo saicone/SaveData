@@ -115,7 +115,7 @@ public class Database extends AbstractDatabase {
 
         final String create = settings.getString("statement.create", "CREATE TABLE IF NOT EXISTS `<name>` (`id` VARCHAR(255) NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY (`id`)) DEFAULT CHARSET = utf8mb4");
         final String insert = settings.getString("statement.insert", "INSERT INTO `<name>` (`id`, `data`) VALUES(?, ?) ON DUPLICATE KEY UPDATE `data` = VALUES(`data`)");
-        final String delete = settings.getString("statement.create", "DELETE FROM `<name>` WHERE `id` = ?");
+        final String delete = settings.getString("statement.delete", "DELETE FROM `<name>` WHERE `id` = ?");
         final String select = settings.getString("statement.select", "SELECT * FROM `<name>` WHERE `id` = ?");
         final String selectAll = settings.getString("statement.select-all", "SELECT ALL * FROM <name>");
 

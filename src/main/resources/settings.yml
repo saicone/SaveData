@@ -1,5 +1,7 @@
 # Plugin configuration
 plugin:
+  # 1 = errors, 2 = warns, 3 = info, 4 = debug
+  # Set to 0 to disable
   log-level: 3
 
 # PlaceholderAPI hook configuration
@@ -37,7 +39,9 @@ database:
       # Path to save data
       path: 'plugins/SaveData/data/file'
   # Database id
-  mysql:
+  # This is an MySQL database connection example, below are more examples with other database types
+  # Copy & paste to configure your own database connection
+  mysql-example:
     # Enable or not this database
     enabled: false
     type: SQL
@@ -61,8 +65,8 @@ database:
         - 'useSSL=false'
       # Messenger configuration
       messenger:
-        # Enable or not a messenger instance on this database to mantain data updated
-        # on every server that use the database
+        # Enable or not a messenger instance on this database to maintain data updated on every server that use the database
+        # This option also load and update online player data between linked servers
         enabled: false
         # Table prefix for messenger instance
         prefix: 'data'
@@ -73,7 +77,7 @@ database:
         delete: 'DELETE FROM `<name>` WHERE `id` = ?'
         select: 'SELECT * FROM `<name>` WHERE `id` = ?'
         select-all: 'SELECT ALL * FROM <name>'
-  mariadb:
+  mariadb-example:
     enabled: false
     type: SQL
     table:
@@ -96,7 +100,7 @@ database:
         delete: 'DELETE FROM `<name>` WHERE `id` = ?'
         select: 'SELECT * FROM `<name>` WHERE `id` = ?'
         select-all: 'SELECT ALL * FROM <name>'
-  postgresql:
+  postgresql-example:
     enabled: false
     type: SQL
     table:
@@ -119,7 +123,7 @@ database:
         delete: 'DELETE FROM `<name>` WHERE `id` = ?'
         select: 'SELECT * FROM `<name>` WHERE `id` = ?'
         select-all: 'SELECT ALL * FROM <name>'
-  sqlite:
+  sqlite-example:
     enabled: false
     type: SQL
     table:
@@ -135,7 +139,7 @@ database:
         delete: 'DELETE FROM `<name>` WHERE `id` = ?'
         select: 'SELECT * FROM `<name>` WHERE `id` = ?'
         select-all: 'SELECT ALL * FROM <name>'
-  h2:
+  h2-example:
     enabled: false
     type: SQL
     table:

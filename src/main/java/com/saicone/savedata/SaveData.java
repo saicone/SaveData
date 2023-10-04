@@ -63,6 +63,7 @@ public class SaveData extends JavaPlugin {
             saveResource("datatypes/default.yml", false);
         }
         dataCore.onReload();
+        getServer().getPluginManager().registerEvents(dataCore, this);
         if (command == null) {
             SaveData.log(4, "Loading main command...");
             command = new SaveDataCommand();

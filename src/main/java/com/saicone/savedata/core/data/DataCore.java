@@ -1,5 +1,8 @@
 package com.saicone.savedata.core.data;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.util.OptionalType;
 import org.bukkit.Bukkit;
@@ -17,18 +20,30 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DataCore implements Listener {
+
+    private static final String CHANNEL_MAIN = "datacore:main";
 
     private final Map<String, Database> databases = new HashMap<>();
     private final Map<String, DataType<?>> dataTypes = new HashMap<>();
 
     private final Map<String, DataObject> globalData = new ConcurrentHashMap<>();
     private final Map<UUID, DataObject> playerData = new ConcurrentHashMap<>();
+    private final Map<String, UUID> linkedPlayers = new ConcurrentHashMap<>();
 
     private final LinkedHashSet<Update> updates = new LinkedHashSet<>();
+    private final Cache<UUID, String> toDelete = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.SECONDS)
+            .<UUID, String>removalListener(notification -> {
+                if (notification.getCause() == RemovalCause.EXPIRED && notification.getKey() != null) {
+                    SaveData.log(4, "The player '" + notification.getValue() + "' will be unloaded");
+                    Bukkit.getScheduler().runTaskAsynchronously(SaveData.get(), () -> unloadPlayerData(notification.getKey()));
+                }
+            }).build();
     private BukkitTask updateTask;
     private boolean onUpdate = false;
 
@@ -40,6 +55,21 @@ public class DataCore implements Listener {
     @NotNull
     public Map<String, DataType<?>> getDataTypes() {
         return dataTypes;
+    }
+
+    @NotNull
+    public Map<String, DataObject> getGlobalData() {
+        return globalData;
+    }
+
+    @NotNull
+    public Map<UUID, DataObject> getPlayerData() {
+        return playerData;
+    }
+
+    @NotNull
+    public Map<String, UUID> getLinkedPlayers() {
+        return linkedPlayers;
     }
 
     public void getDataObject(@NotNull Type type, @NotNull Object name, @NotNull Consumer<DataObject> consumer) {
@@ -177,24 +207,63 @@ public class DataCore implements Listener {
             return;
         }
         final Type type = split[0].equalsIgnoreCase("global") ? Type.GLOBAL : Type.PLAYER;
+        if (type == Type.PLAYER) {
+            final String updateType = split[3].toLowerCase();
+            if (updateType.equals("load")) {
+                onReceiveLoad(UUID.fromString(split[1]), split[2]);
+            } else if (updateType.equals("unload")) {
+                onReceiveUnload(UUID.fromString(split[1]), split[2]);
+            }
+            return;
+        }
         getDataObject(type, split[1], dataObject -> {
-            dataObject.set(split[2], split[3], split.length > 4 ? dataType.wrap(OptionalType.of(split[4]).as(dataType.getTypeClass())) : null);
+            dataObject.set(split[2], split[3], split.length > 4 ? dataType.wrap(OptionalType.of(split[4]).as(dataType.getTypeClass())) : null, false);
         });
+    }
+
+    protected void onReceiveLoad(@NotNull UUID uuid, @NotNull String database) {
+        // Do not load if the player is marked as it was here
+        final String name = toDelete.getIfPresent(uuid);
+        if (name == null) {
+            // Avoid loaded data
+            final DataObject dataObject = playerData.get(uuid);
+            if (dataObject != null && dataObject.contains(database)) {
+                return;
+            }
+            // Not override current async thread (its unnecessary)
+            if (Bukkit.isPrimaryThread()) {
+                Bukkit.getScheduler().runTaskAsynchronously(SaveData.get(), () -> loadPlayerData(uuid, database));
+            } else {
+                loadPlayerData(uuid, database);
+            }
+        } else {
+            toDelete.invalidate(uuid);
+            linkedPlayers.put(name, uuid);
+        }
+    }
+
+    protected void onReceiveUnload(@NotNull UUID uuid, @NotNull String database) {
+        final DataObject dataObject = playerData.get(uuid);
+        if (dataObject == null || !dataObject.remove(database)) {
+            return;
+        }
+        if (dataObject.isEmpty()) {
+            linkedPlayers.entrySet().removeIf(entry -> entry.getValue().equals(uuid));
+            playerData.remove(uuid);
+        }
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(SaveData.get(), () -> {
-           loadPlayerData(event.getPlayer());
-        });
+        final UUID uuid = event.getPlayer().getUniqueId();
+        toDelete.invalidate(uuid);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(SaveData.get(), () -> loadPlayerData(event.getPlayer()), 40L);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(SaveData.get(), () -> {
-            savePlayerData(event.getPlayer());
-            playerData.remove(event.getPlayer().getUniqueId());
-        });
+        // Add to deletion task
+        toDelete.put(event.getPlayer().getUniqueId(), event.getPlayer().getName());
     }
 
     public void onReload() {
@@ -219,7 +288,7 @@ public class DataCore implements Listener {
             final Database database = entry.getValue();
             database.start(database.getGlobalTable(), database.getPlayerTable());
             if (database.getMessenger() != null) {
-                database.getMessenger().subscribe("datacore:main", this::onReceiveMessage);
+                database.getMessenger().subscribe(CHANNEL_MAIN, this::onReceiveMessage);
                 database.getMessenger().start();
             }
         }
@@ -236,43 +305,53 @@ public class DataCore implements Listener {
                 if (onUpdate) {
                     return;
                 }
-                onUpdate = true;
-                try {
-                    final Iterator<Update> iterator = updates.iterator();
-                    final Set<DataUpdate> dataUpdates = new HashSet<>();
-                    final List<Update> updates = new ArrayList<>();
-                    while (iterator.hasNext()) {
-                        final Update update = iterator.next();
-                        iterator.remove();
-                        update.setUnique(true);
-                        dataUpdates.add(update);
-                        if (update.getType() == Type.GLOBAL) {
-                            updates.add(update);
-                        }
-                    }
-                    for (DataUpdate update : dataUpdates) {
-                        saveData(update.getType(), update.getName(), update.getDatabase());
-                    }
-                    for (Update update : updates) {
-                        sendUpdate(update.getType(), update.getName(), update.getDatabase(), update.getId(), update.getValue());
-                    }
-                    if (dataUpdates.size() > 0) {
-                        SaveData.log(4, "The update task processed " + updates.size() + " updates and " + dataUpdates.size() + " data updates in the last 5 seconds");
-                    }
-                } catch (Throwable t) { // Not block task
-                    t.printStackTrace();
-                }
-                onUpdate = false;
+                runUpdateTask();
             }, 100L, 100L);
         }
     }
 
     public void onDisable() {
         if (updateTask != null) {
+            // Save queued updates
+            if (!onUpdate) {
+                runUpdateTask();
+            }
             updateTask.cancel();
+            updateTask = null;
         }
-        saveAll();
         clear();
+    }
+
+    private void runUpdateTask() {
+        onUpdate = true;
+        try {
+            sendUpdates();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        onUpdate = false;
+    }
+
+    public void sendUpdates() {
+        final Iterator<Update> iterator = updates.iterator();
+        final Set<DataUpdate> dataUpdates = new HashSet<>();
+        final List<Update> updates = new ArrayList<>();
+        while (iterator.hasNext()) {
+            final Update update = iterator.next();
+            iterator.remove();
+            update.setUnique(true);
+            dataUpdates.add(update);
+            updates.add(update);
+        }
+        for (DataUpdate update : dataUpdates) {
+            saveData(update.getType(), update.getName(), update.getDatabase());
+        }
+        for (Update update : updates) {
+            sendUpdate(update.getType(), update.getName(), update.getDatabase(), update.getId(), update.getValue());
+        }
+        if (dataUpdates.size() > 0) {
+            SaveData.log(4, "The update task processed " + updates.size() + " updates and " + dataUpdates.size() + " data updates in the last data update");
+        }
     }
 
     public void sendUpdate(@NotNull Type type, @NotNull Object name, @NotNull String database, @NotNull String id, @Nullable Object value) {
@@ -280,7 +359,7 @@ public class DataCore implements Listener {
         if (db == null || db.getMessenger() == null) {
             return;
         }
-        db.getMessenger().send("datacore:main", type.name().toLowerCase() + "_|||_" + name + "_|||_" + database + "_|||_" + id + (value == null ? "" : "_|||_" + value));
+        db.getMessenger().send(CHANNEL_MAIN, type.name().toLowerCase() + "_|||_" + name + "_|||_" + database + "_|||_" + id + (value == null ? "" : "_|||_" + value));
     }
 
     public void loadGlobalData() {
@@ -297,21 +376,43 @@ public class DataCore implements Listener {
     }
 
     public void loadPlayerData(@NotNull Player player) {
-        if (!player.isOnline()) {
-            return;
-        }
-        final UUID uuid = player.getUniqueId();
+        loadPlayerData(player.getUniqueId());
+    }
+
+    public void loadPlayerData(@NotNull UUID uuid) {
         final String id = uuid.toString();
+        final DataObject dataObject;
+        if (playerData.containsKey(uuid)) {
+            dataObject = playerData.get(uuid);
+        } else {
+            dataObject = new DataObject();
+            playerData.put(uuid, dataObject);
+        }
         for (Map.Entry<String, Database> entry : this.databases.entrySet()) {
             entry.getValue().getDataClient().load(entry.getValue().getPlayerTable(), id, data -> {
-                DataObject dataObject = playerData.get(uuid);
-                if (dataObject == null) {
-                    dataObject = new DataObject();
-                    playerData.put(uuid, dataObject);
-                }
                 dataObject.set(entry.getKey(), data);
             });
+            // Send update to load current data in all connected servers
+            if (entry.getValue().getMessenger() != null) {
+                entry.getValue().getMessenger().send(CHANNEL_MAIN, "player_|||_" + uuid + "_|||_" + entry.getKey() + "_|||_load");
+            }
         }
+    }
+
+    public void loadPlayerData(@NotNull UUID uuid, @NotNull String database) {
+        final Database db = this.databases.get(database);
+        if (db == null) {
+            return;
+        }
+        final String id = uuid.toString();
+        db.getDataClient().load(db.getPlayerTable(), id, data -> {
+            DataObject dataObject = playerData.get(uuid);
+            if (dataObject == null) {
+                dataObject = new DataObject();
+                playerData.put(uuid, dataObject);
+            }
+            dataObject.set(database, data);
+        });
     }
 
     public void loadDatabase(@NotNull String id, @NotNull ConfigurationSection section) {
@@ -455,6 +556,21 @@ public class DataCore implements Listener {
                 db.getDataClient().save(db.getPlayerTable(), uuid.toString(), data);
             }
         }
+    }
+
+    public void unloadPlayerData(@NotNull UUID uuid) {
+        final DataObject dataObject = playerData.remove(uuid);
+        if (dataObject == null) {
+            return;
+        }
+        for (var entry : dataObject.getData().entrySet()) {
+            final Database db = databases.get(entry.getKey());
+            if (db == null || db.getMessenger() == null) {
+                continue;
+            }
+            db.getMessenger().send(CHANNEL_MAIN, "player_|||_" + uuid + "_|||_" + entry.getKey() + "_|||_unload");
+        }
+        dataObject.clear();
     }
 
     public void clear() {
