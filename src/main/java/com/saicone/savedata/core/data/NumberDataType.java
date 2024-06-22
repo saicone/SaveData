@@ -1,5 +1,10 @@
 package com.saicone.savedata.core.data;
 
+import com.ezylang.evalex.EvaluationException;
+import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.parser.ParseException;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -7,6 +12,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class NumberDataType<T extends Number> extends DataType<T> {
@@ -15,6 +21,7 @@ public class NumberDataType<T extends Number> extends DataType<T> {
     private static final Map<Class<? extends Number>, Number> MIN_VALUES = new HashMap<>();
     private static final Map<Class<? extends Number>, Number> MAX_VALUES = new HashMap<>();
     private static final Map<Class<? extends Number>, Function<Number, ? extends Number>> TYPE_VALUES = new HashMap<>();
+    private static final Cache<String, Number> RESULT_CACHE = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
 
     static {
         MIN_VALUES.put(Byte.class, Byte.MIN_VALUE);
@@ -90,8 +97,8 @@ public class NumberDataType<T extends Number> extends DataType<T> {
     private final Function<Number, T> typeFunction;
     private final DecimalFormat decimalFormat;
 
-    public NumberDataType(@NotNull String id, @NotNull Class<T> typeClass, @Nullable T defaultValue, @Nullable String permission, @Nullable T min, @Nullable T max, @Nullable String format) {
-        super(id, typeClass, defaultValue, permission);
+    public NumberDataType(@NotNull String id, @NotNull Class<T> typeClass, @Nullable T defaultValue, @Nullable String permission, @Nullable String parse, boolean papi, @Nullable T min, @Nullable T max, @Nullable String format) {
+        super(id, typeClass, defaultValue, permission, parse, papi);
         this.min = min;
         this.max = max;
         this.format = format;
@@ -153,6 +160,20 @@ public class NumberDataType<T extends Number> extends DataType<T> {
             return min;
         }
         return typeFunction.apply(t);
+    }
+
+    @Override
+    public @NotNull Object parse(@NotNull String s) {
+        Number result = RESULT_CACHE.getIfPresent(s);
+        if (result == null) {
+            try {
+                result = new Expression(s).evaluate().getNumberValue();
+            } catch (EvaluationException | ParseException e) {
+                throw new RuntimeException(e);
+            }
+            RESULT_CACHE.put(s, result);
+        }
+        return result;
     }
 
     @Override

@@ -149,7 +149,13 @@ public class DataCore implements Listener {
         if (dataType == null) {
             return Result.INVALID_ID;
         }
-        value = OptionalType.of(value).as(dataType.getTypeClass());
+        final Player player;
+        if (type == Type.PLAYER) {
+            player = name instanceof UUID ? Bukkit.getPlayer((UUID) name) : Bukkit.getPlayer(String.valueOf(name));
+        } else {
+            player = null;
+        }
+        value = OptionalType.of(dataType.parse(player, value)).as(dataType.getTypeClass());
         final Object finalValue;
         if (operator == Operator.SET) {
             if (value == null) {

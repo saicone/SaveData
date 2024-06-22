@@ -12,7 +12,10 @@ public class LibraryLoader extends EzlibLoader {
 
     private static final Dependency HIKARI = new Dependency()
             .path("com{}zaxxer:HikariCP:5.0.1")
-            .relocate("com{}zaxxer{}hikari", "com{}saicone{}savedata{}lib{}hikari");
+            .relocate("com{}zaxxer{}hikari", "com{}saicone{}savedata{}libs{}hikari");
+    private static final Dependency EVAL_EX = new Dependency()
+            .path("com{}ezylang:EvalEx:3.2.0")
+            .relocate("com{}ezylang{}evalex", "com{}saicone{}savedata{}libs{}evalex");
 
     public LibraryLoader() {
         super(new String[] { null });

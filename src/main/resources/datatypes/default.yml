@@ -31,6 +31,12 @@ money:
   # Number format (optional)
   format: '#.##'
 
+number:
+  type: LONG
+  default: 0
+  # Parse by mathematical expression (Compatible with PlaceholderAPI)
+  parse: '{value} * 2'
+
 nick:
   type: STRING
   default: '&f%player_name%'

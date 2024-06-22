@@ -9,20 +9,14 @@ import org.jetbrains.annotations.Nullable;
 public class StringDataType extends DataType<String> {
 
     private final boolean color;
-    private final boolean papi;
 
-    public StringDataType(@NotNull String id, @Nullable String defaultValue, @Nullable String permission, boolean color, boolean papi) {
-        super(id, String.class, defaultValue, permission);
+    public StringDataType(@NotNull String id, @Nullable String defaultValue, @Nullable String permission, @Nullable String parse, boolean papi, boolean color) {
+        super(id, String.class, defaultValue, permission, parse, papi);
         this.color = color;
-        this.papi = papi;
     }
 
     public boolean isColor() {
         return color;
-    }
-
-    public boolean isPapi() {
-        return papi;
     }
 
     @Override
@@ -32,7 +26,12 @@ public class StringDataType extends DataType<String> {
 
     @Override
     public @NotNull String wrap(@NotNull String s, @Nullable Player player) {
-        return wrap(papi && player != null ? Placeholders.parse(player, s) : s);
+        return wrap(isPapi() && player != null ? Placeholders.parse(player, s) : s);
+    }
+
+    @Override
+    public @NotNull Object parse(@NotNull String s) {
+        return color ? MStrings.color(s) : s;
     }
 
     @Override

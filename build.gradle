@@ -26,8 +26,13 @@ dependencies {
 
     compileOnly 'me.clip:placeholderapi:2.11.6'
 
+    // Library loader
     implementation 'com.saicone.ezlib:ezlib:1.2.3'
     implementation 'com.saicone.ezlib:loader:1.2.3'
+
+    // Implementation
+    compileOnly 'com.zaxxer:HikariCP:5.0.1'
+    compileOnly 'com.ezylang:EvalEx:3.2.0'
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
 
@@ -51,5 +56,6 @@ jar {
 shadowJar {
     archiveClassifier.set('')
     relocate 'com.saicone.ezlib', project.group + '.ezlib'
-    relocate 'com.zaxxer.hikari', project.group + '.lib.hikari'
+    relocate 'com.zaxxer.hikari', project.group + '.libs.hikari'
+    relocate 'com.ezylang.evalex', project.group + '.libs.evalex'
 }

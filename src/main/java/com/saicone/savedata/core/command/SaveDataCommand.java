@@ -78,7 +78,7 @@ public class SaveDataCommand extends Command {
             name = args[1];
         }
         final Operator operator = Operator.valueOf(args[2].toUpperCase());
-        final Object value;
+        final String value;
         if (args.length < 6) {
             value = null;
         } else if (args.length == 6) {
