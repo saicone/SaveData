@@ -1,1 +1,11 @@
 rootProject.name = 'SaveData'
+
+// Common project
+include 'common'
+
+// Plugin platforms
+include(
+        'plugin:bukkit',
+        'plugin:bungee',
+        'plugin:velocity'
+)

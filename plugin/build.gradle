@@ -1,0 +1,10 @@
+subprojects {
+    dependencies {
+        implementation project(':common')
+    }
+
+    shadowJar {
+        archiveBaseName.set(rootProject.name + '-' + project.name)
+        destinationDirectory.set(file(rootProject.layout.buildDirectory.dir('libs')))
+    }
+}

@@ -1,0 +1,13 @@
+repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://libraries.minecraft.net' }
+}
+
+dependencies {
+    compileOnly 'net.md-5:bungeecord-api:1.21-R0.1-SNAPSHOT'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
