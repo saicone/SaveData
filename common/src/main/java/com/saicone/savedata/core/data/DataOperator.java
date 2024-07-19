@@ -12,7 +12,7 @@ public enum DataOperator {
     DIVIDE;
 
     public boolean isEval() {
-        return this == GET
+        return this == GET || this == CONTAINS;
     }
 
     public boolean isUpdate() {

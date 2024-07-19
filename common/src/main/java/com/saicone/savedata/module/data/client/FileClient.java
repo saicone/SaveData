@@ -130,7 +130,7 @@ public class FileClient implements DataClient {
                 try {
                     parsedValue = dataType.load(value);
                 } catch (Throwable t) {
-                    SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user, ", deleting it...");
+                    SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
                     continue;
                 }
                 node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue, expiration));
@@ -160,7 +160,7 @@ public class FileClient implements DataClient {
             try {
                 parsedValue = dataType.load(value);
             } catch (Throwable t) {
-                SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user, ", deleting it...");
+                SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
                 return null;
             }
             entry = new DataEntry<>(dataType, parsedValue, expiration);

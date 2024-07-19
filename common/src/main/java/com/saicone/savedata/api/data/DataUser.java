@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
 
 public class DataUser {
 
@@ -55,11 +54,6 @@ public class DataUser {
     public DataEntry<?> getEntry(@NotNull String database, @NotNull String key) {
         final DataNode node = nodes.get(database);
         return node == null ? null : node.get(key);
-    }
-
-    @Nullable
-    public Object getParsedValue(@NotNull String database, @NotNull String key, @Nullable Function<String, String> strParser) {
-
     }
 
     @Nullable

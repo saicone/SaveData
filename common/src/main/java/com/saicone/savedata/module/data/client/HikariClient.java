@@ -243,7 +243,7 @@ public class HikariClient implements DataClient {
                     try {
                         parsedValue = dataType.load(value);
                     } catch (Throwable t) {
-                        SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user, ", deleting it...");
+                        SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
                         toDelete.add(id);
                         continue;
                     }
@@ -285,7 +285,7 @@ public class HikariClient implements DataClient {
                     try {
                         parsedValue = dataType.load(value);
                     } catch (Throwable t) {
-                        SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user, ", deleting it...");
+                        SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
                         toDelete.add(id);
                         continue;
                     }
