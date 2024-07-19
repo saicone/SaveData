@@ -12,9 +12,9 @@ points:
   # BYTE    = number between -128 to 127
   # SHORT   = number between -32,768 to 32,767
   # INTEGER = number between -322,147,483,648 to 322,147,483,647
-  # LONG    = number between -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 (use it for large count)
+  # LONG    = number between -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
   # FLOAT   = fractional number, that stores 6-7 decimal digits
-  # DOUBLE  = fractional number, that stores 15 decimal digits (use it for currency numbers)
+  # DOUBLE  = fractional number, that stores 15 decimal digits
   type: INTEGER
   # Override the current id (optional)
   id: 'default.points'

@@ -1,10 +1,10 @@
 package com.saicone.savedata.module.lang;
 
-import com.saicone.savedata.SaveData;
+import com.saicone.mcode.util.MStrings;
+import com.saicone.mcode.util.Strings;
+import com.saicone.savedata.SaveDataBukkit;
 import com.saicone.savedata.module.settings.BukkitSettings;
-import com.saicone.savedata.util.MStrings;
-import com.saicone.savedata.util.OptionalType;
-import com.saicone.savedata.util.Strings;
+import com.saicone.types.Types;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,10 +55,10 @@ public enum Lang {
     }
 
     public static void onReload() {
-        SaveData.log(4, "Reloading messages...");
-        MESSAGES.loadFrom(SaveData.get().getDataFolder(), true);
+        SaveDataBukkit.log(4, "Reloading messages...");
+        MESSAGES.loadFrom(SaveDataBukkit.get().getDataFolder(), true);
         for (Lang value : VALUES) {
-            value.text = MESSAGES.getOptional(value.getPath()).asList(OptionalType::asString).stream().map(MStrings::color).collect(Collectors.toList());
+            value.text = MESSAGES.getOptional(value.getPath()).asList(Types.STRING).stream().map(MStrings::color).collect(Collectors.toList());
         }
     }
 }

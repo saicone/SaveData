@@ -1,9 +1,6 @@
 package com.saicone.savedata.core.command;
 
-import com.saicone.savedata.SaveData;
-import com.saicone.savedata.core.data.DataCore.Type;
-import com.saicone.savedata.core.data.DataCore.Operator;
-import com.saicone.savedata.core.data.DataCore.Result;
+import com.saicone.savedata.SaveDataBukkit;
 import com.saicone.savedata.module.lang.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,7 +19,7 @@ public class SaveDataCommand extends Command {
     private static final List<String> TYPE = List.of("reload", "player", "global");
     private static final List<String> OPERATOR = List.of("set", "get", "add", "delete", "substract", "multiply", "divide");
 
-    private final SaveData plugin = SaveData.get();
+    private final SaveDataBukkit plugin = SaveDataBukkit.get();
 
     public SaveDataCommand() {
         super("savedata", "Main command for SaveData plugin", "/savedata", List.of("sd", "sdata"));

@@ -1,0 +1,25 @@
+# Plugin configuration
+Plugin:
+  # 1 = errors, 2 = warnings, 3 = information, 4 = debug
+  # Set to 0 to disable
+  LogLevel: 3
+  # Player information provider:
+  # AUTO       = Choose automatically the best available option
+  # LUCKPERMS  = Use LuckPerms plugin.
+  # ESSENTIALS = Use EssentialsX plugin.
+  # BUKKIT     = Use the default Bukkit offline player methods (it also acts like fallback value)
+  PlayerProvider: AUTO
+
+
+
+# Plugin hooks configuration
+Hook:
+  # PlaceholderAPI hook
+  PlaceholderAPI:
+    # Enable or not this hook
+    Enabled: true
+    # Identifiers to parse placeholder expansion
+    Names:
+      - 'data'
+      - 'savedata'
+      - 'sd'

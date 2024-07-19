@@ -1,0 +1,125 @@
+# Database id, must be unique
+default:
+  # Current database types:
+  #
+  # FILE = Save data on files
+  # SQL  = Save data on SQL database
+  type: FILE
+  # File type configuration
+  file:
+    # Current file types:
+    #
+    # JSON  = Save data on .json files
+    # YAML  = Save data on .yml files
+    # HOCON = Save data on .conf files
+    # TOML  = Save data on .toml files
+    type: JSON
+
+
+
+# Database id
+# This is an MySQL database connection example, below are more examples with other database types
+# Copy & paste to configure your own database connection
+mysql-example:
+  # Enable or not this database
+  enabled: false
+  type: SQL
+  # Sql type configuration
+  sql:
+    # Local sql databases (no additional config needed):
+    # - H2 (recommended)
+    # - SQLITE
+    #
+    # External sql databases:
+    # - MYSQL
+    # - MARIADB
+    # - POSTGRESQL
+    type: MYSQL
+    # Table name
+    table: 'savedata_data'
+    # Database host
+    host: localhost
+    # Database port
+    port: 3306
+    # Database name
+    database: 'database'
+    # Database user
+    username: 'root'
+    # Database password
+    password: 'password'
+    # Pool size
+    pool-size: 10
+    # URL flags
+    flags:
+      - 'useSSL=false'
+  # Messenger configuration
+  messenger:
+    # Enable or not a messenger instance on this database to maintain data updated on every server that use the database
+    # This option also load and update online player data between linked servers
+    enabled: false
+    # Table prefix for messenger instance
+    prefix: 'savedata_'
+
+
+
+mariadb-example:
+  enabled: false
+  type: SQL
+  sql:
+    type: MARIADB
+    table: 'savedata_data'
+    host: localhost
+    port: 3306
+    database: 'database'
+    username: 'root'
+    password: 'password'
+    pool-size: 10
+    flags:
+      - 'useSSL=false'
+  messenger:
+    enabled: false
+    prefix: 'savedata_'
+
+
+
+postgresql-example:
+  enabled: false
+  type: SQL
+  sql:
+    type: POSTGRESQL
+    table: 'savedata_data'
+    host: localhost
+    port: 3306
+    database: 'database'
+    username: 'root'
+    password: 'password'
+    pool-size: 10
+    flags:
+      - 'useSSL=false'
+  messenger:
+    enabled: false
+    prefix: 'savedata_'
+
+
+
+sqlite-example:
+  enabled: false
+  type: SQL
+  sql:
+    type: SQLITE
+    table: 'savedata_data'
+  messenger:
+    enabled: false
+    prefix: 'savedata_'
+
+
+
+h2-example:
+  enabled: false
+  type: SQL
+  sql:
+    type: H2
+    table: 'savedata_data'
+  messenger:
+    enabled: false
+    prefix: 'savedata_'
