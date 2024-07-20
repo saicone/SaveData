@@ -3,6 +3,8 @@ package com.saicone.savedata.api.data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
 public class DataEntry<T> {
 
     private Integer id;
@@ -11,6 +13,7 @@ public class DataEntry<T> {
     private T value;
     private Long expiration = 0L;
 
+    private transient Object userValue;
     private transient boolean edited;
 
     public DataEntry(@NotNull DataType<T> type) {
@@ -66,6 +69,19 @@ public class DataEntry<T> {
         return type.save(value);
     }
 
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public Object getUserValue(@NotNull Function<String, String> userParser) {
+        if (userValue == null) {
+            T tempValue = value;
+            if (tempValue instanceof String && type.isUserParseable()){
+                tempValue = (T) userParser.apply((String) tempValue);
+            }
+            userValue = type.eval(tempValue);
+        }
+        return userValue;
+    }
+
     public long getExpiration() {
         return expiration;
     }
@@ -77,6 +93,7 @@ public class DataEntry<T> {
     public void setValue(@Nullable T value) {
         this.value = value;
         this.edited = true;
+        this.userValue = null;
     }
 
     public void setExpiration(long expiration) {

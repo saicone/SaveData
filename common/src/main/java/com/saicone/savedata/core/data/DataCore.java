@@ -168,11 +168,7 @@ public class DataCore {
                 return null;
             }
             if (operator == DataOperator.GET) {
-                Object entryValue = entry.getValue();
-                if (entryValue instanceof String && entry.getType().isUserParseable()) {
-                    entryValue = userParser.apply((String) entryValue);
-                }
-                return entry.getType().eval(entryValue);
+                return entry.getUserValue(userParser);
             } else if (operator == DataOperator.CONTAINS && entry.getType() instanceof CollectionDataType) {
                 if (value == null) {
                     return null;
