@@ -98,11 +98,11 @@ public class PlayerProvider {
         if (cached == null) {
             var player = Bukkit.getPlayer(name);
             if (player != null) {
-                ID_CACHE.put(name, player.getUniqueId());
+                cached = player.getUniqueId();
             } else {
-                ID_CACHE.put(name, INSTANCE.uniqueId(name));
+                cached = INSTANCE.uniqueId(name);
             }
-            cached = ID_CACHE.getIfPresent(name);
+            ID_CACHE.put(name, cached);
         }
         return cached;
     }

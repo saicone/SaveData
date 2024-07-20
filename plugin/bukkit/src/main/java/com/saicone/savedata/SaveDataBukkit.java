@@ -40,7 +40,7 @@ public class SaveDataBukkit extends JavaPlugin implements SaveDataPlugin {
         PlayerProvider.compute(SaveData.settings().getIgnoreCase("plugin", "playerprovider").asString("AUTO"));
         getServer().getPluginManager().registerEvents(new BukkitListener(), this);
         if (command == null) {
-            command = new SaveDataCommand();
+            command = new SaveDataCommand(this);
             BukkitCommand.register(command);
         }
         registerPlaceholders();
@@ -116,7 +116,7 @@ public class SaveDataBukkit extends JavaPlugin implements SaveDataPlugin {
                     dataType = params[2];
                     value = null;
                 }
-                return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str));
+                return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str)).join();
             });
         }
     }

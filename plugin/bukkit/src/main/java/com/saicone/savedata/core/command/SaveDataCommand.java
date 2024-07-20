@@ -1,99 +1,149 @@
 package com.saicone.savedata.core.command;
 
+import com.saicone.savedata.SaveData;
 import com.saicone.savedata.SaveDataBukkit;
+import com.saicone.savedata.api.data.DataUser;
+import com.saicone.savedata.core.data.DataOperator;
+import com.saicone.savedata.core.data.DataResult;
+import com.saicone.savedata.module.hook.Placeholders;
+import com.saicone.savedata.module.hook.PlayerProvider;
 import com.saicone.savedata.module.lang.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class SaveDataCommand extends Command {
 
-    private static final List<String> TYPE = List.of("reload", "player", "global");
-    private static final List<String> OPERATOR = List.of("set", "get", "add", "delete", "substract", "multiply", "divide");
+    private static final List<String> TYPE = List.of(
+            "reload",
+            "player",
+            "global",
+            "server"
+    );
+    private static final List<String> OPERATOR = List.of(
+            "get",
+            "contains",
+            "delete",
+            "set",
+            "add",
+            "substract",
+            "multiply",
+            "divide"
+    );
 
-    private final SaveDataBukkit plugin = SaveDataBukkit.get();
+    private final SaveDataBukkit plugin;
 
-    public SaveDataCommand() {
+    public SaveDataCommand(@NotNull SaveDataBukkit plugin) {
         super("savedata", "Main command for SaveData plugin", "/savedata", List.of("sd", "sdata"));
+        this.plugin = plugin;
         setPermission("savedata.use;savedata.*");
     }
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String cmd, @NotNull String[] args) {
-        if (args.length < 5 || !TYPE.contains(args[0]) || !OPERATOR.contains(args[2])) {
+        if (!testPermission(sender)) {
+            return true;
+        }
+
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+            final long before = System.currentTimeMillis();
+            if (args[0].equalsIgnoreCase("reload")) {
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                    plugin.onReload();
+                    final long time = System.currentTimeMillis() - before;
+                    Lang.COMMAND_RELOAD.sendTo(sender, time);
+                });
+                return true;
+            }
+        }
+
+        if (args.length < 4 || !TYPE.contains(args[0].toLowerCase())) {
             Lang.COMMAND_HELP.sendTo(sender, cmd);
             return true;
         }
 
-        final long before = System.currentTimeMillis();
-        if (args[0].equalsIgnoreCase("reload")) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                plugin.onReload();
-                final long time = System.currentTimeMillis() - before;
-                Lang.COMMAND_RELOAD.sendTo(sender, time);
+        final UUID uniqueId;
+        final String database;
+        final String dataType;
+        final DataOperator operator;
+        final String value;
+        final Long expiration;
+        final Function<String, String> userParser;
+        if (args[0].equalsIgnoreCase("player")) {
+            uniqueId = args[1].contains("-") ? UUID.fromString(args[1]) : PlayerProvider.getUniqueId(args[1]);
+            if (args.length < 5) {
+                Lang.COMMAND_HELP.sendTo(sender, cmd);
+                return true;
+            }
+            database = args[2];
+            dataType = args[3];
+            if (!OPERATOR.contains(args[4].toLowerCase())) {
+                Lang.COMMAND_HELP.sendTo(sender, cmd);
+                return true;
+            }
+            operator = DataOperator.valueOf(args[4].toUpperCase());
+            value = args.length > 5 ? args[5] : null;
+            expiration = args.length > 6 ? parseExpiration(String.join(" ", Arrays.copyOfRange(args, 6, args.length))) : null;
+            final OfflinePlayer player = Bukkit.getOfflinePlayer(uniqueId);
+            userParser = s -> Placeholders.parse(player, s);
+        } else {
+            uniqueId = DataUser.SERVER_ID;
+            database = args[1];
+            dataType = args[2];
+            if (!OPERATOR.contains(args[3].toLowerCase())) {
+                Lang.COMMAND_HELP.sendTo(sender, cmd);
+                return true;
+            }
+            operator = DataOperator.valueOf(args[3].toUpperCase());
+            value = args.length > 4 ? args[4] : null;
+            expiration = args.length > 5 ? parseExpiration(String.join(" ", Arrays.copyOfRange(args, 5, args.length))) : null;
+            userParser = s -> Placeholders.parse(null, s);
+        }
+
+        if (!SaveData.get().getDataCore().getDatabases().containsKey(database)) {
+            Lang.COMMAND_ERROR_DATABASE.sendTo(sender, database);
+            return true;
+        }
+
+        if (!SaveData.get().getDataCore().getDataTypes().containsKey(dataType)) {
+            Lang.COMMAND_ERROR_DATATYPE.sendTo(sender, dataType);
+            return true;
+        }
+
+        if (operator.isEval()) {
+            SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser).thenAccept(result -> {
+                if (operator == DataOperator.GET) {
+                    Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);
+                } else if (result instanceof Boolean) {
+                    Lang.COMMAND_DATA_CONTAINS.sendTo(sender, result);
+                } else if (result instanceof DataResult) {
+                    Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value);
+                }
             });
             return true;
         }
 
-        if (!plugin.getDataCore().getDatabases().containsKey(args[3])) {
-            Lang.COMMAND_ERROR_DATABASE.sendTo(sender, args[3]);
-            return true;
-        }
-        if (!plugin.getDataCore().getDataTypes().containsKey(args[4])) {
-            Lang.COMMAND_ERROR_DATATYPE.sendTo(sender, args[4]);
-            return true;
-        }
+        final long before = System.currentTimeMillis();
         final boolean getResult = args[args.length - 1].equalsIgnoreCase("-result");
-        if (getResult) {
-            args = Arrays.copyOf(args, args.length - 1);
-        }
-
-        final Type type;
-        final Object name;
-        if (args[0].equalsIgnoreCase("player")) {
-            type = Type.PLAYER;
-            final Player player = Bukkit.getPlayer(args[1]);
-            if (player != null) {
-                name = player.getUniqueId();
-            } else {
-                name = plugin.getDataCore().getLinkedPlayers().get(args[1]);
-                if (name == null) {
-                    Lang.COMMAND_ERROR_PLAYER.sendTo(sender, args[1]);
-                    return true;
-                }
-            }
-        } else {
-            type = Type.GLOBAL;
-            name = args[1];
-        }
-        final Operator operator = Operator.valueOf(args[2].toUpperCase());
-        final String value;
-        if (args.length < 6) {
-            value = null;
-        } else if (args.length == 6) {
-            value = args[5];
-        } else {
-            value = String.join(" ", Arrays.copyOfRange(args, 5, args.length));
-        }
-        final Object result = plugin.getDataCore().onExecute(type, name, operator, args[3], args[4], value);
-
-        if (operator == Operator.GET) {
-            Lang.COMMAND_DATA_GET.sendTo(sender, args[1], args[3], args[4], result);
-        } else {
-            if (result instanceof Result) {
-                switch ((Result) result) {
+        SaveData.get().getDataCore().executeUpdate(uniqueId, operator, database, dataType, value, expiration, userParser).thenAccept(result -> {
+            if (result instanceof DataResult) {
+                switch ((DataResult) result) {
                     case INVALID_OPERATOR:
                         Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, args[2]);
                         break;
-                    case INVALID_ID:
+                    case INVALID_TYPE:
                         Lang.COMMAND_DATA_ERROR_ID.sendTo(sender, args[4]);
                         break;
                     case INVALID_VALUE:
@@ -105,12 +155,26 @@ public class SaveDataCommand extends Command {
                     default:
                         break;
                 }
-            } else if (getResult) {
+            } else if (getResult && result instanceof Pair) {
                 final long time = System.currentTimeMillis() - before;
-                Lang.COMMAND_DATA_EDIT.sendTo(sender, args[1], args[3], args[4], result, plugin.getDataCore().getDataValue(type, name, args[3], args[4]), time);
+                Lang.COMMAND_DATA_EDIT.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, ((Pair<?, ?>) result).getValue0(), ((Pair<?, ?>) result).getValue1(), time);
             }
-        }
+        });
+
         return true;
+    }
+
+    @Nullable
+    private Long parseExpiration(@NotNull String s) {
+        final String[] split = s.split(" ", 2);
+        if (split.length < 2) {
+            return null;
+        }
+        try {
+            return System.currentTimeMillis() + TimeUnit.valueOf(split[1].toUpperCase()).toMillis(Long.parseLong(split[0]));
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     @NotNull
@@ -132,10 +196,10 @@ public class SaveDataCommand extends Command {
             return List.of();
         }
         if (args.length == 4) {
-            return new ArrayList<>(plugin.getDataCore().getDatabases().keySet());
+            return new ArrayList<>(SaveData.get().getDataCore().getDatabases().keySet());
         }
         if (args.length == 5) {
-            return new ArrayList<>(plugin.getDataCore().getDataTypes().keySet());
+            return new ArrayList<>(SaveData.get().getDataCore().getDataTypes().keySet());
         }
         return List.of();
     }

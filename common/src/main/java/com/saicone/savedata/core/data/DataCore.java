@@ -7,10 +7,12 @@ import com.saicone.savedata.api.data.DataNode;
 import com.saicone.savedata.api.data.DataType;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.api.data.type.CollectionDataType;
+import com.saicone.savedata.util.DurationFormatter;
 import com.saicone.settings.Settings;
 import com.saicone.settings.SettingsData;
 import com.saicone.settings.SettingsNode;
 import com.saicone.settings.node.MapNode;
+import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,11 +20,12 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DataCore {
@@ -118,27 +121,24 @@ public class DataCore {
         return CompletableFuture.supplyAsync(() -> loadUser(uniqueId), executor);
     }
 
+    @NotNull
+    public CompletableFuture<DataUser> getUserTemporary(@NotNull UUID uniqueId) {
+        final DataUser user = userData.get(uniqueId);
+        if (user != null) {
+            return CompletableFuture.completedFuture(user);
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            final DataUser loaded = loadUser(uniqueId);
+            if (!uniqueId.equals(DataUser.SERVER_ID)) {
+                userData.remove(uniqueId);
+            }
+            return loaded;
+        }, executor);
+    }
+
     @Nullable
     public DataUser getUserOrNull(@NotNull UUID uniqueId) {
         return userData.get(uniqueId);
-    }
-
-    public void getUserTemporary(@NotNull UUID uniqueId, @NotNull Consumer<DataUser> consumer) {
-        getUserTemporary(uniqueId, (user) -> {
-            consumer.accept(user);
-            return null;
-        });
-    }
-
-    public <T> T getUserTemporary(@NotNull UUID uniqueId, @NotNull Function<DataUser, T> function) {
-        final DataUser user;
-        if (userData.containsKey(uniqueId)) {
-            user = userData.get(uniqueId);
-        } else {
-            user = loadUser(uniqueId);
-            userData.remove(uniqueId);
-        }
-        return function.apply(user);
     }
 
     @NotNull
@@ -151,23 +151,34 @@ public class DataCore {
         return userData.get(DataUser.SERVER_ID);
     }
 
-    @Nullable
-    public Object userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value) {
+    @NotNull
+    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value) {
         return userValue(uniqueId, operator, database, dataType, value, s -> s);
     }
 
-    @Nullable
+    @NotNull
     @SuppressWarnings("unchecked")
-    public Object userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
+    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
         if (!operator.isEval()) {
-            return DataResult.INVALID_OPERATOR;
+            return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
-        return getUserTemporary(uniqueId, user -> {
+        return getUserTemporary(uniqueId).thenApply(user -> {
             final DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null || entry.getValue() == null) {
                 return null;
             }
             if (operator == DataOperator.GET) {
+                if (value instanceof String && ((String) value).equalsIgnoreCase("expiry")) {
+                    if (entry.isTemporary()) {
+                        final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
+                        if (duration.isNegative()) {
+                            return 0;
+                        }
+                        return DurationFormatter.CONCISE.format(duration);
+                    } else {
+                        return 0;
+                    }
+                }
                 return entry.getUserValue(userParser);
             } else if (operator == DataOperator.CONTAINS && entry.getType() instanceof CollectionDataType) {
                 if (value == null) {
@@ -185,18 +196,18 @@ public class DataCore {
         });
     }
 
-    @Nullable
-    public Object executeUpdate(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Long expiration) {
+    @NotNull
+    public CompletableFuture<Object> executeUpdate(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Long expiration) {
         return executeUpdate(uniqueId, operator, database, dataType, value, expiration, s -> s);
     }
 
-    @Nullable
+    @NotNull
     @SuppressWarnings("unchecked")
-    public Object executeUpdate(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Long expiration, @NotNull Function<String, String> userParser) {
+    public CompletableFuture<Object> executeUpdate(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Long expiration, @NotNull Function<String, String> userParser) {
         if (!operator.isUpdate()) {
-            return DataResult.INVALID_OPERATOR;
+            return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
-        return getUserTemporary(uniqueId, user -> {
+        return getUserTemporary(uniqueId).thenApply(user -> {
             DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null) {
                 final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
@@ -242,12 +253,14 @@ public class DataCore {
                     }
                 }
             }
+            final Object oldValue = entry.getValue();
             entry.setValue(result);
             if (expiration != null) {
                 entry.setExpiration(expiration);
             }
-            databases.get(database).saveDataEntry(uniqueId, entry);
-            return result;
+            final DataEntry<Object> finalEntry = entry;
+            Task.runAsync(() -> databases.get(database).saveDataEntry(uniqueId, finalEntry));
+            return Pair.with(oldValue, result);
         });
     }
 

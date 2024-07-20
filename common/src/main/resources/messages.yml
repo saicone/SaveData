@@ -23,6 +23,7 @@ command:
   reload: '&aThe plugin was successfully reloaded! [&f{0} ms&a]'
   data:
     get: '&aThe data for user &f{0}&a, inside database &f{1}&a, with type &f{2} &ais: &e{3}'
+    contains: '&aResult: &f{0}'
     edit:
       - '&a=Data edit &f(user = &b{0}&f, database = &b{1}&f, data type = &b{2}&f)'
       - '  &aBefore: &f{3}'
@@ -34,6 +35,6 @@ command:
       value: '&cThe value &6{0} &ccannot be converted to required type'
       modify: '&cCannot modify the required value (There''s not a default value set in config)'
   error:
-    player: '&cThe player &6{0} &cis not online'
+    player: '&cThe player &6{0} &cdoesn''t exists'
     database: '&cThe database &6{0} &cdoesn''t exists'
     datatype: '&cThe data type &6{0} &cdoesn''t exists'

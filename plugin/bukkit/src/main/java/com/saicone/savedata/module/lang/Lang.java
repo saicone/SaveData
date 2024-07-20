@@ -2,7 +2,7 @@ package com.saicone.savedata.module.lang;
 
 import com.saicone.mcode.util.MStrings;
 import com.saicone.mcode.util.Strings;
-import com.saicone.savedata.SaveDataBukkit;
+import com.saicone.savedata.SaveData;
 import com.saicone.savedata.module.settings.BukkitSettings;
 import com.saicone.types.Types;
 import org.bukkit.command.CommandSender;
@@ -18,6 +18,7 @@ public enum Lang {
     COMMAND_HELP("command.help"),
     COMMAND_RELOAD("command.reload"),
     COMMAND_DATA_GET("command.data.get"),
+    COMMAND_DATA_CONTAINS("command.data.contains"),
     COMMAND_DATA_EDIT("command.data.edit"),
     COMMAND_DATA_ERROR_OPERATOR("command.data.error.operator"),
     COMMAND_DATA_ERROR_ID("command.data.error.id"),
@@ -55,8 +56,7 @@ public enum Lang {
     }
 
     public static void onReload() {
-        SaveDataBukkit.log(4, "Reloading messages...");
-        MESSAGES.loadFrom(SaveDataBukkit.get().getDataFolder(), true);
+        MESSAGES.loadFrom(SaveData.plugin().getFolder().toFile(), true);
         for (Lang value : VALUES) {
             value.text = MESSAGES.getOptional(value.getPath()).asList(Types.STRING).stream().map(MStrings::color).collect(Collectors.toList());
         }

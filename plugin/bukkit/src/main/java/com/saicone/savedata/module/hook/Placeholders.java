@@ -51,7 +51,7 @@ public class Placeholders {
 
     @Nullable
     @Contract("_, !null -> !null")
-    public static String parse(@NotNull OfflinePlayer player, @Nullable String s) {
+    public static String parse(@Nullable OfflinePlayer player, @Nullable String s) {
         if (s != null && isEnabled()) {
             return PlaceholderAPI.setPlaceholders(player, s);
         }
@@ -59,7 +59,7 @@ public class Placeholders {
     }
 
     @NotNull
-    public static List<String> parse(@NotNull OfflinePlayer player, @NotNull Collection<String> collection) {
+    public static List<String> parse(@Nullable OfflinePlayer player, @NotNull Collection<String> collection) {
         if (!collection.isEmpty() && isEnabled()) {
             final List<String> list = new ArrayList<>();
             for (String s : collection) {
@@ -72,7 +72,7 @@ public class Placeholders {
 
     @Nullable
     @Contract("_, !null -> !null")
-    public static String parseBracket(@NotNull OfflinePlayer player, @Nullable String s) {
+    public static String parseBracket(@Nullable OfflinePlayer player, @Nullable String s) {
         if (s != null && isEnabled()) {
             return PlaceholderAPI.setBracketPlaceholders(player, s);
         }
@@ -80,7 +80,7 @@ public class Placeholders {
     }
 
     @NotNull
-    public static List<String> parseBracket(@NotNull OfflinePlayer player, @NotNull Collection<String> collection) {
+    public static List<String> parseBracket(@Nullable OfflinePlayer player, @NotNull Collection<String> collection) {
         if (!collection.isEmpty() && isEnabled()) {
             final List<String> list = new ArrayList<>();
             for (String s : collection) {
