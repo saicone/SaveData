@@ -1,5 +1,7 @@
 package com.saicone.savedata;
 
+import com.saicone.ezlib.Dependencies;
+import com.saicone.ezlib.Dependency;
 import com.saicone.ezlib.EzlibLoader;
 import com.saicone.mcode.util.Strings;
 import com.saicone.savedata.core.data.DataCore;
@@ -11,6 +13,31 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+@Dependencies(value = {
+        // Javatuples
+        @Dependency(value = "org.javatuples:javatuples:1.2", relocate = {"org.javatuples", "{package}.libs.javatuples"}),
+        // Hikari
+        @Dependency(value = "com.zaxxer:HikariCP:5.1.0", relocate = {
+                "com.zaxxer.hikari", "{package}.libs.hikari",
+                "org.slf4j", "{package}.libs.slf4j"
+        }),
+        @Dependency(value = "org.slf4j:slf4j-nop:1.7.36", relocate = {"org.slf4j", "{package}.libs.slf4j"}),
+        // EvalEx
+        @Dependency(value = "com.ezylang:EvalEx:3.2.0", relocate = {"com.ezylang.evalex", "{package}.libs.evalex"}),
+        // Settings
+        @Dependency("com.saicone.settings:settings:1.0"),
+        @Dependency("com.saicone.settings:settings-gson:1.0"),
+        @Dependency("com.saicone.settings:settings-hocon:1.0"),
+        @Dependency("com.saicone.settings:settings-toml:1.0"),
+        @Dependency(value = "com.saicone.settings:settings-yaml:1.0", transitive = false),
+        // Delivery4j
+        @Dependency("com.saicone.delivery4j:delivery4j:1.0"),
+        @Dependency(value = "com.saicone.delivery4j:delivery4j-hikari:1.0", transitive = false)
+}, relocations = {
+        "com.saicone.types", "{package}.libs.types",
+        "com.saicone.settings", "{package}.libs.settings",
+        "com.saicone.delivery4j", "{package}.libs.delivery4j"
+})
 public class SaveData {
 
     private static SaveData instance;
@@ -82,10 +109,14 @@ public class SaveData {
     public SaveData(@NotNull SaveDataPlugin plugin) {
         this.plugin = plugin;
         this.libraryLoader = new EzlibLoader()
-                .logger(SaveData::log)
+                .logger((level, msg) -> {
+                    if (level < 4) {
+                        plugin.log(level, () -> msg);
+                    }
+                })
                 .replace("{package}", "com.saicone.savedata")
                 .load();
-        this.settings = SettingsData.of("settings.*").or(DataType.INPUT_STREAM, "settings.yml");
+        this.settings = SettingsData.of("settings.yml").or(DataType.INPUT_STREAM, "settings.yml");
         this.dataCore = new DataCore();
     }
 

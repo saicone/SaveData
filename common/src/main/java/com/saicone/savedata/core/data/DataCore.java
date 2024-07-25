@@ -38,7 +38,7 @@ public class DataCore {
 
     public void onLoad() {
         // Load databases
-        final Settings databaseConfig = SettingsData.of("databases.*").or(com.saicone.settings.data.DataType.INPUT_STREAM, "databases.yml").load();
+        final Settings databaseConfig = SettingsData.of("databases.yml").or(com.saicone.settings.data.DataType.INPUT_STREAM, "databases.yml").load(SaveData.plugin().getFolder().toFile());
         for (Map.Entry<String, SettingsNode> entry : databaseConfig.getValue().entrySet()) {
             if (entry.getValue().isMap()) {
                 final MapNode node = entry.getValue().asMapNode();
@@ -266,6 +266,15 @@ public class DataCore {
 
     protected void loadDataTypes(@NotNull Path path) {
         if (!Files.exists(path)) {
+            if (path.endsWith("datatypes")) {
+                try {
+                    Files.createDirectories(path);
+                    SettingsData.of(com.saicone.settings.data.DataType.INPUT_STREAM, "datatypes/default.yml").saveInto(SettingsData.of("default.yml").parentFolder(path.toFile()));
+                    loadDataTypes(path.resolve("default.yml"));
+                } catch (IOException e) {
+                    SaveData.logException(2, e, "Cannot create " + path + " directory");
+                }
+            }
             return;
         }
         if (Files.isDirectory(path)) {

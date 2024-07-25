@@ -1,42 +1,28 @@
-plugins {
-    id 'java-library'
-}
-
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(sourceSets.main.resources.srcDirs) {
-        include '**/*.yml'
-        expand(rootProject.properties)
-    }
-}
-
 dependencies {
     compileOnly 'com.google.guava:guava:32.1.2-jre'
 
     // Library loader
     implementation 'com.saicone.ezlib:ezlib:1.2.3'
     implementation 'com.saicone.ezlib:loader:1.2.3'
+    compileOnly 'com.saicone.ezlib:annotations:1.2.3'
+    annotationProcessor 'com.saicone.ezlib:annotations:1.2.3'
 
     // MCode
-    compileOnlyApi 'com.github.saicone.mcode:common:f5f139923c'
-    compileOnlyApi 'com.github.saicone.mcode:module-task:f5f139923c'
+    compileOnly 'com.github.saicone.mcode:common:a9de3782ef'
+    compileOnly 'com.github.saicone.mcode:module-task:a9de3782ef'
 
     // Implementation
-    compileOnlyApi 'org.javatuples:javatuples:1.2'
-    compileOnlyApi 'com.zaxxer:HikariCP:5.0.1'
-    compileOnlyApi 'com.ezylang:EvalEx:3.2.0'
-    compileOnlyApi 'com.saicone.settings:settings:1.0'
-    compileOnlyApi('com.saicone.settings:settings-yaml:1.0') { transitive = false }
-    compileOnlyApi 'com.saicone.delivery4j:delivery4j:1.0'
-    compileOnlyApi('com.saicone.delivery4j:delivery4j-hikari:1.0') { transitive = false }
+    compileOnly 'org.javatuples:javatuples:1.2'
+    compileOnly 'com.saicone.settings:settings:1.0'
+    compileOnly 'com.zaxxer:HikariCP:5.0.1'
+    compileOnly 'com.ezylang:EvalEx:3.2.0'
+    compileOnly 'com.saicone.delivery4j:delivery4j:1.0'
+    compileOnly('com.saicone.delivery4j:delivery4j-hikari:1.0') { transitive = false }
 }
 
 shadowJar {
     relocate 'com.saicone.ezlib', project.group + '.ezlib'
-    relocate 'com.saicone.mcode', project.group + '.mcode'
     relocate 'com.zaxxer.hikari', project.group + '.libs.hikari'
     relocate 'com.ezylang.evalex', project.group + '.libs.evalex'
-    relocate 'com.saicone.types', project.group + '.libs.types'
-    relocate 'com.saicone.settings', project.group + '.libs.settings'
     relocate 'com.saicone.delivery4j', project.group + '.libs.delivery4j'
 }

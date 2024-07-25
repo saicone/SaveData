@@ -1,9 +1,12 @@
 plugins {
-    id 'io.github.goooler.shadow' version '8.1.7'
+    id 'io.github.goooler.shadow' version '8.1.8' apply false
 }
 
 allprojects {
     apply plugin: 'java'
+}
+
+subprojects {
     apply plugin: 'idea'
     apply plugin: 'io.github.goooler.shadow'
 
@@ -41,12 +44,10 @@ allprojects {
 
     shadowJar {
         archiveClassifier.set('')
+        minimize()
     }
 }
 
-dependencies {
-    implementation project(':common')
-    implementation project('plugin:bukkit')
-    implementation project('plugin:bungee')
-    implementation project('plugin:velocity')
+jar {
+    enabled = false
 }

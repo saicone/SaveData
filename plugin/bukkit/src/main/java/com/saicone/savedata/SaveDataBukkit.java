@@ -1,5 +1,8 @@
 package com.saicone.savedata;
 
+import com.saicone.mcode.bukkit.BukkitPlatform;
+import com.saicone.mcode.bukkit.scheduler.BukkitScheduler;
+import com.saicone.mcode.scheduler.Task;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.command.SaveDataCommand;
 import com.saicone.savedata.core.data.DataOperator;
@@ -25,7 +28,11 @@ public class SaveDataBukkit extends JavaPlugin implements SaveDataPlugin {
     private Set<String> placeholderNames;
 
     public SaveDataBukkit() {
+        try {
+            BukkitPlatform.init();
+        } catch (Throwable ignored) { }
         SaveData.init(new SaveData(this));
+        Task.setScheduler(new BukkitScheduler(this));
     }
 
     @Override

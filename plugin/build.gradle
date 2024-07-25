@@ -1,10 +1,20 @@
 subprojects {
     dependencies {
-        implementation project(':common')
+        implementation project(path: ':common', configuration: 'shadow')
+
+        implementation 'com.github.saicone.mcode:common:a9de3782ef'
+        implementation 'com.github.saicone.mcode:module-task:a9de3782ef'
+
+        implementation 'org.javatuples:javatuples:1.2'
+        implementation 'com.saicone.settings:settings:1.0'
     }
 
     shadowJar {
         archiveBaseName.set(rootProject.name + '-' + project.name)
         destinationDirectory.set(file(rootProject.layout.buildDirectory.dir('libs')))
+        relocate 'com.saicone.mcode', project.group + '.mcode'
+        relocate 'com.saicone.types', project.group + '.libs.types'
+        relocate 'org.javatuples', project.group + '.libs.javatuples'
+        relocate 'com.saicone.settings', project.group + '.libs.settings'
     }
 }

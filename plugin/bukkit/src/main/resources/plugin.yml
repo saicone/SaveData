@@ -1,6 +1,6 @@
 name: SaveData
 version: ${version}
-main: com.saicone.savedata.SaveData
+main: com.saicone.savedata.SaveDataBukkit
 authors: [Rubenicos]
 api-version: 1.13
 soft-depend: [PlaceholderAPI]

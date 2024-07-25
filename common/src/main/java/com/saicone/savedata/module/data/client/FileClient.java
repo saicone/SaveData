@@ -106,34 +106,37 @@ public class FileClient implements DataClient {
 
     @Override
     public @NotNull DataNode loadData(@NotNull UUID user, @NotNull Function<String, DataType<Object>> dataProvider) {
-        final long time = System.currentTimeMillis();
         final DataNode node = new DataNode(this.databaseName);
-        final Settings config = getData(user).load();
-        if (!config.isEmpty()) {
-            for (Map.Entry<String, SettingsNode> entry : config.getValue().entrySet()) {
-                if (!entry.getValue().isMap()) {
-                    continue;
+        final SettingsData<Settings> data = getData(user);
+        if (data.getFile().exists()) {
+            final long time = System.currentTimeMillis();
+            final Settings config = data.load();
+            if (!config.isEmpty()) {
+                for (Map.Entry<String, SettingsNode> entry : config.getValue().entrySet()) {
+                    if (!entry.getValue().isMap()) {
+                        continue;
+                    }
+                    final DataType<Object> dataType = dataProvider.apply(entry.getKey());
+                    if (dataType == null) {
+                        SaveData.log(2, "Found invalid data type '" + entry.getKey() + "' for user " + user, ", ignoring it...");
+                        continue;
+                    }
+                    final MapNode map = entry.getValue().asMapNode();
+                    final long expiration = map.getIgnoreCase("expiration").asLong(0L);
+                    if (expiration > 0 && time >= expiration) {
+                        continue;
+                    }
+                    final String type = map.getIgnoreCase("type").asString();
+                    final String value = map.getIgnoreCase("value").asString();
+                    final Object parsedValue;
+                    try {
+                        parsedValue = dataType.load(value);
+                    } catch (Throwable t) {
+                        SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
+                        continue;
+                    }
+                    node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue, expiration));
                 }
-                final DataType<Object> dataType = dataProvider.apply(entry.getKey());
-                if (dataType == null) {
-                    SaveData.log(2, "Found invalid data type '" + entry.getKey() + "' for user " + user, ", ignoring it...");
-                    continue;
-                }
-                final MapNode map = entry.getValue().asMapNode();
-                final long expiration = map.getIgnoreCase("expiration").asLong(0L);
-                if (expiration > 0 && time >= expiration) {
-                    continue;
-                }
-                final String type = map.getIgnoreCase("type").asString();
-                final String value = map.getIgnoreCase("value").asString();
-                final Object parsedValue;
-                try {
-                    parsedValue = dataType.load(value);
-                } catch (Throwable t) {
-                    SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
-                    continue;
-                }
-                node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue, expiration));
             }
         }
         return node;
