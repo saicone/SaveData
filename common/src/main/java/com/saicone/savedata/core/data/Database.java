@@ -23,7 +23,7 @@ public class Database {
     public Database(@NotNull String databaseName, @NotNull String type) {
         this.type = type;
         if (type.equalsIgnoreCase("FILE")) {
-            this.client = new FileClient(databaseName, SaveData.plugin().getFolder());
+            this.client = new FileClient(databaseName, SaveData.get().getFolder());
         } else if (type.equalsIgnoreCase("SQL")) {
             this.client = new HikariClient(databaseName);
         } else {

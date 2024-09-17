@@ -1,6 +1,6 @@
 package com.saicone.savedata.core.data;
 
-import com.saicone.mcode.scheduler.Task;
+import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataEntry;
 import com.saicone.savedata.api.data.DataNode;
@@ -38,7 +38,7 @@ public class DataCore {
 
     public void onLoad() {
         // Load databases
-        final Settings databaseConfig = SettingsData.of("databases.yml").or(com.saicone.settings.data.DataType.INPUT_STREAM, "databases.yml").load(SaveData.plugin().getFolder().toFile());
+        final Settings databaseConfig = SettingsData.of("databases.yml").or(com.saicone.settings.data.DataType.INPUT_STREAM, "databases.yml").load(SaveData.get().getFolder().toFile());
         for (Map.Entry<String, SettingsNode> entry : databaseConfig.getValue().entrySet()) {
             if (entry.getValue().isMap()) {
                 final MapNode node = entry.getValue().asMapNode();
@@ -77,7 +77,7 @@ public class DataCore {
         SaveData.log(3, "Loaded " + this.databases.size() + " database" + (this.databases.size() == 1 ? "" : "s") + ": " + String.join(", ", this.databases.keySet()));
 
         // Load data types
-        loadDataTypes(SaveData.plugin().getFolder().resolve("datatypes"));
+        loadDataTypes(SaveData.get().getFolder().resolve("datatypes"));
         SaveData.log(3, "Loaded " + this.dataTypes.size() + " data type" + (this.dataTypes.size() == 1 ? "" : "s"));
     }
 
@@ -127,9 +127,12 @@ public class DataCore {
         if (user != null) {
             return CompletableFuture.completedFuture(user);
         }
+        SaveData.log(4, "The " + uniqueId + " doesn't exist, so it will be get as temporary object");
         return CompletableFuture.supplyAsync(() -> {
+            SaveData.log(4, "Before load");
             final DataUser loaded = loadUser(uniqueId);
             if (!uniqueId.equals(DataUser.SERVER_ID)) {
+                SaveData.log(4, "Removing player...");
                 userData.remove(uniqueId);
             }
             return loaded;
@@ -159,6 +162,7 @@ public class DataCore {
     @NotNull
     @SuppressWarnings("unchecked")
     public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
+        SaveData.log(4, "userValue");
         if (!operator.isEval()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
@@ -337,12 +341,14 @@ public class DataCore {
     @SuppressWarnings("unchecked")
     public synchronized DataUser loadUser(@NotNull UUID uniqueId) {
         if (userData.containsKey(uniqueId)) {
+            SaveData.log(4, "Contains");
             return userData.get(uniqueId);
         }
         final DataUser user = new DataUser(uniqueId);
         for (Map.Entry<String, Database> entry : databases.entrySet()) {
             user.setNode(entry.getKey(), entry.getValue().getClient().loadData(uniqueId, key -> (DataType<Object>) dataTypes.get(key)));
         }
+        SaveData.log(4, "Saving...");
         userData.put(uniqueId, user);
         return user;
     }

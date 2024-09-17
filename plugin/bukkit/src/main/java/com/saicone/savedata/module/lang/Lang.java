@@ -50,13 +50,14 @@ public enum Lang {
     }
 
     public void sendTo(@NotNull CommandSender sender, @Nullable Object... args) {
+        SaveData.log(4, "Sending " + path);
         for (String s : getText()) {
             sender.sendMessage(Strings.replaceArgs(s, args));
         }
     }
 
     public static void onReload() {
-        MESSAGES.loadFrom(SaveData.plugin().getFolder().toFile(), true);
+        MESSAGES.loadFrom(SaveData.get().getFolder().toFile(), true);
         for (Lang value : VALUES) {
             value.text = MESSAGES.getOptional(value.getPath()).asList(Types.STRING).stream().map(MStrings::color).collect(Collectors.toList());
         }

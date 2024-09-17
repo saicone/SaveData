@@ -1,18 +1,28 @@
 subprojects {
+    apply plugin: 'com.gradleup.shadow'
+
     dependencies {
-        implementation project(path: ':common', configuration: 'shadow')
+        //implementation project(path: ':common', configuration: 'shadow')
+        implementation project(':common')
 
-        implementation 'com.github.saicone.mcode:common:a9de3782ef'
-        implementation 'com.github.saicone.mcode:module-task:a9de3782ef'
+        compileOnly libs.mcode.annotations
+        annotationProcessor libs.mcode.annotations
+    }
 
-        implementation 'org.javatuples:javatuples:1.2'
-        implementation 'com.saicone.settings:settings:1.0'
+    jar {
+        dependsOn (shadowJar)
     }
 
     shadowJar {
+        archiveClassifier.set('')
         archiveBaseName.set(rootProject.name + '-' + project.name)
         destinationDirectory.set(file(rootProject.layout.buildDirectory.dir('libs')))
+
+        relocate 'com.saicone.ezlib', project.group + '.ezlib'
         relocate 'com.saicone.mcode', project.group + '.mcode'
+        relocate 'com.zaxxer.hikari', project.group + '.libs.hikari'
+        relocate 'com.ezylang.evalex', project.group + '.libs.evalex'
+        relocate 'com.saicone.delivery4j', project.group + '.libs.delivery4j'
         relocate 'com.saicone.types', project.group + '.libs.types'
         relocate 'org.javatuples', project.group + '.libs.javatuples'
         relocate 'com.saicone.settings', project.group + '.libs.settings'

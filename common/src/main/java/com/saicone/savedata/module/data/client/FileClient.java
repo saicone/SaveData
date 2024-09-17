@@ -49,7 +49,7 @@ public class FileClient implements DataClient {
         }
 
         if (!this.type.isDependencyPresent()) {
-            SaveData.get().getLibraryLoader().applyDependency(new EzlibLoader.Dependency().path(this.type.getDependency()).relocate(this.type.getRelocations()));
+            SaveData.bootstrap().getLibraryLoader().applyDependency(new EzlibLoader.Dependency().path(this.type.getDependency()).relocate(this.type.getRelocations()));
         }
 
         this.folder = this.type.getFolder(parentFolder);
@@ -106,14 +106,18 @@ public class FileClient implements DataClient {
 
     @Override
     public @NotNull DataNode loadData(@NotNull UUID user, @NotNull Function<String, DataType<Object>> dataProvider) {
+        SaveData.log(4, "Loading user " + user);
         final DataNode node = new DataNode(this.databaseName);
         final SettingsData<Settings> data = getData(user);
         if (data.getFile().exists()) {
+            SaveData.log(4, "Exist");
             final long time = System.currentTimeMillis();
             final Settings config = data.load();
             if (!config.isEmpty()) {
+                SaveData.log(4, "Not empty");
                 for (Map.Entry<String, SettingsNode> entry : config.getValue().entrySet()) {
                     if (!entry.getValue().isMap()) {
+                        SaveData.log(4, "entry " + entry.getKey() + " not map");
                         continue;
                     }
                     final DataType<Object> dataType = dataProvider.apply(entry.getKey());
@@ -124,6 +128,7 @@ public class FileClient implements DataClient {
                     final MapNode map = entry.getValue().asMapNode();
                     final long expiration = map.getIgnoreCase("expiration").asLong(0L);
                     if (expiration > 0 && time >= expiration) {
+                        SaveData.log(4, "entry " + entry.getKey() + " expired");
                         continue;
                     }
                     final String type = map.getIgnoreCase("type").asString();
@@ -139,6 +144,7 @@ public class FileClient implements DataClient {
                 }
             }
         }
+        SaveData.log(4, "Doesn't exist");
         return node;
     }
 
@@ -184,31 +190,20 @@ public class FileClient implements DataClient {
         for (Map.Entry<String, DataEntry<?>> entry : node.entrySet()) {
             saveData(data, entry.getValue());
         }
-        if (data.getLoaded().isEmpty()) {
-            final File file = data.getFile();
-            if (file.exists()) {
-                file.delete();
-            }
-        } else {
-            data.save();
-        }
+        saveToFile(data);
     }
 
     @Override
     public void saveDataEntry(@NotNull UUID user, @NotNull DataEntry<?> entry) {
         final SettingsData<Settings> data = saveData(getData(user), entry);
-        if (data.getLoaded().isEmpty()) {
-            final File file = data.getFile();
-            if (file.exists()) {
-                file.delete();
-            }
-        } else {
-            data.save();
-        }
+        saveToFile(data);
     }
 
     @NotNull
     private SettingsData<Settings> saveData(@NotNull SettingsData<Settings> data, @NotNull DataEntry<?> entry) {
+        if (data.getLoaded() == null) {
+            data.loaded(new Settings());
+        }
         final MapNode map = data.getLoaded().asMapNode();
         if (entry.getValue() == null) {
             map.remove(entry.getType().getId());
@@ -224,6 +219,18 @@ public class FileClient implements DataClient {
             map.put(entry.getType().getId(), node);
         }
         return data;
+    }
+
+    private void saveToFile(@NotNull SettingsData<Settings> data) {
+        if (data.getLoaded().isEmpty()) {
+            final File file = data.getFile();
+            if (file.exists()) {
+                file.delete();
+            }
+        } else {
+            data.getSource();
+            data.save();
+        }
     }
 
     @Override

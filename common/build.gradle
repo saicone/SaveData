@@ -1,28 +1,9 @@
 dependencies {
     compileOnly 'com.google.guava:guava:32.1.2-jre'
 
-    // Library loader
-    implementation 'com.saicone.ezlib:ezlib:1.2.3'
-    implementation 'com.saicone.ezlib:loader:1.2.3'
-    compileOnly 'com.saicone.ezlib:annotations:1.2.3'
-    annotationProcessor 'com.saicone.ezlib:annotations:1.2.3'
-
-    // MCode
-    compileOnly 'com.github.saicone.mcode:common:a9de3782ef'
-    compileOnly 'com.github.saicone.mcode:module-task:a9de3782ef'
-
     // Implementation
-    compileOnly 'org.javatuples:javatuples:1.2'
-    compileOnly 'com.saicone.settings:settings:1.0'
     compileOnly 'com.zaxxer:HikariCP:5.0.1'
     compileOnly 'com.ezylang:EvalEx:3.2.0'
     compileOnly 'com.saicone.delivery4j:delivery4j:1.0'
     compileOnly('com.saicone.delivery4j:delivery4j-hikari:1.0') { transitive = false }
-}
-
-shadowJar {
-    relocate 'com.saicone.ezlib', project.group + '.ezlib'
-    relocate 'com.zaxxer.hikari', project.group + '.libs.hikari'
-    relocate 'com.ezylang.evalex', project.group + '.libs.evalex'
-    relocate 'com.saicone.delivery4j', project.group + '.libs.delivery4j'
 }

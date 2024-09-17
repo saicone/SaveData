@@ -1,7 +1,7 @@
 package com.saicone.savedata.core.command;
 
+import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
-import com.saicone.savedata.SaveDataBukkit;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.data.DataOperator;
 import com.saicone.savedata.core.data.DataResult;
@@ -43,25 +43,24 @@ public class SaveDataCommand extends Command {
             "divide"
     );
 
-    private final SaveDataBukkit plugin;
-
-    public SaveDataCommand(@NotNull SaveDataBukkit plugin) {
+    public SaveDataCommand() {
         super("savedata", "Main command for SaveData plugin", "/savedata", List.of("sd", "sdata"));
-        this.plugin = plugin;
         setPermission("savedata.use;savedata.*");
     }
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String cmd, @NotNull String[] args) {
+        SaveData.log(4, "Perm");
         if (!testPermission(sender)) {
             return true;
         }
 
+        SaveData.log(4, "Before argument check");
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             final long before = System.currentTimeMillis();
             if (args[0].equalsIgnoreCase("reload")) {
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    plugin.onReload();
+                Task.runAsync(() -> {
+                    SaveData.reload();
                     final long time = System.currentTimeMillis() - before;
                     Lang.COMMAND_RELOAD.sendTo(sender, time);
                 });
@@ -69,6 +68,7 @@ public class SaveDataCommand extends Command {
             }
         }
 
+        SaveData.log(4, "Check");
         if (args.length < 4 || !TYPE.contains(args[0].toLowerCase())) {
             Lang.COMMAND_HELP.sendTo(sender, cmd);
             return true;
@@ -82,30 +82,29 @@ public class SaveDataCommand extends Command {
         final Long expiration;
         final Function<String, String> userParser;
         if (args[0].equalsIgnoreCase("player")) {
-            uniqueId = args[1].contains("-") ? UUID.fromString(args[1]) : PlayerProvider.getUniqueId(args[1]);
-            if (args.length < 5) {
+            SaveData.log(4, "Player");
+            if (args.length < 5 || !OPERATOR.contains(args[4].toLowerCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return true;
             }
+            SaveData.log(4, "Provider");
+            uniqueId = args[1].contains("-") ? UUID.fromString(args[1]) : PlayerProvider.getUniqueId(args[1]);
             database = args[2];
             dataType = args[3];
-            if (!OPERATOR.contains(args[4].toLowerCase())) {
-                Lang.COMMAND_HELP.sendTo(sender, cmd);
-                return true;
-            }
             operator = DataOperator.valueOf(args[4].toUpperCase());
             value = args.length > 5 ? args[5] : null;
             expiration = args.length > 6 ? parseExpiration(String.join(" ", Arrays.copyOfRange(args, 6, args.length))) : null;
             final OfflinePlayer player = Bukkit.getOfflinePlayer(uniqueId);
             userParser = s -> Placeholders.parse(player, s);
         } else {
-            uniqueId = DataUser.SERVER_ID;
-            database = args[1];
-            dataType = args[2];
+            SaveData.log(4, "Console");
             if (!OPERATOR.contains(args[3].toLowerCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return true;
             }
+            uniqueId = DataUser.SERVER_ID;
+            database = args[1];
+            dataType = args[2];
             operator = DataOperator.valueOf(args[3].toUpperCase());
             value = args.length > 4 ? args[4] : null;
             expiration = args.length > 5 ? parseExpiration(String.join(" ", Arrays.copyOfRange(args, 5, args.length))) : null;
@@ -123,6 +122,7 @@ public class SaveDataCommand extends Command {
         }
 
         if (operator.isEval()) {
+            SaveData.log(4, "Before eval");
             SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);

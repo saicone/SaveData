@@ -1,5 +1,5 @@
 plugins {
-    id 'io.github.goooler.shadow' version '8.1.8' apply false
+    id 'com.gradleup.shadow' version '8.3.1' apply false
 }
 
 allprojects {
@@ -8,7 +8,6 @@ allprojects {
 
 subprojects {
     apply plugin: 'idea'
-    apply plugin: 'io.github.goooler.shadow'
 
     idea {
         module {
@@ -23,6 +22,20 @@ subprojects {
     }
 
     dependencies {
+        // Library loader
+        implementation 'com.saicone.ezlib:ezlib:1.2.3'
+        implementation 'com.saicone.ezlib:loader:1.2.3'
+        compileOnly 'com.saicone.ezlib:annotations:1.2.3'
+        annotationProcessor 'com.saicone.ezlib:annotations:1.2.3'
+
+        // MCode
+        implementation libs.mcode.bootstrap
+        compileOnly libs.mcode.module.task
+
+        // Implementation
+        compileOnly 'org.javatuples:javatuples:1.2'
+        compileOnly 'com.saicone.settings:settings:1.0'
+
         compileOnly 'org.jetbrains:annotations:24.1.0'
 
         compileOnly fileTree(dir: 'libs', includes: ['*.jar'])
@@ -35,16 +48,6 @@ subprojects {
     java {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    jar {
-        enabled = false
-        dependsOn (shadowJar)
-    }
-
-    shadowJar {
-        archiveClassifier.set('')
-        minimize()
     }
 }
 

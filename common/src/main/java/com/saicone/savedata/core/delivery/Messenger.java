@@ -3,7 +3,7 @@ package com.saicone.savedata.core.delivery;
 import com.saicone.delivery4j.AbstractMessenger;
 import com.saicone.delivery4j.DeliveryClient;
 import com.saicone.delivery4j.client.HikariDelivery;
-import com.saicone.mcode.scheduler.Task;
+import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.module.data.client.HikariClient;
 import com.saicone.settings.node.MapNode;
