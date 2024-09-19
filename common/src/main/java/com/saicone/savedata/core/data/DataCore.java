@@ -124,18 +124,24 @@ public class DataCore {
     }
 
     @NotNull
-    public CompletableFuture<DataUser> getUserTemporary(@NotNull UUID uniqueId) {
+    @SuppressWarnings("unchecked")
+    public CompletableFuture<DataUser> getTransitiveUser(@NotNull UUID uniqueId) {
         final DataUser user = userData.get(uniqueId);
         if (user != null) {
             return CompletableFuture.completedFuture(user);
         }
-        SaveData.log(4, "The user " + uniqueId + " doesn't exist, so it will be get as temporary object");
+        SaveData.log(4, "The user " + uniqueId + " doesn't exist, so it will be get as transitive object");
         return CompletableFuture.supplyAsync(() -> {
-            SaveData.log(4, "Loading user " + uniqueId + "...");
-            final DataUser loaded = loadUser(uniqueId);
-            if (!uniqueId.equals(DataUser.SERVER_ID)) {
-                SaveData.log(4, "Removing user " + uniqueId + "...");
-                userData.remove(uniqueId);
+            final DataUser loaded;
+            if (userData.containsKey(uniqueId)) {
+                SaveData.log(4, "The user " + uniqueId + " doesn't need any load, it exists on cache");
+                loaded = userData.get(uniqueId);
+            } else {
+                SaveData.log(4, "Loading user " + uniqueId + "...");
+                loaded = new DataUser(uniqueId);
+                for (Map.Entry<String, Database> entry : databases.entrySet()) {
+                    loaded.setNode(entry.getKey(), entry.getValue().getClient().loadData(uniqueId, key -> (DataType<Object>) dataTypes.get(key)));
+                }
             }
             return loaded;
         }, executor);
@@ -168,7 +174,7 @@ public class DataCore {
         if (!operator.isEval()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
-        return getUserTemporary(uniqueId).thenApply(user -> {
+        return getTransitiveUser(uniqueId).thenApply(user -> {
             final DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null || entry.getValue() == null) {
                 SaveData.log(4, () -> "The " + (user.getNode(database) == null ? "database" : entry == null ? "data type" : "data value") + " doesn't exist on user data");
@@ -214,7 +220,7 @@ public class DataCore {
         if (!operator.isUpdate()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
-        return getUserTemporary(uniqueId).thenApply(user -> {
+        return getTransitiveUser(uniqueId).thenApply(user -> {
             DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null) {
                 final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
