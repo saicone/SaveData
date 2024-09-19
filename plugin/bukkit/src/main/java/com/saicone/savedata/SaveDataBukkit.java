@@ -5,7 +5,7 @@ import com.saicone.mcode.bootstrap.PluginDescription;
 import com.saicone.mcode.platform.PlatformType;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.command.SaveDataCommand;
-import com.saicone.savedata.core.data.DataOperator;
+import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.module.command.BukkitCommand;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;

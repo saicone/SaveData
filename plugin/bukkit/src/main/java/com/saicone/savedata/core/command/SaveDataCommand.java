@@ -3,8 +3,8 @@ package com.saicone.savedata.core.command;
 import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataUser;
-import com.saicone.savedata.core.data.DataOperator;
-import com.saicone.savedata.core.data.DataResult;
+import com.saicone.savedata.api.data.DataOperator;
+import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
 import com.saicone.savedata.module.lang.Lang;
@@ -82,12 +82,12 @@ public class SaveDataCommand extends Command {
         final Long expiration;
         final Function<String, String> userParser;
         if (args[0].equalsIgnoreCase("player")) {
-            SaveData.log(4, "Player");
+            SaveData.log(4, "Using player ID");
             if (args.length < 5 || !OPERATOR.contains(args[4].toLowerCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return true;
             }
-            SaveData.log(4, "Provider");
+            SaveData.log(4, "Obtaining player ID using PlayerProvider");
             uniqueId = args[1].contains("-") ? UUID.fromString(args[1]) : PlayerProvider.getUniqueId(args[1]);
             database = args[2];
             dataType = args[3];
@@ -97,7 +97,7 @@ public class SaveDataCommand extends Command {
             final OfflinePlayer player = Bukkit.getOfflinePlayer(uniqueId);
             userParser = s -> Placeholders.parse(player, s);
         } else {
-            SaveData.log(4, "Console");
+            SaveData.log(4, "Using server ID");
             if (!OPERATOR.contains(args[3].toLowerCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return true;
@@ -122,7 +122,7 @@ public class SaveDataCommand extends Command {
         }
 
         if (operator.isEval()) {
-            SaveData.log(4, "Before eval");
+            SaveData.log(4, "The operator is an evaluation");
             SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);

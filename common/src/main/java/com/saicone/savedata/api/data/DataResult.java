@@ -1,4 +1,4 @@
-package com.saicone.savedata.core.data;
+package com.saicone.savedata.api.data;
 
 public enum DataResult {
 

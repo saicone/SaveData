@@ -4,6 +4,8 @@ import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataEntry;
 import com.saicone.savedata.api.data.DataNode;
+import com.saicone.savedata.api.data.DataOperator;
+import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataType;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.api.data.type.CollectionDataType;
@@ -127,12 +129,12 @@ public class DataCore {
         if (user != null) {
             return CompletableFuture.completedFuture(user);
         }
-        SaveData.log(4, "The " + uniqueId + " doesn't exist, so it will be get as temporary object");
+        SaveData.log(4, "The user " + uniqueId + " doesn't exist, so it will be get as temporary object");
         return CompletableFuture.supplyAsync(() -> {
-            SaveData.log(4, "Before load");
+            SaveData.log(4, "Loading user " + uniqueId + "...");
             final DataUser loaded = loadUser(uniqueId);
             if (!uniqueId.equals(DataUser.SERVER_ID)) {
-                SaveData.log(4, "Removing player...");
+                SaveData.log(4, "Removing user " + uniqueId + "...");
                 userData.remove(uniqueId);
             }
             return loaded;
@@ -162,13 +164,14 @@ public class DataCore {
     @NotNull
     @SuppressWarnings("unchecked")
     public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
-        SaveData.log(4, "userValue");
+        SaveData.log(4, "Executing userValue from DataCore");
         if (!operator.isEval()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
         return getUserTemporary(uniqueId).thenApply(user -> {
             final DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null || entry.getValue() == null) {
+                SaveData.log(4, () -> "The " + (user.getNode(database) == null ? "database" : entry == null ? "data type" : "data value") + " doesn't exist on user data");
                 return null;
             }
             if (operator == DataOperator.GET) {
@@ -264,7 +267,9 @@ public class DataCore {
             }
             final DataEntry<Object> finalEntry = entry;
             Task.runAsync(() -> databases.get(database).saveDataEntry(uniqueId, finalEntry));
-            return Pair.with(oldValue, result);
+            final Pair<Object, Object> pair = Pair.with(oldValue, result);
+            saveUser(user);
+            return pair;
         });
     }
 
@@ -341,14 +346,14 @@ public class DataCore {
     @SuppressWarnings("unchecked")
     public synchronized DataUser loadUser(@NotNull UUID uniqueId) {
         if (userData.containsKey(uniqueId)) {
-            SaveData.log(4, "Contains");
+            SaveData.log(4, "The user " + uniqueId + " doesn't need any load, it exists on cache");
             return userData.get(uniqueId);
         }
         final DataUser user = new DataUser(uniqueId);
         for (Map.Entry<String, Database> entry : databases.entrySet()) {
             user.setNode(entry.getKey(), entry.getValue().getClient().loadData(uniqueId, key -> (DataType<Object>) dataTypes.get(key)));
         }
-        SaveData.log(4, "Saving...");
+        SaveData.log(4, "Saving user " + uniqueId + " into cache...");
         userData.put(uniqueId, user);
         return user;
     }
@@ -368,6 +373,7 @@ public class DataCore {
     }
 
     public void saveUser(@NotNull DataUser user) {
+        SaveData.log(4, "Saving user " + user.getUniqueId() + " into database...");
         for (Map.Entry<String, DataNode> entry : user.getNodes().entrySet()) {
             final Database database = databases.get(entry.getKey());
             if (database == null) {

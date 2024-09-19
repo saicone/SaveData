@@ -254,6 +254,18 @@ public class DataType<T> {
         throw new UnsupportedOperationException("The " + this.getClass().getSimpleName() + " instance cannot make a division");
     }
 
+    @Override
+    public String toString() {
+        return "DataType{" +
+                "id='" + id + '\'' +
+                ", parser=" + (parser.getType() != null ? parser.getType().getTypeName() : parser) +
+                ", defaultValue=" + defaultValue +
+                ", permission='" + permission + '\'' +
+                ", expression='" + expression + '\'' +
+                ", userParseable=" + userParseable +
+                '}';
+    }
+
     public static class Builder<T> {
         private final String id;
         private final TypeParser<T> parser;

@@ -106,18 +106,18 @@ public class FileClient implements DataClient {
 
     @Override
     public @NotNull DataNode loadData(@NotNull UUID user, @NotNull Function<String, DataType<Object>> dataProvider) {
-        SaveData.log(4, "Loading user " + user);
+        SaveData.log(4, "Loading user " + user + " from file type " + type.getName());
         final DataNode node = new DataNode(this.databaseName);
         final SettingsData<Settings> data = getData(user);
         if (data.getFile().exists()) {
-            SaveData.log(4, "Exist");
+            SaveData.log(4, "The file " + data.getFile().getName() + " exists");
             final long time = System.currentTimeMillis();
             final Settings config = data.load();
             if (!config.isEmpty()) {
-                SaveData.log(4, "Not empty");
+                SaveData.log(4, "The file " + data.getFile().getName() + " is not empty");
                 for (Map.Entry<String, SettingsNode> entry : config.getValue().entrySet()) {
                     if (!entry.getValue().isMap()) {
-                        SaveData.log(4, "entry " + entry.getKey() + " not map");
+                        SaveData.log(4, "The entry " + entry.getKey() + " is not map");
                         continue;
                     }
                     final DataType<Object> dataType = dataProvider.apply(entry.getKey());
@@ -140,11 +140,14 @@ public class FileClient implements DataClient {
                         SaveData.log(2, () -> "Cannot parse value '" + value + "' with data type " + type + " as " +  dataType.getTypeName() + " for user " + user + ", deleting it...");
                         continue;
                     }
-                    node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue, expiration));
+                    final DataEntry<?> dataEntry = new DataEntry<>(dataType, parsedValue, expiration);
+                    SaveData.log(4, () -> "- " + dataEntry);
+                    node.put(entry.getKey(), dataEntry);
                 }
             }
+        } else {
+            SaveData.log(4, "The user doesn't exist as file");
         }
-        SaveData.log(4, "Doesn't exist");
         return node;
     }
 

@@ -55,7 +55,7 @@ public class DataEntry<T> {
 
     @Nullable
     public T getValue() {
-        if (expiration != null && System.currentTimeMillis() >= expiration) {
+        if (expiration != null && expiration > 0 && System.currentTimeMillis() >= expiration) {
             setValue(null);
         }
         return value;
@@ -102,5 +102,17 @@ public class DataEntry<T> {
 
     public void setEdited(boolean edited) {
         this.edited = edited;
+    }
+
+    @Override
+    public String toString() {
+        return "DataEntry{" +
+                "id=" + id +
+                ", type=" + type +
+                ", value=" + value +
+                ", expiration=" + expiration +
+                ", userValue=" + userValue +
+                ", edited=" + edited +
+                '}';
     }
 }
