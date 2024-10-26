@@ -94,7 +94,7 @@ public enum FileType implements ClientType {
 
     @NotNull
     public Path getFolder(@NotNull Path parent) {
-        return parent.resolve("database").resolve(name().toLowerCase());
+        return parent.resolve(name().toLowerCase());
     }
 
     @NotNull

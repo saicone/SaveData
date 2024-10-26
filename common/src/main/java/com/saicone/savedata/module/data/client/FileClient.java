@@ -52,7 +52,7 @@ public class FileClient implements DataClient {
             SaveData.bootstrap().getLibraryLoader().applyDependency(new EzlibLoader.Dependency().path(this.type.getDependency()).relocate(this.type.getRelocations()));
         }
 
-        this.folder = this.type.getFolder(parentFolder);
+        this.folder = this.type.getFolder(this.parentFolder.resolve("database").resolve(this.databaseName));
     }
 
     @Override
