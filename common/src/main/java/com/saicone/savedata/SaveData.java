@@ -3,6 +3,7 @@ package com.saicone.savedata;
 import com.saicone.ezlib.Dependencies;
 import com.saicone.ezlib.Dependency;
 import com.saicone.mcode.Plugin;
+import com.saicone.mcode.module.lang.AbstractLang;
 import com.saicone.savedata.core.data.DataCore;
 import com.saicone.settings.Settings;
 import com.saicone.settings.SettingsData;
@@ -39,6 +40,7 @@ public abstract class SaveData extends Plugin {
     private static SaveData instance;
 
     private final SettingsData<Settings> settings;
+    private final AbstractLang<?> lang;
     private final DataCore dataCore;
 
     @NotNull
@@ -57,12 +59,18 @@ public abstract class SaveData extends Plugin {
         }
         instance = this;
         this.settings = SettingsData.of("settings.yml").or(DataType.INPUT_STREAM, "settings.yml");
+        this.lang = initLang();
+        this.lang.setUseSettings(true);
         this.dataCore = new DataCore();
     }
+
+    @NotNull
+    protected abstract AbstractLang<?> initLang();
 
     @Override
     public void onLoad() {
         this.settings.load(this.getFolder().toFile());
+        this.lang.load();
         setLogLevel(settings().getIgnoreCase("plugin", "loglevel").asInt(3));
         this.dataCore.onLoad();
     }
@@ -80,6 +88,7 @@ public abstract class SaveData extends Plugin {
     @Override
     public void onReload() {
         this.settings.load(this.getFolder().toFile());
+        this.lang.load();
         setLogLevel(settings().getIgnoreCase("plugin", "loglevel").asInt(3));
         this.dataCore.onReload();
     }
@@ -87,6 +96,11 @@ public abstract class SaveData extends Plugin {
     @NotNull
     public SettingsData<Settings> getSettings() {
         return settings;
+    }
+
+    @NotNull
+    public AbstractLang<?> getLang() {
+        return lang;
     }
 
     @NotNull

@@ -5,9 +5,9 @@ import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.api.data.DataResult;
+import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
-import com.saicone.savedata.module.lang.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -24,24 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-public class SaveDataCommand extends Command {
-
-    private static final List<String> TYPE = List.of(
-            "reload",
-            "player",
-            "global",
-            "server"
-    );
-    private static final List<String> OPERATOR = List.of(
-            "get",
-            "contains",
-            "delete",
-            "set",
-            "add",
-            "substract",
-            "multiply",
-            "divide"
-    );
+public class SaveDataCommand extends Command implements MainCommand {
 
     public SaveDataCommand() {
         super("savedata", "Main command for SaveData plugin", "/savedata", List.of("sd", "sdata"));

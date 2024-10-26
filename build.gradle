@@ -31,6 +31,7 @@ subprojects {
         // MCode
         implementation libs.mcode.bootstrap
         compileOnly libs.mcode.module.task
+        compileOnly libs.mcode.module.lang
 
         // Implementation
         compileOnly 'org.javatuples:javatuples:1.2'

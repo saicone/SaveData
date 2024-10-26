@@ -3,6 +3,9 @@ Plugin:
   # 1 = errors, 2 = warnings, 3 = information, 4 = debug
   # Set to 0 to disable
   LogLevel: 3
+  # Available languages: en_US, es_ES
+  # If you want to use other language go to "lang" folder and create new file
+  Language: 'en_US'
   # Player information provider:
   # AUTO       = Choose automatically the best available option
   # LUCKPERMS  = Use LuckPerms plugin.
@@ -10,7 +13,24 @@ Plugin:
   # BUKKIT     = Use the default Bukkit offline player methods (it also acts like fallback value)
   PlayerProvider: AUTO
 
-
+# Lang configuration
+Lang:
+  # Default player language
+  Default: 'en_US'
+  # Language aliases
+  Aliases:
+    en_US:
+      - 'en_AU'
+      - 'en_CA'
+      - 'en_GB'
+      - 'en_NZ'
+    es_ES:
+      - 'es_AR'
+      - 'es_CL'
+      - 'es_EC'
+      - 'es_MX'
+      - 'es_UY'
+      - 'es_VE'
 
 # Plugin hooks configuration
 Hook:

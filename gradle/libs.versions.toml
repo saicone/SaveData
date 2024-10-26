@@ -3,7 +3,7 @@ metadata.format.version = "1.1"
 [versions]
 
 # Libraries
-mcode = "c2f8f1f811"
+mcode = "27f3f39db7"
 
 [libraries]
 
@@ -16,3 +16,4 @@ mcode-bootstrap-bukkit = { module = "com.saicone.mcode:bootstrap-bukkit", versio
 
 # Modules
 mcode-module-task = { module = "com.saicone.mcode:module-task", version.ref = "mcode" }
+mcode-module-lang = { module = "com.saicone.mcode:module-lang", version.ref = "mcode" }

@@ -1,0 +1,40 @@
+plugin:
+  no-permission: '&cNo tienes permiso'
+
+command:
+  help:
+    - '&6Comandos de SaveData:'
+    - ''
+    - '&e/{0} reload'
+    - '&e/{0} global <base de datos> <data id> <operador> [valor] [expiration]'
+    - '&e/{0} player <nombre> <base de datos> <data id> <operador> [valor] [expiration]'
+    - ''
+    - '&6Operadores:'
+    - '&eget &8- &7Obtener el valor de la data'
+    - '&econtains &8- &7Revisar si el valor de la data contiene otro valor'
+    - '&edelete &8- &7Borrar el valor de la data'
+    - ''
+    - '&eset &8- &7Reemplazar el valor de la data'
+    - ''
+    - '&eadd &8- &7Agregar un valor al valor de la data'
+    - '&esubstract &8- &7Remover un valor al valor de la data'
+    - '&emultiply &8- &7Multiplicar el valor de data data por otro valor'
+    - '&edivide &8- &7Dividir el valor de data data por otro valor'
+  reload: '&aEl plugin ha sido recargado con éxito! [&f{0} ms&a]'
+  data:
+    get: '&aLa data del usuario &f{0}&a, dentro de la base de datos &f{1}&a, con el tipo &f{2} &aes: &e{3}'
+    contains: '&aResultado: &f{0}'
+    edit:
+      - '&a=Data editada &f(usuario = &b{0}&f, base de datos = &b{1}&f, tipo de dato = &b{2}&f)'
+      - '  &aAntes: &f{3}'
+      - '  &aDespués: &f{4}'
+      - '  &aTiempo: &f{5} ms'
+    error:
+      operator: '&cEl operador &6{0} &cno se puede utilizar aquí'
+      id: '&cEl tipo de data &6{0} &cno existe'
+      value: '&cEl valor &6{0} &cno puede ser convertido al tipo de valor requerido'
+      modify: '&cNo se puede modificar el tipo de valor requerido (No hay un valor por defecto en la configuración)'
+  error:
+    player: '&cEl jugador &6{0} &cno existe'
+    database: '&cLa base de datos &6{0} &cno existe'
+    datatype: '&cEl tipo de data &6{0} &cno existe'

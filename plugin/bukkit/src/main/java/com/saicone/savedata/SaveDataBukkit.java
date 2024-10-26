@@ -2,14 +2,17 @@ package com.saicone.savedata;
 
 import com.saicone.mcode.bootstrap.Addon;
 import com.saicone.mcode.bootstrap.PluginDescription;
+import com.saicone.mcode.bukkit.lang.BukkitLang;
+import com.saicone.mcode.module.lang.AbstractLang;
+import com.saicone.mcode.module.task.Task;
 import com.saicone.mcode.platform.PlatformType;
 import com.saicone.savedata.api.data.DataUser;
+import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.core.command.SaveDataCommand;
 import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.module.command.BukkitCommand;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
-import com.saicone.savedata.module.lang.Lang;
 import com.saicone.savedata.module.listener.BukkitListener;
 import com.saicone.types.Types;
 import org.bukkit.Bukkit;
@@ -24,7 +27,7 @@ import java.util.UUID;
         version = "${version}",
         authors = { "Rubenicos" },
         platform = { PlatformType.BUKKIT },
-        addons = { Addon.MODULE_TASK },
+        addons = { Addon.MODULE_TASK, Addon.MODULE_LANG },
         compatibility = "1.8.8 - 1.21.1",
         foliaSupported = true,
         softDepend = { "PlaceholderAPI", "LuckPerms", "Essentials" }
@@ -41,9 +44,13 @@ public class SaveDataBukkit extends SaveData {
     private Set<String> placeholderNames;
 
     @Override
+    protected @NotNull AbstractLang<?> initLang() {
+        return new BukkitLang(plugin(), new Lang());
+    }
+
+    @Override
     public void onEnable() {
         super.onEnable();
-        Lang.onReload();
         PlayerProvider.compute(SaveData.settings().getIgnoreCase("plugin", "playerprovider").asString("AUTO"));
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), plugin());
         if (command == null) {
@@ -66,8 +73,10 @@ public class SaveDataBukkit extends SaveData {
     public void onReload() {
         super.onReload();
         PlayerProvider.compute(SaveData.settings().getIgnoreCase("plugin", "playerprovider").asString("AUTO"));
-        unregisterPlaceholders();
-        registerPlaceholders();
+        Task.sync(() -> {
+            unregisterPlaceholders();
+            registerPlaceholders();
+        });
     }
 
     @NotNull
