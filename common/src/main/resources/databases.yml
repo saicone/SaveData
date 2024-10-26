@@ -108,9 +108,6 @@ sqlite-example:
   sql:
     type: SQLITE
     table: 'savedata_data'
-  messenger:
-    enabled: false
-    prefix: 'savedata_'
 
 
 
@@ -120,6 +117,3 @@ h2-example:
   sql:
     type: H2
     table: 'savedata_data'
-  messenger:
-    enabled: false
-    prefix: 'savedata_'

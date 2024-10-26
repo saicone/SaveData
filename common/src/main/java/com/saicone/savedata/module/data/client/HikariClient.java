@@ -102,7 +102,7 @@ public class HikariClient implements DataClient {
             this.hikariConfig.setUsername(config.getRegex("(?i)user(-?name)?").asString("root"));
             this.hikariConfig.setPassword(config.getIgnoreCase("password").asString("password"));
         } else {
-            final String strPath = config.getIgnoreCase("path").asString(SaveData.get().getFolder() + "/database/" + this.type.name().toLowerCase());
+            final String strPath = config.getIgnoreCase("path").asString(SaveData.get().getFolder() + "/database/" + this.databaseName + "-" + this.type.name().toLowerCase());
             final Path path = Path.of(strPath);
             if (strPath.contains("/") && !Files.exists(path.getParent())) {
                 try {
