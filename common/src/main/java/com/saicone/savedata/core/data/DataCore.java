@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class DataCore {
 
@@ -124,8 +125,13 @@ public class DataCore {
     }
 
     @NotNull
-    @SuppressWarnings("unchecked")
     public CompletableFuture<DataUser> getTransitiveUser(@NotNull UUID uniqueId) {
+        return getTransitiveUser(uniqueId, database -> true);
+    }
+
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public CompletableFuture<DataUser> getTransitiveUser(@NotNull UUID uniqueId, @NotNull Predicate<Database> predicate) {
         final DataUser user = userData.get(uniqueId);
         if (user != null) {
             return CompletableFuture.completedFuture(user);
@@ -140,6 +146,9 @@ public class DataCore {
                 SaveData.log(4, "Loading user " + uniqueId + "...");
                 loaded = new DataUser(uniqueId);
                 for (Map.Entry<String, Database> entry : databases.entrySet()) {
+                    if (!predicate.test(entry.getValue())) {
+                        continue;
+                    }
                     loaded.setNode(entry.getKey(), entry.getValue().getClient().loadData(uniqueId, key -> (DataType<Object>) dataTypes.get(key)));
                 }
             }
@@ -174,7 +183,7 @@ public class DataCore {
         if (!operator.isEval()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
-        return getTransitiveUser(uniqueId).thenApply(user -> {
+        return getTransitiveUser(uniqueId, db -> db.getName().equals(database)).thenApply(user -> {
             final DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null || entry.getValue() == null) {
                 SaveData.log(4, () -> "The " + (user.getNode(database) == null ? "database" : entry == null ? "data type" : "data value") + " doesn't exist on user data");
@@ -220,7 +229,7 @@ public class DataCore {
         if (!operator.isUpdate()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
-        return getTransitiveUser(uniqueId).thenApply(user -> {
+        return getTransitiveUser(uniqueId, db -> db.getName().equals(database)).thenApply(user -> {
             DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null) {
                 final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
