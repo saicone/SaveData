@@ -1,8 +1,13 @@
 package com.saicone.savedata.api.data;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.saicone.savedata.SaveData;
+import com.saicone.savedata.api.SaveDataAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -11,8 +16,34 @@ import java.util.concurrent.ConcurrentMap;
 
 public class DataNode implements ConcurrentMap<String, DataEntry<?>> {
 
+    private static final Gson GSON = new Gson();
+    private static final Type MAP_TYPE = new TypeToken<Map<String, Object>>(){}.getType();
+
     private final String database;
     private final ConcurrentMap<String, DataEntry<?>> entries = new ConcurrentHashMap<>();
+
+    @NotNull
+    @Deprecated
+    public static DataNode of(@NotNull String database, @NotNull String data) {
+        final DataNode node = new DataNode(database);
+        final Map<String, Object> map = GSON.fromJson(data, MAP_TYPE);
+        for (Entry<String, Object> entry : map.entrySet()) {
+            final DataType<Object> dataType = SaveDataAPI.getDataType(entry.getKey());
+            if (dataType == null) {
+                SaveData.log(2, "Found invalid data type '" + entry.getKey() + "' while getting deprecated data");
+                continue;
+            }
+            final Object parsedValue;
+            try {
+                parsedValue = dataType.load(entry.getValue());
+            } catch (Throwable t) {
+                SaveData.log(2, () -> "Cannot parse value '" + entry.getValue() + "'  as " +  dataType.getTypeName() + " while getting deprecated data");
+                continue;
+            }
+            node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue, null));
+        }
+        return node;
+    }
 
     public DataNode(@NotNull String database) {
         this.database = database;

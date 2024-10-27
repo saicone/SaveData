@@ -24,6 +24,12 @@ public class SaveDataAPI {
         return Collections.unmodifiableMap(SaveData.get().getDataCore().getDatabases());
     }
 
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public static DataType<Object> getDataType(@NotNull String key) {
+        return (DataType<Object>) SaveData.get().getDataCore().getDataTypes().get(key);
+    }
+
     @NotNull
     public static Map<String, DataType<?>> getDataTypes() {
         return Collections.unmodifiableMap(SaveData.get().getDataCore().getDataTypes());

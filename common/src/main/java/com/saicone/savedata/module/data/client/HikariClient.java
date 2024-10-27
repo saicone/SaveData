@@ -6,6 +6,7 @@ import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataEntry;
 import com.saicone.savedata.api.data.DataNode;
 import com.saicone.savedata.api.data.DataType;
+import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.module.data.DataClient;
 import com.saicone.savedata.module.data.sql.SqlSchema;
 import com.saicone.savedata.module.data.sql.SqlType;
@@ -23,6 +24,7 @@ import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,10 +129,10 @@ public class HikariClient implements DataClient {
             if (isTablePresent(con, tableName)) {
                 return;
             }
-            SaveData.log(4, "The table '" + tableName + "' doesn't exist, so will be created");
+            SaveData.log(43, "The table '" + tableName + "' doesn't exist, so will be created");
 
             final List<String> list = schema.getList(type, "create:data_table", "{table_name}", tableName);
-            boolean next = true;
+            boolean fail = false;
 
             try (Statement stmt = con.createStatement()) {
                 for (String sql : list) {
@@ -141,23 +143,94 @@ public class HikariClient implements DataClient {
                     stmt.executeBatch();
                 } catch (BatchUpdateException e) {
                     if (e.getMessage().contains("Unknown character set")) {
-                        next = false;
+                        fail = true;
                     } else {
                         throw e;
                     }
                 }
             }
 
-            if (next) {
-                return;
+            if (fail) {
+                try (Statement stmt = con.createStatement()) {
+                    for (String sql : list) {
+                        stmt.addBatch(Strings.replaceArgs(sql, "utf8"));
+                    }
+
+                    stmt.executeBatch();
+                }
             }
 
-            try (Statement stmt = con.createStatement()) {
-                for (String sql : list) {
-                    stmt.addBatch(Strings.replaceArgs(sql, "utf8"));
-                }
+            // Migrate old data
+            final Map<String, DataNode> nodes = new HashMap<>();
+            if (isTablePresent(con, "global_data")) {
+                SaveData.log(3, "Detected old global data, loading it...");
 
-                stmt.executeBatch();
+                String sql = "SELECT ALL `data` FROM `global_data`";
+                if (this.type == SqlType.POSTGRESQL) {
+                    sql = sql.replace('`', '"');
+                }
+                DataNode node = null;
+                try (PreparedStatement stmt = con.prepareStatement(sql)) {
+                    final ResultSet result = stmt.executeQuery();
+                    while (result.next()) {
+                        final String data = result.getString("data");
+                        final DataNode loaded = DataNode.of(this.databaseName, data);
+                        if (node == null) {
+                            node = loaded;
+                        } else {
+                            node.putAll(loaded);
+                        }
+                    }
+                }
+                if (node != null && !node.isEmpty()) {
+                    nodes.put(DataUser.SERVER_ID.toString(), node);
+                }
+            }
+            if (isTablePresent(con, "players_data")) {
+                SaveData.log(3, "Detected old player data, loading it...");
+
+                String sql = "SELECT ALL `id`, `data` FROM `players_data`";
+                if (this.type == SqlType.POSTGRESQL) {
+                    sql = sql.replace('`', '"');
+                }
+                try (PreparedStatement stmt = con.prepareStatement(sql)) {
+                    final ResultSet result = stmt.executeQuery();
+                    while (result.next()) {
+                        final String user = result.getString("id");
+                        final String data = result.getString("data");
+                        final DataNode node = DataNode.of(this.databaseName, data);
+                        if (!node.isEmpty()) {
+                            nodes.put(user, node);
+                        }
+                    }
+                }
+            }
+            if (!nodes.isEmpty()) {
+                SaveData.log(3, "Updating old data into new format...");
+
+                try (PreparedStatement insert = con.prepareStatement(getInsertStatement())) {
+                    int count = 0;
+                    for (Map.Entry<String, DataNode> userEntry : nodes.entrySet()) {
+                        for (Map.Entry<String, DataEntry<?>> nodeEntry : userEntry.getValue().entrySet()) {
+                            if (count > 0 && count % 1000 == 0) {
+                                SaveData.log(3, "Updating " + count + " data entries...");
+                            }
+
+                            final DataEntry<?> entry = nodeEntry.getValue();
+                            insert.setString(1, userEntry.getKey());
+                            insert.setString(2, entry.getType().getTypeName());
+                            insert.setString(3, entry.getType().getId());
+                            insert.setString(4, entry.getSavedValue());
+                            insert.setNull(5, java.sql.Types.BIGINT);
+                            insert.addBatch();
+
+                            count++;
+                        }
+                    }
+
+                    SaveData.log(3, "Updating " + count + " data entries so far...");
+                    insert.executeBatch();
+                }
             }
         });
     }
