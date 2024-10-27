@@ -186,12 +186,12 @@ public class HikariClient implements DataClient {
 
     @NotNull
     public String getSelectStatement() {
-        return this.schema.getSelect(this.type, "select:data", Set.of("*"), "{table_name}", tableName);
+        return this.schema.getSelect(this.type, "select:data", List.of("*"), "{table_name}", tableName);
     }
 
     @NotNull
     public String getSelectEntryStatement() {
-        return this.schema.getSelect(this.type, "select:data_entry", Set.of("*"), "{table_name}", tableName);
+        return this.schema.getSelect(this.type, "select:data_entry", List.of("*"), "{table_name}", tableName);
     }
 
     @NotNull
@@ -201,12 +201,12 @@ public class HikariClient implements DataClient {
 
     @NotNull
     public String getUpdateStatement() {
-        return this.schema.getUpdate(this.type, "update:data", Set.of("type", "key", "value", "expiration"), "{table_name}", tableName);
+        return this.schema.getUpdate(this.type, "update:data", List.of("type", "key", "value", "expiration"), "{table_name}", tableName);
     }
 
     @NotNull
     public String getDeleteStatement() {
-        return this.schema.getDelete(this.type, "delete:data", Set.of("id"), "{table_name}", tableName);
+        return this.schema.getDelete(this.type, "delete:data", List.of("id"), "{table_name}", tableName);
     }
 
     @Override
@@ -417,14 +417,14 @@ public class HikariClient implements DataClient {
 
     @Override
     public void deleteData(@NotNull Map<String, Object> columns) {
-        final Set<String> keys = columns.keySet().stream().filter(key -> {
+        final List<String> keys = columns.keySet().stream().filter(key -> {
             if (COLUMNS.containsKey(key)) {
                 return true;
             } else {
                 SaveData.log(2, "Trying to delete data with invalid column name: '" + key + "'");
                 return false;
             }
-        }).collect(Collectors.toSet());
+        }).collect(Collectors.toList());
 
         if (keys.isEmpty()) {
             return;
