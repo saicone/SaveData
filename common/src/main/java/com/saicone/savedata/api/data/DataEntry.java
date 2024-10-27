@@ -32,7 +32,7 @@ public class DataEntry<T> {
     }
 
     public boolean isSaved() {
-        return id > 0;
+        return id != null && id > 0;
     }
 
     public boolean isTemporary() {
@@ -82,7 +82,8 @@ public class DataEntry<T> {
         return userValue;
     }
 
-    public long getExpiration() {
+    @Nullable
+    public Long getExpiration() {
         return expiration;
     }
 

@@ -336,7 +336,11 @@ public class HikariClient implements DataClient {
                         insert.setString(2, entry.getType().getTypeName());
                         insert.setString(3, entry.getType().getId());
                         insert.setString(4, entry.getSavedValue());
-                        insert.setLong(5, entry.getExpiration());
+                        if (entry.isTemporary()) {
+                            insert.setLong(5, entry.getExpiration());
+                        } else {
+                            insert.setNull(5, java.sql.Types.BIGINT);
+                        }
                         insert.addBatch();
                     }
                     insert.executeBatch();
@@ -348,7 +352,12 @@ public class HikariClient implements DataClient {
                         update.setString(1, entry.getType().getTypeName());
                         update.setString(2, entry.getType().getId());
                         update.setString(3, entry.getSavedValue());
-                        update.setLong(4, entry.getExpiration());
+                        if (entry.isTemporary()) {
+                            update.setLong(4, entry.getExpiration());
+                        } else {
+                            update.setNull(4, java.sql.Types.BIGINT);
+                        }
+                        update.setInt(5, entry.getId());
                         update.addBatch();
                     }
                     update.executeBatch();
@@ -375,7 +384,12 @@ public class HikariClient implements DataClient {
                     update.setString(1, entry.getType().getTypeName());
                     update.setString(2, entry.getType().getId());
                     update.setString(3, entry.getSavedValue());
-                    update.setLong(4, entry.getExpiration());
+                    if (entry.isTemporary()) {
+                        update.setLong(4, entry.getExpiration());
+                    } else {
+                        update.setNull(4, java.sql.Types.BIGINT);
+                    }
+                    update.setInt(5, entry.getId());
                     update.execute();
                 }
             } else {
@@ -384,7 +398,11 @@ public class HikariClient implements DataClient {
                     insert.setString(2, entry.getType().getTypeName());
                     insert.setString(3, entry.getType().getId());
                     insert.setString(4, entry.getSavedValue());
-                    insert.setLong(5, entry.getExpiration());
+                    if (entry.isTemporary()) {
+                        insert.setLong(5, entry.getExpiration());
+                    } else {
+                        insert.setNull(5, java.sql.Types.BIGINT);
+                    }
                     final int rows = insert.executeUpdate();
                     if (rows > 0) {
                         final ResultSet result = insert.getGeneratedKeys();

@@ -21,13 +21,12 @@ SELECT {column_set} FROM `{table_name}` WHERE `user` = ? AND `key` = ?;
 -- insert:data
 
 INSERT INTO `{table_name}` (
-  `id`,
   `user`,
   `type`,
   `key`,
   `value`,
   `expiration`
-) VALUES (?, ?, ?, ?, ?, ?);
+) VALUES (?, ?, ?, ?, ?);
 
 -- update:data
 
