@@ -72,6 +72,9 @@ public class SqlSchema {
     @NotNull
     public String getSelect(@NotNull SqlType sql, @NotNull String type, @NotNull Set<String> columns, @NotNull String... replacements) {
         final String query = get(sql, type, replacements);
+        if (columns.contains("*")) {
+            return query.replace("{column_set}", "*");
+        }
         final StringJoiner joiner = new StringJoiner(", ");
         if (sql == SqlType.POSTGRESQL) {
             for (String column : columns) {
