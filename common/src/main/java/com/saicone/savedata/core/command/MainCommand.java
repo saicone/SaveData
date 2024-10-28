@@ -1,6 +1,7 @@
 package com.saicone.savedata.core.command;
 
 import com.saicone.mcode.module.task.Task;
+import com.saicone.mcode.util.Dual;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.api.data.DataResult;
@@ -66,8 +67,7 @@ public interface MainCommand {
         final String database;
         final String dataType;
         final DataOperator operator;
-        final String value;
-        final Long expiration;
+        final Dual<String, Long> value;
         final Function<String, String> userParser;
         if (args[0].equalsIgnoreCase("player")) {
             SaveData.log(4, "Using player ID");
@@ -80,8 +80,7 @@ public interface MainCommand {
             database = args[2];
             dataType = args[3];
             operator = DataOperator.valueOf(args[4].toUpperCase());
-            value = args.length > 5 ? args[5] : null;
-            expiration = args.length > 6 ? parseExpiration(String.join(" ", Arrays.copyOfRange(args, 6, args.length))) : null;
+            value = parseValue(5, args);
             userParser = getUserParser(uniqueId);
         } else {
             SaveData.log(4, "Using server ID");
@@ -93,8 +92,7 @@ public interface MainCommand {
             database = args[1];
             dataType = args[2];
             operator = DataOperator.valueOf(args[3].toUpperCase());
-            value = args.length > 4 ? args[4] : null;
-            expiration = args.length > 5 ? parseExpiration(String.join(" ", Arrays.copyOfRange(args, 5, args.length))) : null;
+            value = parseValue(4, args);
             userParser = getUserParser(null);
         }
 
@@ -110,13 +108,13 @@ public interface MainCommand {
 
         if (operator.isEval()) {
             SaveData.log(4, "The operator is an evaluation");
-            SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser).thenAccept(result -> {
+            SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value.getLeft(), userParser).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);
                 } else if (result instanceof Boolean) {
                     Lang.COMMAND_DATA_CONTAINS.sendTo(sender, result);
                 } else if (result instanceof DataResult) {
-                    Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value);
+                    Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value.getLeft());
                 }
             });
             return;
@@ -124,7 +122,7 @@ public interface MainCommand {
 
         final long before = System.currentTimeMillis();
         final boolean getResult = args[args.length - 1].equalsIgnoreCase("-result");
-        SaveData.get().getDataCore().executeUpdate(uniqueId, operator, database, dataType, value, expiration, userParser).thenAccept(result -> {
+        SaveData.get().getDataCore().executeUpdate(uniqueId, operator, database, dataType, value.getLeft(), value.getRight(), userParser).thenAccept(result -> {
             if (result instanceof DataResult) {
                 switch ((DataResult) result) {
                     case INVALID_OPERATOR:
@@ -134,7 +132,7 @@ public interface MainCommand {
                         Lang.COMMAND_DATA_ERROR_ID.sendTo(sender, args[4]);
                         break;
                     case INVALID_VALUE:
-                        Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value);
+                        Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value.getLeft());
                         break;
                     case CANNOT_MODIFY:
                         Lang.COMMAND_DATA_ERROR_MODIFY.sendTo(sender);
@@ -149,16 +147,58 @@ public interface MainCommand {
         });
     }
 
+    @NotNull
+    private Dual<String, Long> parseValue(int start, @NotNull String... args) {
+        if (args.length <= start) {
+            return Dual.of(null, null);
+        }
+        if (args.length <= start + 1) {
+            String value = args[start];
+            if (value.length() > 2 && value.charAt(0) == '`' && value.charAt(value.length() - 1) == '`') {
+                value = value.substring(1, value.length() - 1);
+            }
+            return Dual.of(value, null);
+        }
+        if (args[start].startsWith("`")) {
+            int end = 0;
+            for (int i = start; i < args.length; i++) {
+                if (args[i].endsWith("`")) {
+                    end = i + 1;
+                    break;
+                }
+            }
+            if (end > 0) {
+                String value = String.join(" ", Arrays.copyOfRange(args, start, end));
+                value = value.substring(1, value.length() - 1);
+                final Long expiration = end + 1 >= args.length ? null : parseExpiration(String.join(" ", Arrays.copyOfRange(args, end + 1, args.length)));
+                return Dual.of(value, expiration);
+            }
+        }
+        return Dual.of(args[start], parseExpiration(String.join(" ", Arrays.copyOfRange(args, start + 1, args.length))));
+    }
+
     @Nullable
-    private Long parseExpiration(@NotNull String s) {
-        final String[] split = s.split(" ", 2);
-        if (split.length < 2) {
+    private Long parseExpiration(@NotNull String expiration) {
+        long time = 0L;
+        for (String s : expiration.toLowerCase().split(" and |, ")) {
+            final String[] split = s.split(" ", 2);
+            if (split.length < 2) {
+                continue;
+            }
+            try {
+                String unit = split[1].toUpperCase();
+                if (!unit.endsWith("S")) {
+                    unit = unit + "S";
+                }
+                time += TimeUnit.valueOf(unit).toMillis(Long.parseLong(split[0]));
+            } catch (Throwable t) {
+                SaveData.log(2, "Cannot parse expiration '" + expiration + "', if you are trying to set a String with spaces encapsulate it inside ``, for example `this is a string with spaces`");
+                return null;
+            }
+        }
+        if (time == 0L) {
             return null;
         }
-        try {
-            return System.currentTimeMillis() + TimeUnit.valueOf(split[1].toUpperCase()).toMillis(Long.parseLong(split[0]));
-        } catch (Throwable t) {
-            return null;
-        }
+        return System.currentTimeMillis() + time;
     }
 }
