@@ -121,7 +121,7 @@ public class SaveDataBukkit extends SaveData {
                     }
                     database = params[1];
                     dataType = params[2];
-                    value = params[5];
+                    value = params[4];
                 } else {
                     operator = DataOperator.GET;
                     database = params[1];
