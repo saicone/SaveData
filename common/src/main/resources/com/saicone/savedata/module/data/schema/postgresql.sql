@@ -3,7 +3,7 @@
 CREATE TABLE "{table_name}" (
   "id"         SERIAL PRIMARY KEY NOT NULL,
   "user"       VARCHAR(36)        NOT NULL,
-  "type"       VARCHAR(255)       NOT NULL,
+  "type"       VARCHAR(255),
   "key"        VARCHAR(255)       NOT NULL,
   "value"      TEXT               NOT NULL,
   "expiration" BIGINT

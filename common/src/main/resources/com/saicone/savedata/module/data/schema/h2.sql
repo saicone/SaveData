@@ -3,7 +3,7 @@
 CREATE TABLE `{table_name}` (
   `id`         INT AUTO_INCREMENT NOT NULL,
   `user`       VARCHAR(36)        NOT NULL,
-  `type`       VARCHAR(255)       NOT NULL,
+  `type`       VARCHAR(255),
   `key`        VARCHAR(255)       NOT NULL,
   `value`      CLOB               NOT NULL,
   `expiration` BIGINT
