@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class CollectionDataType<T, E> extends DataType<T> {
 
@@ -20,6 +21,11 @@ public abstract class CollectionDataType<T, E> extends DataType<T> {
     public CollectionDataType(@NotNull String id, @NotNull TypeParser<T> parser, @NotNull TypeParser<E> elementParser, @Nullable T defaultValue, @Nullable String permission, @Nullable String expression, boolean userParseable) {
         super(id, parser, defaultValue, permission, expression, userParseable);
         this.elementParser = elementParser;
+    }
+
+    @NotNull
+    public E parseElement(@Nullable Object object, @NotNull Function<String, String> userParser) {
+        return loadElement(this.isUserParseable() && object instanceof String ? userParser.apply((String) object) : object);
     }
 
     @Override

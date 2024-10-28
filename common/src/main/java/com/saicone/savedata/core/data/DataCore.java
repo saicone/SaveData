@@ -246,8 +246,13 @@ public class DataCore {
             } else {
                 final Object providedValue;
                 try {
-                    providedValue = entry.getType().parse(value, userParser);
+                    if (operator != DataOperator.SET && entry.getType() instanceof CollectionDataType) {
+                        providedValue = ((CollectionDataType<?, ?>) entry.getType()).parseElement(value, userParser);
+                    } else {
+                        providedValue = entry.getType().parse(value, userParser);
+                    }
                 } catch (Throwable t) {
+                    SaveData.log(4, "Cannot parse provided value", t);
                     return DataResult.INVALID_VALUE;
                 }
                 if (operator == DataOperator.SET) {
@@ -312,7 +317,13 @@ public class DataCore {
         } else {
             final Settings settings = SettingsData.of(path.getFileName().toString()).load(path.getParent().toFile());
             for (Map.Entry<String, SettingsNode> entry : settings.getValue().entrySet()) {
-                if (!entry.getValue().isMap()) {
+                if (entry.getValue().isObject()) {
+                    final String type = entry.getValue().asString();
+                    if (type != null) {
+                        this.dataTypes.put(entry.getKey(), DataType.builder(entry.getKey(), type).build());
+                    }
+                    continue;
+                } else if (!entry.getValue().isMap()) {
                     continue;
                 }
                 final MapNode node = entry.getValue().asMapNode();

@@ -6,6 +6,7 @@ import com.saicone.types.TypeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class SetDataType<E> extends CollectionDataType<Set<E>, E> {
@@ -22,6 +23,11 @@ public class SetDataType<E> extends CollectionDataType<Set<E>, E> {
                 return new SetDataType<>(id(), parser(), elementParser, defaultValue(), permission(), expression(), userParseable());
             }
         };
+    }
+
+    @Override
+    public @Nullable Set<E> getDefaultValue() {
+        return new HashSet<>();
     }
 
     @Override

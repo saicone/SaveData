@@ -6,6 +6,7 @@ import com.saicone.types.TypeParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListDataType<E> extends CollectionDataType<List<E>, E> {
@@ -22,6 +23,11 @@ public class ListDataType<E> extends CollectionDataType<List<E>, E> {
                 return new ListDataType<>(id(), parser(), elementParser, defaultValue(), permission(), expression(), userParseable());
             }
         };
+    }
+
+    @Override
+    public @Nullable List<E> getDefaultValue() {
+        return new ArrayList<>();
     }
 
     @Override

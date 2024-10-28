@@ -25,6 +25,12 @@ public class BitFieldDataType extends CollectionDataType<BigInteger, Integer> {
     }
 
     @Override
+    public @Nullable BigInteger getDefaultValue() {
+        final BigInteger i = super.getDefaultValue();
+        return i == null ? BigInteger.valueOf(0L) : i;
+    }
+
+    @Override
     public boolean test(@NotNull BigInteger a, @NotNull Object b) {
         return a.testBit(loadElement(b));
     }
