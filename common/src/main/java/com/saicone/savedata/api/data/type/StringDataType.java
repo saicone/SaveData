@@ -40,6 +40,11 @@ public class StringDataType extends DataType<String> {
     }
 
     @Override
+    public boolean test(@NotNull String a, @NotNull Object b) {
+        return a.contains(load(b));
+    }
+
+    @Override
     public @NotNull String add(@NotNull String a, @NotNull Object b) {
         return a + load(b);
     }
