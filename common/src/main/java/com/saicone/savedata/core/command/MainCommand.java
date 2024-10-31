@@ -108,7 +108,7 @@ public interface MainCommand {
 
         if (operator.isEval()) {
             SaveData.log(4, "The operator is an evaluation");
-            SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value.getLeft(), userParser).thenAccept(result -> {
+            SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value.getLeft(), userParser, SaveData.get().getLang().getLanguageFor(sender)).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);
                 } else if (result instanceof Boolean) {

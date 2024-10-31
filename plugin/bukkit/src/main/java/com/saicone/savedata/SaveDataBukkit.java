@@ -99,8 +99,8 @@ public class SaveDataBukkit extends SaveData {
                         uniqueId = DataUser.SERVER_ID;
                         break;
                     case "player":
-                        if (player == null || !player.isOnline()) {
-                            return "Player is not online";
+                        if (player == null) {
+                            return "Cannot get player information without player";
                         }
                         uniqueId = player.getUniqueId();
                         break;
@@ -126,9 +126,9 @@ public class SaveDataBukkit extends SaveData {
                     operator = DataOperator.GET;
                     database = params[1];
                     dataType = params[2];
-                    value = null;
+                    value = params.length > 3 ? params[3] : null;
                 }
-                return getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str)).join();
+                return getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str), SaveData.get().getLang().getLanguageFor(player)).join();
             });
         }
     }

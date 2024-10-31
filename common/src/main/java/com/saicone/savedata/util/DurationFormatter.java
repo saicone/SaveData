@@ -24,12 +24,13 @@
  */
 package com.saicone.savedata.util;
 
-import com.google.common.collect.ImmutableMap;
+import com.saicone.savedata.SaveData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
-import java.util.Map;
 
 // Copied from https://github.com/LuckPerms/placeholders/blob/master/common/src/main/java/me/lucko/luckperms/placeholders/DurationFormatter.java
 // Uses String instead of Chat Components
@@ -64,13 +65,41 @@ public class DurationFormatter {
         this.accuracy = accuracy;
     }
 
+    @NotNull
+    public static String format(@Nullable Object language, @NotNull Duration duration, @NotNull String type) {
+        if (type.length() > 12) {
+            switch (type.substring(12).toLowerCase()) {
+                case "long":
+                    return LONG.format(language, duration);
+                case "concise":
+                    return CONCISE.format(language, duration);
+                case "concise_low_accuracy":
+                    return CONCISE_LOW_ACCURACY.format(language, duration);
+            }
+        }
+        return CONCISE.format(language, duration);
+    }
+
     /**
      * Formats {@code duration} as a string.
      *
      * @param duration the duration
      * @return the formatted string
      */
-    public String format(Duration duration) {
+    @NotNull
+    public String format(@NotNull Duration duration) {
+        return format(null, duration);
+    }
+
+    /**
+     * Formats {@code duration} as a string.
+     *
+     * @param language the texts language
+     * @param duration the duration
+     * @return the formatted string
+     */
+    @NotNull
+    public String format(@Nullable Object language, @NotNull Duration duration) {
         long seconds = duration.getSeconds();
         StringBuilder builder = new StringBuilder();
         int outputSize = 0;
@@ -82,7 +111,7 @@ public class DurationFormatter {
                 if (outputSize != 0) {
                     builder.append(' ');
                 }
-                builder.append(formatPart(n, unit));
+                builder.append(formatPart(language, n, unit));
                 outputSize++;
             }
             if (seconds <= 0 || outputSize >= this.accuracy) {
@@ -91,40 +120,16 @@ public class DurationFormatter {
         }
 
         if (outputSize == 0) {
-            return formatPart(0, ChronoUnit.SECONDS);
+            return formatPart(language, 0, ChronoUnit.SECONDS);
         }
         return builder.toString();
     }
 
-    // Taken from https://github.com/lucko/LuckPerms/blob/master/common/src/main/resources/luckperms_en.properties
-    private static final Map<String, String> TRANSLATIONS = ImmutableMap.<String, String>builder()
-            .put("luckperms.duration.unit.years.plural", "%s years")
-            .put("luckperms.duration.unit.years.singular", "%s year")
-            .put("luckperms.duration.unit.years.short", "%sy")
-            .put("luckperms.duration.unit.months.plural", "%s months")
-            .put("luckperms.duration.unit.months.singular", "%s month")
-            .put("luckperms.duration.unit.months.short", "%smo")
-            .put("luckperms.duration.unit.weeks.plural", "%s weeks")
-            .put("luckperms.duration.unit.weeks.singular", "%s week")
-            .put("luckperms.duration.unit.weeks.short", "%sw")
-            .put("luckperms.duration.unit.days.plural", "%s days")
-            .put("luckperms.duration.unit.days.singular", "%s day")
-            .put("luckperms.duration.unit.days.short", "%sd")
-            .put("luckperms.duration.unit.hours.plural", "%s hours")
-            .put("luckperms.duration.unit.hours.singular", "%s hour")
-            .put("luckperms.duration.unit.hours.short", "%sh")
-            .put("luckperms.duration.unit.minutes.plural", "%s minutes")
-            .put("luckperms.duration.unit.minutes.singular", "%s minute")
-            .put("luckperms.duration.unit.minutes.short", "%sm")
-            .put("luckperms.duration.unit.seconds.plural", "%s seconds")
-            .put("luckperms.duration.unit.seconds.singular", "%s second")
-            .put("luckperms.duration.unit.seconds.short", "%ss")
-            .build();
-
-    private String formatPart(long amount, ChronoUnit unit) {
-        String format = this.concise ? "short" : amount == 1 ? "singular" : "plural";
-        String translationKey = "luckperms.duration.unit." + unit.name().toLowerCase(Locale.ROOT) + "." + format;
-        return String.format(TRANSLATIONS.get(translationKey), amount);
+    @NotNull
+    private String formatPart(@Nullable Object language, long amount, @NotNull ChronoUnit unit) {
+        final String format = this.concise ? "short" : amount == 1 ? "singular" : "plural";
+        final String translationKey = "duration.unit." + unit.name().toLowerCase(Locale.ROOT) + "." + format;
+        return amount + SaveData.get().getLang().getDisplay(language, translationKey).getText();
     }
 
 }

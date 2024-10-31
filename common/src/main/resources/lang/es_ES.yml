@@ -38,3 +38,34 @@ command:
     player: '&cEl jugador &6{0} &cno existe'
     database: '&cLa base de datos &6{0} &cno existe'
     datatype: '&cEl tipo de data &6{0} &cno existe'
+
+duration:
+  unit:
+    years:
+      plural: ' años'
+      singular: ' año'
+      short: 'a'
+    months:
+      plural: ' meses'
+      singular: ' mes'
+      short: 'me'
+    weeks:
+      plural: ' semanas'
+      singular: ' semana'
+      short: 'se'
+    days:
+      plural: ' días'
+      singular: ' día'
+      short: 'd'
+    hours:
+      plural: ' horas'
+      singular: ' hora'
+      short: 'h'
+    minutes:
+      plural: ' minutos'
+      singular: ' minuto'
+      short: 'm'
+    seconds:
+      plural: ' segundos'
+      singular: ' segundo'
+      short: 's'

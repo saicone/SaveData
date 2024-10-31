@@ -47,12 +47,22 @@ public class SaveDataAPI {
 
     @NotNull
     public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value) {
-        return value(uniqueId, operator, database, dataType, value, s -> s);
+        return value(uniqueId, operator, database, dataType, value, s -> s, null);
     }
 
     @NotNull
     public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
-        return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser);
+        return value(uniqueId, operator, database, dataType, value, userParser, null);
+    }
+
+    @NotNull
+    public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Object language) {
+        return value(uniqueId, operator, database, dataType, value, s -> s, language);
+    }
+
+    @NotNull
+    public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser, @Nullable Object language) {
+        return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser, language);
     }
 
     @NotNull

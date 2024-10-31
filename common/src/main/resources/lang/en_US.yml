@@ -38,3 +38,34 @@ command:
     player: '&cThe player &6{0} &cdoesn''t exists'
     database: '&cThe database &6{0} &cdoesn''t exists'
     datatype: '&cThe data type &6{0} &cdoesn''t exists'
+
+duration:
+  unit:
+    years:
+      plural: ' years'
+      singular: ' year'
+      short: 'y'
+    months:
+      plural: ' months'
+      singular: ' month'
+      short: 'mo'
+    weeks:
+      plural: ' weeks'
+      singular: ' week'
+      short: 'w'
+    days:
+      plural: ' days'
+      singular: ' day'
+      short: 'd'
+    hours:
+      plural: ' hours'
+      singular: ' hour'
+      short: 'h'
+    minutes:
+      plural: ' minutes'
+      singular: ' minute'
+      short: 'm'
+    seconds:
+      plural: ' seconds'
+      singular: ' second'
+      short: 's'

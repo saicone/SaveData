@@ -172,48 +172,37 @@ public class DataCore {
     }
 
     @NotNull
-    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value) {
-        return userValue(uniqueId, operator, database, dataType, value, s -> s);
-    }
-
-    @NotNull
     @SuppressWarnings("unchecked")
-    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
+    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser, @Nullable Object language) {
         SaveData.log(4, "Executing userValue from DataCore");
         if (!operator.isEval()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
         return getTransitiveUser(uniqueId, db -> db.getName().equals(database)).thenApply(user -> {
-            final DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
-            if (entry == null || entry.getValue() == null) {
-                SaveData.log(4, () -> "The " + (user.getNode(database) == null ? "database" : entry == null ? "data type" : "data value") + " doesn't exist on user data");
-                if (operator == DataOperator.GET) {
-                    final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
-                    if (type != null && type.getDefaultValue() != null) {
-                        final DataEntry<Object> tempEntry = new DataEntry<>(type);
-                        user.setEntry(database, tempEntry);
-                        return tempEntry.getUserValue(userParser);
-                    }
-                } else if (operator == DataOperator.CONTAINS) {
-                    return false;
+            DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
+            if (entry == null) {
+                final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
+                if (type == null) {
+                    return DataResult.INVALID_TYPE;
                 }
-                return null;
+                entry = new DataEntry<>(type);
+                user.setEntry(database, entry);
             }
             if (operator == DataOperator.GET) {
-                if (value instanceof String && ((String) value).equalsIgnoreCase("expiry")) {
+                if (value instanceof String && ((String) value).startsWith("expiry_time")) {
                     if (entry.isTemporary()) {
                         final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
                         if (duration.isNegative()) {
                             return 0;
                         }
-                        return DurationFormatter.CONCISE.format(duration);
+                        return DurationFormatter.format(null, duration, (String) value);
                     } else {
                         return 0;
                     }
                 }
                 return entry.getUserValue(userParser);
             } else if (operator == DataOperator.CONTAINS && entry.getType() instanceof CollectionDataType) {
-                if (value == null) {
+                if (value == null || entry.getValue() == null) {
                     return null;
                 }
                 final Object element;
