@@ -297,9 +297,7 @@ public class DataCore {
             }
             final DataEntry<Object> finalEntry = entry;
             Task.runAsync(() -> databases.get(database).saveDataEntry(uniqueId, finalEntry));
-            final Pair<Object, Object> pair = Pair.with(oldValue, result);
-            saveUser(user);
-            return pair;
+            return Pair.with(oldValue, result);
         });
     }
 
