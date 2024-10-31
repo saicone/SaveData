@@ -187,6 +187,16 @@ public class DataCore {
             final DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
             if (entry == null || entry.getValue() == null) {
                 SaveData.log(4, () -> "The " + (user.getNode(database) == null ? "database" : entry == null ? "data type" : "data value") + " doesn't exist on user data");
+                if (operator == DataOperator.GET) {
+                    final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
+                    if (type != null && type.getDefaultValue() != null) {
+                        final DataEntry<Object> tempEntry = new DataEntry<>(type);
+                        user.setEntry(database, tempEntry);
+                        return tempEntry.getUserValue(userParser);
+                    }
+                } else if (operator == DataOperator.CONTAINS) {
+                    return false;
+                }
                 return null;
             }
             if (operator == DataOperator.GET) {

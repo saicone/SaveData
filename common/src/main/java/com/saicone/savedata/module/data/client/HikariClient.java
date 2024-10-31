@@ -296,13 +296,13 @@ public class HikariClient implements DataClient {
                     final String type = result.getString("type");
                     final String key = result.getString("key");
                     if (node.containsKey(key)) {
-                        SaveData.log(2, "Found duplicated data type '" + key + "' for user " + user, ", deleting it...");
+                        SaveData.log(2, "Found duplicated data type '" + key + "' for user " + user + ", deleting it...");
                         toDelete.add(id);
                         continue;
                     }
                     final DataType<Object> dataType = dataProvider.apply(key);
                     if (dataType == null) {
-                        SaveData.log(2, "Found invalid data type '" + key + "' for user " + user, ", deleting it...");
+                        SaveData.log(2, "Found invalid data type '" + key + "' for user " + user + ", deleting it...");
                         toDelete.add(id);
                         continue;
                     }
@@ -343,7 +343,7 @@ public class HikariClient implements DataClient {
                 while (result.next()) {
                     final int id = result.getInt("id");
                     if (entry != null) {
-                        SaveData.log(2, "Found duplicated data type '" + key + "' for user " + user, ", deleting it...");
+                        SaveData.log(2, "Found duplicated data type '" + key + "' for user " + user + ", deleting it...");
                         toDelete.add(id);
                         continue;
                     }

@@ -40,7 +40,7 @@ public class DataNode implements ConcurrentMap<String, DataEntry<?>> {
                 SaveData.log(2, () -> "Cannot parse value '" + entry.getValue() + "'  as " +  dataType.getTypeName() + " while getting deprecated data");
                 continue;
             }
-            node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue, null));
+            node.put(entry.getKey(), new DataEntry<>(dataType, parsedValue));
         }
         return node;
     }

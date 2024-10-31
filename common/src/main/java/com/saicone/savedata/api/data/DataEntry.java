@@ -7,6 +7,13 @@ import java.util.function.Function;
 
 public class DataEntry<T> {
 
+    public static final Object NULL_VALUE = new Object() {
+        @Override
+        public String toString() {
+            return "null";
+        }
+    };
+
     private Integer id;
 
     private final DataType<T> type;
@@ -18,6 +25,10 @@ public class DataEntry<T> {
 
     public DataEntry(@NotNull DataType<T> type) {
         this(null, type, null, null);
+    }
+
+    public DataEntry(@NotNull DataType<T> type, @Nullable T value) {
+        this(null, type, value, null);
     }
 
     public DataEntry(@NotNull DataType<T> type, @Nullable T value, @Nullable Long expiration) {
@@ -73,11 +84,15 @@ public class DataEntry<T> {
     @SuppressWarnings("unchecked")
     public Object getUserValue(@NotNull Function<String, String> userParser) {
         if (userValue == null) {
-            T tempValue = value;
-            if (tempValue instanceof String && type.isUserParseable()){
-                tempValue = (T) userParser.apply((String) tempValue);
+            T tempValue = value == null ? type.getDefaultValue() : value;
+            if (tempValue == null) {
+                userValue = NULL_VALUE;
+            } else {
+                if (tempValue instanceof String && type.isUserParseable()){
+                    tempValue = (T) userParser.apply((String) tempValue);
+                }
+                userValue = type.eval(tempValue);
             }
-            userValue = type.eval(tempValue);
         }
         return userValue;
     }
