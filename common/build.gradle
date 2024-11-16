@@ -2,8 +2,7 @@ dependencies {
     compileOnly 'com.google.guava:guava:32.1.2-jre'
 
     // Implementation
-    compileOnly 'com.zaxxer:HikariCP:5.0.1'
     compileOnly 'com.ezylang:EvalEx:3.2.0'
-    compileOnly 'com.saicone.delivery4j:delivery4j:1.0'
-    compileOnly('com.saicone.delivery4j:delivery4j-hikari:1.0') { transitive = false }
+    compileOnly 'com.saicone.delivery4j:delivery4j:1.1'
+    compileOnly('com.saicone.delivery4j:broker-sql-hikari:1.1')
 }

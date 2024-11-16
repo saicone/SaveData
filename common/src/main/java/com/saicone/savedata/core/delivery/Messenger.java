@@ -1,19 +1,21 @@
 package com.saicone.savedata.core.delivery;
 
 import com.saicone.delivery4j.AbstractMessenger;
-import com.saicone.delivery4j.DeliveryClient;
-import com.saicone.delivery4j.client.HikariDelivery;
+import com.saicone.delivery4j.Broker;
+import com.saicone.delivery4j.broker.HikariBroker;
 import com.saicone.mcode.module.task.Task;
+import com.saicone.mcode.module.task.TaskExecutor;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.module.data.client.HikariClient;
 import com.saicone.settings.node.MapNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class Messenger extends AbstractMessenger {
+public class Messenger extends AbstractMessenger implements Broker.Logger, Executor {
 
     private final HikariClient client;
 
@@ -50,21 +52,19 @@ public class Messenger extends AbstractMessenger {
     }
 
     public void subscribe(@NotNull Consumer<String[]> incomingConsumer) {
-        subscribe(this.channel, incomingConsumer);
+        subscribe(this.channel).consume((channel, lines) -> incomingConsumer.accept(lines));
     }
 
-    public boolean sendAny(@Nullable Object... lines) {
-        return send(this.channel, lines);
-    }
-
-    @Override
-    protected @NotNull DeliveryClient loadDeliveryClient() {
-        return new HikariDelivery(this.client.getHikari(), this.prefix);
+    public void sendAny(@Nullable Object... lines) {
+        send(this.channel, lines);
     }
 
     @Override
-    public void log(int level, @NotNull Throwable t) {
-        SaveData.logException(level, t);
+    protected @NotNull Broker loadBroker() {
+        final HikariBroker broker = new HikariBroker(this.client.getHikari());
+        broker.setTablePrefix(this.prefix);
+        broker.setExecutor(new TaskExecutor());
+        return broker;
     }
 
     @Override
@@ -73,14 +73,22 @@ public class Messenger extends AbstractMessenger {
     }
 
     @Override
-    public @NotNull Runnable async(@NotNull Runnable runnable) {
-        final Object task = Task.runAsync(runnable);
-        return () -> Task.stop(task);
+    public void log(int level, @NotNull Supplier<String> msg) {
+        SaveData.log(level, msg);
     }
 
     @Override
-    public @NotNull Runnable asyncRepeating(@NotNull Runnable runnable, long time, @NotNull TimeUnit unit) {
-        final Object task = Task.timerAsync(runnable, time, time, unit);
-        return () -> Task.stop(task);
+    public void log(int level, @NotNull String msg, @NotNull Throwable throwable) {
+        SaveData.log(level, msg, throwable);
+    }
+
+    @Override
+    public void log(int level, @NotNull Supplier<String> msg, @NotNull Throwable throwable) {
+        SaveData.logException(level, throwable, msg);
+    }
+
+    @Override
+    public void execute(@NotNull Runnable command) {
+        Task.async(command);
     }
 }
