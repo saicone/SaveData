@@ -12,6 +12,7 @@ command:
     - '&6Operators:'
     - '&eget &8- &7Get the value'
     - '&econtains &8- &7Check if data value contains provided value'
+    - '&eexpiry &8- &7Get expiration time for data value'
     - '&edelete &8- &7Delete the data value'
     - ''
     - '&eset &8- &7Set the data value as provided value'

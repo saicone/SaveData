@@ -67,15 +67,17 @@ public class DurationFormatter {
 
     @NotNull
     public static String format(@Nullable Object language, @NotNull Duration duration, @NotNull String type) {
-        if (type.length() > 12) {
-            switch (type.substring(12).toLowerCase()) {
-                case "long":
-                    return LONG.format(language, duration);
-                case "concise":
-                    return CONCISE.format(language, duration);
-                case "concise_low_accuracy":
-                    return CONCISE_LOW_ACCURACY.format(language, duration);
-            }
+        switch (type.toLowerCase()) {
+            case "time_long":
+            case "long":
+                return LONG.format(language, duration);
+            case "time":
+            case "time_concise":
+            case "concise":
+                return CONCISE.format(language, duration);
+            case "time_concise_low_accuracy":
+            case "concise_low_accuracy":
+                return CONCISE_LOW_ACCURACY.format(language, duration);
         }
         return CONCISE.format(language, duration);
     }

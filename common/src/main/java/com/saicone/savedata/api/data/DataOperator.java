@@ -4,6 +4,7 @@ public enum DataOperator {
 
     GET,
     CONTAINS,
+    EXPIRY,
     DELETE,
     SET,
     ADD,
@@ -12,7 +13,7 @@ public enum DataOperator {
     DIVIDE;
 
     public boolean isEval() {
-        return this == GET || this == CONTAINS;
+        return this == GET || this == CONTAINS || this == EXPIRY;
     }
 
     public boolean isUpdate() {

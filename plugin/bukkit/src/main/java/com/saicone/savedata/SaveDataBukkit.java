@@ -86,6 +86,11 @@ public class SaveDataBukkit extends SaveData {
 
     private void registerPlaceholders() {
         if (Placeholders.isEnabled() && SaveData.settings().getIgnoreCase("hook", "placeholderapi", "enabled").asBoolean(true)) {
+            // <type>_<database>_<data type>
+            // <type>_<database>_<data type>_[value]
+            // <type>_<database>_<data type>_[operator]_[value]
+            //
+            // type = global | server | player
             this.placeholderNames = Placeholders.registerOffline(plugin(), SaveData.settings().getIgnoreCase("hook", "placeholderapi", "names").asSet(Types.STRING), (player, s) -> {
                 final String[] params = s.split("_", 5);
                 if (params.length < 3) {
@@ -112,11 +117,9 @@ public class SaveDataBukkit extends SaveData {
                 final String dataType;
                 final String value;
                 if (params.length > 4) {
-                    if (params[3].equalsIgnoreCase("GET")) {
-                        operator = DataOperator.GET;
-                    } else if (params[3].equalsIgnoreCase("CONTAINS")) {
-                        operator = DataOperator.CONTAINS;
-                    } else {
+                    try {
+                        operator = DataOperator.valueOf(params[3].toUpperCase());
+                    } catch (IllegalArgumentException e) {
                         return "The string '" + params[3] + "' is not a valid operator";
                     }
                     database = params[1];

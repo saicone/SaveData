@@ -188,18 +188,17 @@ public class DataCore {
                 entry = new DataEntry<>(type);
                 user.setEntry(database, entry);
             }
-            if (operator == DataOperator.GET) {
-                if (value instanceof String && ((String) value).startsWith("expiry_time")) {
-                    if (entry.isTemporary()) {
-                        final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
-                        if (duration.isNegative()) {
-                            return 0;
-                        }
-                        return DurationFormatter.format(null, duration, (String) value);
-                    } else {
+            if (operator == DataOperator.EXPIRY) {
+                if (entry.isTemporary()) {
+                    final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
+                    if (duration.isNegative()) {
                         return 0;
                     }
+                    return DurationFormatter.format(language, duration, value instanceof String ? (String) value : "time");
+                } else {
+                    return 0;
                 }
+            } else if (operator == DataOperator.GET) {
                 return entry.getUserValue(userParser);
             } else if (operator == DataOperator.CONTAINS && entry.getType() instanceof CollectionDataType) {
                 if (value == null || entry.getValue() == null) {

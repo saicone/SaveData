@@ -12,6 +12,7 @@ command:
     - '&6Operadores:'
     - '&eget &8- &7Obtener el valor de la data'
     - '&econtains &8- &7Revisar si el valor de la data contiene otro valor'
+    - '&eexpiry &8- &7Obtener el tiempo de expiración del valor de la data'
     - '&edelete &8- &7Borrar el valor de la data'
     - ''
     - '&eset &8- &7Reemplazar el valor de la data'
