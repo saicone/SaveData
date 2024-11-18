@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 // Copied from https://github.com/LuckPerms/placeholders/blob/master/common/src/main/java/me/lucko/luckperms/placeholders/DurationFormatter.java
 // Uses String instead of Chat Components
@@ -63,6 +64,29 @@ public class DurationFormatter {
     public DurationFormatter(boolean concise, int accuracy) {
         this.concise = concise;
         this.accuracy = accuracy;
+    }
+
+    public static long format(@NotNull String duration, @NotNull TimeUnit timeUnit) {
+        long time = 0L;
+        for (String s : duration.toUpperCase().split(" AND |, ")) {
+            final String[] split = s.split(" ", 2);
+            try {
+                if (split.length < 2) {
+                    if (split.length == 1) {
+                        time += Long.parseLong(split[0]);
+                    }
+                    continue;
+                }
+                String unit = split[1];
+                if (!unit.endsWith("S")) {
+                    unit = unit + "S";
+                }
+                time += TimeUnit.valueOf(unit).convert(Long.parseLong(split[0]), timeUnit);
+            } catch (Throwable t) {
+                throw new IllegalArgumentException("The duration '" + duration + "' cannot be parsed as " + timeUnit.name());
+            }
+        }
+        return time;
     }
 
     @NotNull

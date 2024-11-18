@@ -31,6 +31,9 @@ public interface DataClient {
     @Nullable
     <T> DataEntry<T> loadDataEntry(@NotNull UUID user, @NotNull String key, @NotNull DataType<T> dataType);
 
+    @NotNull
+    <T> Map<UUID, T> loadTopEntry(@NotNull String key, @NotNull DataType<T> dataType);
+
     void saveData(@NotNull UUID user, @NotNull DataNode node);
 
     void saveDataEntry(@NotNull UUID user, @NotNull DataEntry<?> entry);

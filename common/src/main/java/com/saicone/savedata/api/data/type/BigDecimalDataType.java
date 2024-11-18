@@ -81,4 +81,9 @@ public class BigDecimalDataType extends NumberDataType<BigDecimal> {
         }
         return i;
     }
+
+    @Override
+    public int compare(BigDecimal o1, BigDecimal o2) {
+        return o1.compareTo(o2);
+    }
 }

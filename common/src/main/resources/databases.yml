@@ -52,6 +52,22 @@ mysql-example:
     # URL flags
     flags:
       - 'useSSL=false'
+  # Top configuration, configured as list
+  top:
+      # Data type ID
+    - type: money
+      # Top limit
+      # Set to -1 to calculate a top position for every user
+      limit: 100
+      # Time delay to update top positions
+      # Set to 0 to update top in real-time
+      update: 10 MINUTES
+      # Set to true if you want to speed up the position get
+      # It will triple memory consumption
+      index-mapping: false
+      # Set to true if you want to return "-1" if there's no top position for user
+      # Set false to return the last position + 1
+      undefined-position: true
   # Messenger configuration
   messenger:
     # Enable or not a messenger instance on this database to maintain data updated on every server that use the database

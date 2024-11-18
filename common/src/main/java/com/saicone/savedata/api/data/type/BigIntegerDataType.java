@@ -58,4 +58,9 @@ public class BigIntegerDataType extends NumberDataType<BigInteger> {
         }
         return i;
     }
+
+    @Override
+    public int compare(BigInteger o1, BigInteger o2) {
+        return o1.compareTo(o2);
+    }
 }

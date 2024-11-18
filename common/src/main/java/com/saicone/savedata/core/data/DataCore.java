@@ -9,6 +9,7 @@ import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataType;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.api.data.type.CollectionDataType;
+import com.saicone.savedata.api.top.TopEntry;
 import com.saicone.savedata.util.DurationFormatter;
 import com.saicone.settings.Settings;
 import com.saicone.settings.SettingsData;
@@ -33,7 +34,7 @@ import java.util.function.Predicate;
 
 public class DataCore {
 
-    private final Executor executor = Task::runAsync;
+    private final Executor executor = Task::async;
 
     private final Map<String, Database> databases = new HashMap<>();
     private final Map<String, DataType<?>> dataTypes = new HashMap<>();
@@ -58,11 +59,19 @@ public class DataCore {
                                 return;
                             }
                             final UUID user = UUID.fromString(lines[0]);
-                            if (!userData.containsKey(user)) {
-                                return;
-                            }
                             final String key = lines[1];
                             if (!dataTypes.containsKey(key)) {
+                                return;
+                            }
+
+                            if (lines.length > 2) {
+                                final TopEntry<?> top = database.getTop(key);
+                                if (top != null) {
+                                    top.update(user, lines[2]);
+                                }
+                            }
+
+                            if (!userData.containsKey(user)) {
                                 return;
                             }
                             final DataEntry<?> dataEntry = database.getClient().loadDataEntry(user, key, dataTypes.get(key));
@@ -188,17 +197,7 @@ public class DataCore {
                 entry = new DataEntry<>(type);
                 user.setEntry(database, entry);
             }
-            if (operator == DataOperator.EXPIRY) {
-                if (entry.isTemporary()) {
-                    final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
-                    if (duration.isNegative()) {
-                        return 0;
-                    }
-                    return DurationFormatter.format(language, duration, value instanceof String ? (String) value : "time");
-                } else {
-                    return 0;
-                }
-            } else if (operator == DataOperator.GET) {
+            if (operator == DataOperator.GET) {
                 return entry.getUserValue(userParser);
             } else if (operator == DataOperator.CONTAINS && entry.getType() instanceof CollectionDataType) {
                 if (value == null || entry.getValue() == null) {
@@ -211,6 +210,16 @@ public class DataCore {
                     return DataResult.INVALID_VALUE;
                 }
                 return entry.getType().test(entry.getValue(), element);
+            } else if (operator == DataOperator.EXPIRY) {
+                if (entry.isTemporary()) {
+                    final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
+                    if (duration.isNegative()) {
+                        return 0;
+                    }
+                    return DurationFormatter.format(language, duration, value instanceof String ? (String) value : "time");
+                } else {
+                    return 0;
+                }
             }
             return null;
         });

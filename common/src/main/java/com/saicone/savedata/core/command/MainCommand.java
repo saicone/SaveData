@@ -7,6 +7,7 @@ import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.Lang;
+import com.saicone.savedata.util.DurationFormatter;
 import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -179,26 +180,15 @@ public interface MainCommand {
 
     @Nullable
     private Long parseExpiration(@NotNull String expiration) {
-        long time = 0L;
-        for (String s : expiration.toLowerCase().split(" and |, ")) {
-            final String[] split = s.split(" ", 2);
-            if (split.length < 2) {
-                continue;
-            }
-            try {
-                String unit = split[1].toUpperCase();
-                if (!unit.endsWith("S")) {
-                    unit = unit + "S";
-                }
-                time += TimeUnit.valueOf(unit).toMillis(Long.parseLong(split[0]));
-            } catch (Throwable t) {
-                SaveData.log(2, "Cannot parse expiration '" + expiration + "', if you are trying to set a String with spaces encapsulate it inside ``, for example `this is a string with spaces`");
+        try {
+            final long time = DurationFormatter.format(expiration, TimeUnit.MILLISECONDS);
+            if (time <= 0L) {
                 return null;
             }
-        }
-        if (time == 0L) {
+            return System.currentTimeMillis() + time;
+        } catch (IllegalArgumentException e) {
+            SaveData.log(2, "Cannot parse expiration '" + expiration + "', if you are trying to set a String with spaces encapsulate it inside ``, for example `this is a string with spaces`");
             return null;
         }
-        return System.currentTimeMillis() + time;
     }
 }

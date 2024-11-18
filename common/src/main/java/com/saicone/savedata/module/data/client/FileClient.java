@@ -18,9 +18,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class FileClient implements DataClient {
 
@@ -98,7 +100,7 @@ public class FileClient implements DataClient {
         SettingsData<Settings> data = this.userData.get(user);
         if (data == null) {
             data = SettingsData.of(com.saicone.settings.data.DataType.FILE, user + "." + this.type.getExtension())
-                    .parentFolder(this.folder.toFile()).loaded(new Settings());
+                    .parentFolder(this.folder.toFile());
             this.userData.put(user, data);
         }
         return data;
@@ -178,6 +180,47 @@ public class FileClient implements DataClient {
             entry = new DataEntry<>(dataType, parsedValue, expiration);
         }
         return entry;
+    }
+
+    @Override
+    public @NotNull <T> Map<UUID, T> loadTopEntry(@NotNull String key, @NotNull DataType<T> dataType) {
+        final Map<UUID, T> data = new HashMap<>();
+        try (Stream<Path> walk = Files.walk(this.folder, 1)) {
+            final Iterator<UUID> iterator = walk
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().toLowerCase().endsWith("." + this.type.getExtension()))
+                    .map(path -> {
+                        try {
+                            final String name = path.getFileName().toString();
+                            return UUID.fromString(name.substring(0, name.lastIndexOf('.')));
+                        } catch (IllegalArgumentException e) {
+                            return null;
+                        }
+                    })
+                    .iterator();
+            while (iterator.hasNext()) {
+                final UUID user = iterator.next();
+                final Settings config = getData(user).load();
+                if (!config.isEmpty()) {
+                    final SettingsNode node = config.get(key);
+                    if (!node.isMap()) {
+                        continue;
+                    }
+                    final MapNode map = node.asMapNode();
+                    final String value = map.getIgnoreCase("value").asString();
+                    final T parsedValue;
+                    try {
+                        parsedValue = dataType.load(value);
+                    } catch (Throwable t) {
+                        continue;
+                    }
+                    data.put(user, parsedValue);
+                }
+            }
+        } catch (IOException e) {
+            SaveData.logException(2, e, "Cannot load top data");
+        }
+        return data;
     }
 
     @Override

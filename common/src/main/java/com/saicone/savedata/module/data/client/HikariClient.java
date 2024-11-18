@@ -266,6 +266,10 @@ public class HikariClient implements DataClient {
     public String getSelectEntryStatement() {
         return this.schema.getSelect(this.type, "select:data_entry", List.of("*"), "{table_name}", tableName);
     }
+    @NotNull
+    public String getSelectTopStatement() {
+        return this.schema.getSelect(this.type, "select:top_entry", List.of("user", "value"), "{table_name}", tableName);
+    }
 
     @NotNull
     public String getInsertStatement() {
@@ -369,6 +373,31 @@ public class HikariClient implements DataClient {
                 deleteData(con, toDelete);
             }
             return entry;
+        });
+    }
+
+    @Override
+    public @NotNull <T> Map<UUID, T> loadTopEntry(@NotNull String key, @NotNull DataType<T> dataType) {
+        return connect(con -> {
+            final Map<UUID, T> data = new HashMap<>();
+            try (PreparedStatement stmt = con.prepareStatement(getSelectEntryStatement())) {
+                stmt.setString(1, key);
+                final ResultSet result = stmt.executeQuery();
+                while (result.next()) {
+                    final String user = result.getString("user");
+                    final String value = result.getString("value");
+                    final T parsedValue;
+                    try {
+                        parsedValue = dataType.load(value);
+                    } catch (Throwable t) {
+                        continue;
+                    }
+                    try {
+                        data.put(UUID.fromString(user), parsedValue);
+                    } catch (IllegalArgumentException ignored) { }
+                }
+            }
+            return data;
         });
     }
 

@@ -7,9 +7,11 @@ import com.saicone.mcode.module.lang.AbstractLang;
 import com.saicone.mcode.module.task.Task;
 import com.saicone.mcode.platform.PlatformType;
 import com.saicone.savedata.api.data.DataUser;
+import com.saicone.savedata.api.top.TopEntry;
 import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.core.command.SaveDataCommand;
 import com.saicone.savedata.api.data.DataOperator;
+import com.saicone.savedata.core.data.Database;
 import com.saicone.savedata.module.command.BukkitCommand;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
@@ -18,6 +20,7 @@ import com.saicone.types.Types;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.UUID;
@@ -88,7 +91,10 @@ public class SaveDataBukkit extends SaveData {
         if (Placeholders.isEnabled() && SaveData.settings().getIgnoreCase("hook", "placeholderapi", "enabled").asBoolean(true)) {
             // <type>_<database>_<data type>
             // <type>_<database>_<data type>_[value]
-            // <type>_<database>_<data type>_[operator]_[value]
+            // <type>_<database>_<data type>_<operator>_[value]
+            // top_<database>_<data type>_value
+            // top_<database>_<data type>_position
+            // top_<database>_<data type>_<index>_<value>
             //
             // type = global | server | player
             this.placeholderNames = Placeholders.registerOffline(plugin(), SaveData.settings().getIgnoreCase("hook", "placeholderapi", "names").asSet(Types.STRING), (player, s) -> {
@@ -109,6 +115,30 @@ public class SaveDataBukkit extends SaveData {
                         }
                         uniqueId = player.getUniqueId();
                         break;
+                    case "top":
+                        final Database database = getDataCore().getDatabases().get(params[1]);
+                        if (database == null) {
+                            return "The database '" + params[1] + "' doesn't exist";
+                        }
+                        final TopEntry<?> top = database.getTop(params[2]);
+                        if (top == null) {
+                            return "The data type '" + params[2] + "' doesn't have a top on '" + params[1] + "' database";
+                        }
+                        if (params.length < 5) {
+                            uniqueId = player == null ? DataUser.SERVER_ID : player.getUniqueId();
+                            if (params.length > 3 && params[3].equalsIgnoreCase("value")) {
+                                return top.value(uniqueId);
+                            }
+                            return top.get(uniqueId);
+                        }
+                        uniqueId = top.get(Integer.parseInt(params[3]));
+                        if (uniqueId == null) {
+                            if (params[4].equalsIgnoreCase("value")) {
+                                return top.getType().getDefaultValue();
+                            }
+                            return null;
+                        }
+                        return getUserValue(uniqueId, params[4]);
                     default:
                         return "The type '" + params[0] + "' is not a valid type";
                 }
@@ -122,6 +152,9 @@ public class SaveDataBukkit extends SaveData {
                     } catch (IllegalArgumentException e) {
                         return "The string '" + params[3] + "' is not a valid operator";
                     }
+                    if (!operator.isEval()) {
+                        return "Cannot execute data update using placeholders";
+                    }
                     database = params[1];
                     dataType = params[2];
                     value = params[4];
@@ -133,6 +166,15 @@ public class SaveDataBukkit extends SaveData {
                 }
                 return getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str), SaveData.get().getLang().getLanguageFor(player)).join();
             });
+        }
+    }
+
+    @NotNull
+    private String getUserValue(@NotNull UUID user, @NotNull String key) {
+        if (DataUser.SERVER_ID.equals(user)) {
+
+        } else {
+
         }
     }
 

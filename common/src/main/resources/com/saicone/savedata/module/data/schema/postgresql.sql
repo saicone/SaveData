@@ -16,7 +16,11 @@ SELECT {column_set} FROM "{table_name}" WHERE "user" = ?;
 
 -- select:data_entry
 
-SELECT {column_set} FROM `{table_name}` WHERE "user" = ? AND "key" = ?;
+SELECT {column_set} FROM "{table_name}" WHERE "user" = ? AND "key" = ?;
+
+-- select:top_entry
+
+SELECT {column_set} FROM "{table_name}" WHERE "key" = ?;
 
 -- insert:data
 

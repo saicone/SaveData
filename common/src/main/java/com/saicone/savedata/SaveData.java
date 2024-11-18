@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
         // Javatuples
         @Dependency(value = "org.javatuples:javatuples:1.2", relocate = {"org.javatuples", "{package}.libs.javatuples"}),
         // Hikari
-        @Dependency(value = "com.zaxxer:HikariCP:5.1.0", relocate = {
+        @Dependency(value = "com.zaxxer:HikariCP:6.1.0", relocate = {
                 "com.zaxxer.hikari", "{package}.libs.hikari",
                 "org.slf4j", "{package}.libs.slf4j"
         }),
@@ -22,14 +22,14 @@ import org.jetbrains.annotations.NotNull;
         // EvalEx
         @Dependency(value = "com.ezylang:EvalEx:3.2.0", relocate = {"com.ezylang.evalex", "{package}.libs.evalex"}),
         // Settings
-        @Dependency("com.saicone.settings:settings:1.0"),
-        @Dependency("com.saicone.settings:settings-gson:1.0"),
-        @Dependency("com.saicone.settings:settings-hocon:1.0"),
-        @Dependency("com.saicone.settings:settings-toml:1.0"),
-        @Dependency(value = "com.saicone.settings:settings-yaml:1.0", transitive = false),
+        @Dependency("com.saicone.settings:settings:1.0.1"),
+        @Dependency("com.saicone.settings:settings-gson:1.0.1"),
+        @Dependency("com.saicone.settings:settings-hocon:1.0.1"),
+        @Dependency("com.saicone.settings:settings-toml:1.0.1"),
+        @Dependency(value = "com.saicone.settings:settings-yaml:1.0.1", transitive = false),
         // Delivery4j
-        @Dependency("com.saicone.delivery4j:delivery4j:1.0"),
-        @Dependency(value = "com.saicone.delivery4j:delivery4j-hikari:1.0", transitive = false)
+        @Dependency("com.saicone.delivery4j:delivery4j:1.1"),
+        @Dependency(value = "com.saicone.delivery4j:delivery4j-hikari:1.1", transitive = false)
 }, relocations = {
         "com.saicone.types", "{package}.libs.types",
         "com.saicone.settings", "{package}.libs.settings",
