@@ -5,10 +5,16 @@ import com.saicone.ezlib.Dependency;
 import com.saicone.mcode.Plugin;
 import com.saicone.mcode.module.lang.AbstractLang;
 import com.saicone.savedata.core.data.DataCore;
+import com.saicone.savedata.module.settings.DatabaseUpdater;
 import com.saicone.settings.Settings;
 import com.saicone.settings.SettingsData;
 import com.saicone.settings.data.DataType;
+import com.saicone.settings.update.NodeUpdate;
+import com.saicone.settings.update.SettingsUpdater;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Dependencies(value = {
         // Javatuples
@@ -40,6 +46,7 @@ public abstract class SaveData extends Plugin {
     private static SaveData instance;
 
     private final SettingsData<Settings> settings;
+    private final SettingsUpdater updater;
     private final AbstractLang<?> lang;
     private final DataCore dataCore;
 
@@ -59,6 +66,7 @@ public abstract class SaveData extends Plugin {
         }
         instance = this;
         this.settings = SettingsData.of("settings.yml").or(DataType.INPUT_STREAM, "settings.yml");
+        this.updater = new SettingsUpdater(initUpdates());
         this.lang = initLang();
         this.lang.setUseSettings(true);
         this.dataCore = new DataCore();
@@ -67,9 +75,26 @@ public abstract class SaveData extends Plugin {
     @NotNull
     protected abstract AbstractLang<?> initLang();
 
+    @NotNull
+    private List<NodeUpdate> initUpdates() {
+        final List<NodeUpdate> updates = new ArrayList<>();
+        updates.add(NodeUpdate.move().from("plugin", "log-level").to("Plugin", "LogLevel"));
+        updates.add(new DatabaseUpdater());
+        initUpdates(updates);
+        return updates;
+    }
+
+    protected void initUpdates(@NotNull List<NodeUpdate> updates) {
+        // empty default method
+    }
+
     @Override
     public void onLoad() {
         this.settings.load(this.getFolder().toFile());
+        // TODO: Implement updater after tests
+        //if (this.updater.update(this.settings.getLoaded(), null)) {
+        //    this.settings.save();
+        //}
         this.lang.load();
         setLogLevel(settings().getIgnoreCase("plugin", "loglevel").asInt(3));
         this.dataCore.onLoad();

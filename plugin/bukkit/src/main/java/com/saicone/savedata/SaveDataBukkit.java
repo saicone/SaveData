@@ -16,6 +16,7 @@ import com.saicone.savedata.module.command.BukkitCommand;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
 import com.saicone.savedata.module.listener.BukkitListener;
+import com.saicone.settings.update.NodeUpdate;
 import com.saicone.types.Types;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,6 +52,13 @@ public class SaveDataBukkit extends SaveData {
     @Override
     protected @NotNull AbstractLang<?> initLang() {
         return new BukkitLang(plugin(), new Lang());
+    }
+
+    @Override
+    protected void initUpdates(@NotNull List<NodeUpdate> updates) {
+        updates.add(NodeUpdate.move().from("placeholder", "register").to("placeholder", "Enabled"));
+        updates.add(NodeUpdate.move().from("placeholder", "names").to("placeholder", "Names"));
+        updates.add(NodeUpdate.move().from("placeholder").to("Hook", "PlaceholderAPI"));
     }
 
     @Override

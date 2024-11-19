@@ -68,7 +68,7 @@ public class HikariClient implements DataClient {
         final String type = config.getIgnoreCase("type").asString("mysql");
         this.type = SqlType.of(type, null);
 
-        this.tableName = config.getRegex("(?i)table-?(name)?").asString("data");
+        this.tableName = config.getRegex("(?i)table-?(name)?").asString("savedata_data");
 
         if (this.type == null) {
             SaveData.log(1, "Cannot initialize SQL database, the sql type '" + type + "' doesn't exists");
