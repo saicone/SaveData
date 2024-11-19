@@ -18,6 +18,7 @@ import com.saicone.savedata.module.hook.PlayerProvider;
 import com.saicone.savedata.module.listener.BukkitListener;
 import com.saicone.types.Types;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,10 +133,10 @@ public class SaveDataBukkit extends SaveData {
                             return top.get(uniqueId);
                         }
                         uniqueId = top.get(Integer.parseInt(params[3]));
+                        if (params[4].equalsIgnoreCase("value")) {
+                            return top.formatted(uniqueId);
+                        }
                         if (uniqueId == null) {
-                            if (params[4].equalsIgnoreCase("value")) {
-                                return top.getType().getDefaultValue();
-                            }
                             return null;
                         }
                         return getUserValue(uniqueId, params[4]);
@@ -169,12 +170,42 @@ public class SaveDataBukkit extends SaveData {
         }
     }
 
-    @NotNull
-    private String getUserValue(@NotNull UUID user, @NotNull String key) {
+    @Nullable
+    private Object getUserValue(@NotNull UUID user, @NotNull String key) {
         if (DataUser.SERVER_ID.equals(user)) {
-
-        } else {
-
+            switch (key.toLowerCase()) {
+                case "uuid":
+                    return user;
+                case "name":
+                    return "@server";
+                default:
+                    return null;
+            }
+        }
+        final Player player = Bukkit.getPlayer(user);
+        if (player == null) {
+            switch (key.toLowerCase()) {
+                case "uuid":
+                    return user;
+                case "id":
+                    return user.toString().replace('-', '\0');
+                case "name":
+                    return PlayerProvider.getName(user);
+                default:
+                    return null;
+            }
+        }
+        switch (key.toLowerCase()) {
+            case "uuid":
+                return user;
+            case "id":
+                return user.toString().replace('-', '\0');
+            case "name":
+                return player.getName();
+            case "display_name":
+                return player.getDisplayName();
+            default:
+                return null;
         }
     }
 
