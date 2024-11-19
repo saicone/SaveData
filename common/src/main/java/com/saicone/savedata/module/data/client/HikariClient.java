@@ -266,6 +266,7 @@ public class HikariClient implements DataClient {
     public String getSelectEntryStatement() {
         return this.schema.getSelect(this.type, "select:data_entry", List.of("*"), "{table_name}", tableName);
     }
+
     @NotNull
     public String getSelectTopStatement() {
         return this.schema.getSelect(this.type, "select:top_entry", List.of("user", "value"), "{table_name}", tableName);
@@ -380,7 +381,7 @@ public class HikariClient implements DataClient {
     public @NotNull <T> Map<UUID, T> loadTopEntry(@NotNull String key, @NotNull DataType<T> dataType) {
         return connect(con -> {
             final Map<UUID, T> data = new HashMap<>();
-            try (PreparedStatement stmt = con.prepareStatement(getSelectEntryStatement())) {
+            try (PreparedStatement stmt = con.prepareStatement(getSelectTopStatement())) {
                 stmt.setString(1, key);
                 final ResultSet result = stmt.executeQuery();
                 while (result.next()) {
@@ -495,7 +496,7 @@ public class HikariClient implements DataClient {
                     update.execute();
                 }
             } else {
-                try (PreparedStatement insert = con.prepareStatement(getInsertStatement())) {
+                try (PreparedStatement insert = con.prepareStatement(getInsertStatement(), Statement.RETURN_GENERATED_KEYS)) {
                     insert.setString(1, user.toString());
                     insert.setString(2, entry.getType().getTypeName());
                     insert.setString(3, entry.getType().getId());

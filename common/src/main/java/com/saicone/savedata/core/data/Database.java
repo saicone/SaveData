@@ -75,14 +75,14 @@ public class Database {
                     undefinedPosition = map.getRegex("(?i)undefined-?position").asBoolean(true);
                 }
                 if (!(type instanceof NumberDataType)) {
-                    SaveData.log(2, "Cannot create a top for non-number data type '" + key + "'");
+                    SaveData.log(2, "Cannot create a top for non-number data type '" + key + "'" + (type == null ? "" : ", current instance: " + type.getClass().getName()));
                     continue;
                 }
                 final TopEntry<? extends Number> entry = new TopEntry<>((NumberDataType<? extends Number>) type, limit, update, indexMapping, undefinedPosition);
-                entry.update(this.client, key);
                 this.tops.put(key, entry);
             }
         }
+        SaveData.log(4, "Loaded " + this.tops.size() + " top" + (this.tops.size() == 1 ? "" : "s") + ": " + String.join(", ", this.tops.keySet()));
         if (this.client instanceof HikariClient) {
             final SettingsNode messengerConfig = config.getIgnoreCase("messenger");
             if (messengerConfig.isMap() && messengerConfig.asMapNode().getIgnoreCase("enabled").asBoolean(false)) {
@@ -94,6 +94,9 @@ public class Database {
 
     public void onEnable() {
         this.client.onStart();
+        for (Map.Entry<String, TopEntry<?>> entry : this.tops.entrySet()) {
+            entry.getValue().update(this.client, entry.getValue().getType().getId());
+        }
         if (this.messenger != null) {
             this.messenger.onStart();
         }
@@ -103,6 +106,10 @@ public class Database {
         if (this.messenger != null) {
             this.messenger.onClose();
         }
+        for (Map.Entry<String, TopEntry<?>> entry : this.tops.entrySet()) {
+            entry.getValue().clear();
+        }
+        this.tops.clear();
         this.client.onClose();
     }
 

@@ -41,6 +41,10 @@ public class DataCore {
     private final Map<UUID, DataUser> userData = new ConcurrentHashMap<>();
 
     public void onLoad() {
+        // Load data types
+        loadDataTypes(SaveData.get().getFolder().resolve("datatypes"));
+        SaveData.log(3, "Loaded " + this.dataTypes.size() + " data type" + (this.dataTypes.size() == 1 ? "" : "s"));
+
         // Load databases
         final Settings databaseConfig = SettingsData.of("databases.yml").or(com.saicone.settings.data.DataType.INPUT_STREAM, "databases.yml").load(SaveData.get().getFolder().toFile());
         for (Map.Entry<String, SettingsNode> entry : databaseConfig.getValue().entrySet()) {
@@ -87,10 +91,6 @@ public class DataCore {
             }
         }
         SaveData.log(3, "Loaded " + this.databases.size() + " database" + (this.databases.size() == 1 ? "" : "s") + ": " + String.join(", ", this.databases.keySet()));
-
-        // Load data types
-        loadDataTypes(SaveData.get().getFolder().resolve("datatypes"));
-        SaveData.log(3, "Loaded " + this.dataTypes.size() + " data type" + (this.dataTypes.size() == 1 ? "" : "s"));
     }
 
     public void onEnable() {

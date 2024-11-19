@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,9 +26,9 @@ public class TopEntry<T extends Number> {
     private final boolean indexMapping;
     private final boolean undefinedPosition;
 
-    private Map<UUID, T> data = Map.of();
-    private List<UUID> sorted = List.of();
-    private Map<UUID, Integer> indexes = Map.of();
+    private Map<UUID, T> data = new HashMap<>();
+    private List<UUID> sorted = new ArrayList<>();
+    private Map<UUID, Integer> indexes = new HashMap<>();
 
     private transient long lastUpdate = -1;
     private transient final Map<UUID, Object> toUpdate = new HashMap<>();
@@ -107,6 +108,25 @@ public class TopEntry<T extends Number> {
         return this.data.getOrDefault(user, this.type.getDefaultValue());
     }
 
+    @Nullable
+    public Object formatted(int position) {
+        return formatted(get(position));
+    }
+
+    @Nullable
+    public Object formatted(@Nullable UUID user) {
+        final T value;
+        if (user == null) {
+            value = this.type.getDefaultValue();
+        } else {
+            value = this.data.getOrDefault(user, this.type.getDefaultValue());
+        }
+        if (value == null) {
+            return null;
+        }
+        return this.type.eval(value);
+    }
+
     public void update(@NotNull UUID user, @Nullable Object value) {
         if (value == null) {
             this.data.remove(user);
@@ -155,11 +175,11 @@ public class TopEntry<T extends Number> {
         this.data.put(user, parsedValue);
 
         // Update index
-        int index = Collections.binarySearch(this.sorted, user, Comparator.comparing(this.data::get, this.type));
+        this.sorted.remove(user);
+        int index = Collections.binarySearch(this.sorted, user, Comparator.comparing(this.data::get, this.type.reversed()));
         if (index < 0) {
             index = -index - 1;
         }
-        this.sorted.remove(user);
         this.sorted.add(index, user);
 
         if (this.indexMapping) {
@@ -174,9 +194,9 @@ public class TopEntry<T extends Number> {
 
     public void update(@NotNull Map<UUID, T> data) {
         if (data.isEmpty()) {
-            this.data = Map.of();
-            this.sorted = List.of();
-            this.indexes = Map.of();
+            this.data = new HashMap<>();
+            this.sorted = new ArrayList<>();
+            this.indexes = new HashMap<>();
             return;
         }
         var stream = data.entrySet().stream().sorted(Map.Entry.comparingByValue(this.type.reversed()));
@@ -193,5 +213,12 @@ public class TopEntry<T extends Number> {
         }
         this.data = data;
         this.sorted = sorted;
+    }
+
+    public void clear() {
+        this.data.clear();
+        this.sorted.clear();
+        this.indexes.clear();
+        this.toUpdate.clear();
     }
 }

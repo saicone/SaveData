@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
         @Dependency(value = "com.saicone.settings:settings-yaml:1.0.1", transitive = false),
         // Delivery4j
         @Dependency("com.saicone.delivery4j:delivery4j:1.1"),
-        @Dependency(value = "com.saicone.delivery4j:delivery4j-hikari:1.1", transitive = false)
+        @Dependency(value = "com.saicone.delivery4j:broker-sql-hikari:1.1", transitive = false)
 }, relocations = {
         "com.saicone.types", "{package}.libs.types",
         "com.saicone.settings", "{package}.libs.settings",
