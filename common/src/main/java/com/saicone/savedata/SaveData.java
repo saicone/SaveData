@@ -35,7 +35,12 @@ import java.util.List;
         @Dependency(value = "com.saicone.settings:settings-yaml:1.0.1", transitive = false),
         // Delivery4j
         @Dependency("com.saicone.delivery4j:delivery4j:1.1"),
-        @Dependency(value = "com.saicone.delivery4j:broker-sql-hikari:1.1", transitive = false)
+        @Dependency(value = "com.saicone.delivery4j:broker-sql-hikari:1.1",
+                exclude = "com.zaxxer:HikariCP",
+                relocate = {
+                "com.zaxxer.hikari", "{package}.libs.hikari",
+                "org.slf4j", "{package}.libs.slf4j"
+        })
 }, relocations = {
         "com.saicone.types", "{package}.libs.types",
         "com.saicone.settings", "{package}.libs.settings",

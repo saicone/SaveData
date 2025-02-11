@@ -155,7 +155,7 @@ public class DurationFormatter {
     private String formatPart(@Nullable Object language, long amount, @NotNull ChronoUnit unit) {
         final String format = this.concise ? "short" : amount == 1 ? "singular" : "plural";
         final String translationKey = "duration.unit." + unit.name().toLowerCase(Locale.ROOT) + "." + format;
-        return amount + SaveData.get().getLang().getDisplay(language, translationKey).getText();
+        return amount + SaveData.get().getLang().getDisplay(language, translationKey).getText().getAsString().getValue();
     }
 
 }

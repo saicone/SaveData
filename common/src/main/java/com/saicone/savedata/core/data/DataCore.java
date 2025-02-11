@@ -105,7 +105,6 @@ public class DataCore {
         for (Map.Entry<String, Database> entry : databases.entrySet()) {
             entry.getValue().onDisable();
         }
-        clear();
     }
 
     public void onReload() {

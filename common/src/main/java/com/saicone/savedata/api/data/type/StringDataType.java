@@ -1,6 +1,6 @@
 package com.saicone.savedata.api.data.type;
 
-import com.saicone.mcode.util.MStrings;
+import com.saicone.mcode.util.text.MStrings;
 import com.saicone.savedata.api.data.DataType;
 import com.saicone.types.TypeParser;
 import com.saicone.types.Types;

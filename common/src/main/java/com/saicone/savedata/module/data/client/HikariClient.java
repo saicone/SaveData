@@ -1,7 +1,7 @@
 package com.saicone.savedata.module.data.client;
 
 import com.saicone.ezlib.EzlibLoader;
-import com.saicone.mcode.util.Strings;
+import com.saicone.mcode.util.text.Strings;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataEntry;
 import com.saicone.savedata.api.data.DataNode;
@@ -76,16 +76,16 @@ public class HikariClient implements DataClient {
             return;
         }
 
-        if (!SCHEMA.isLoaded()) {
+        if (!schema.isLoaded()) {
             try {
-                SCHEMA.load("com/saicone/savedata/module/data/schema");
-                SaveData.log(4, "Sql schema load queries for " + SCHEMA.getQueries().size() + " sql types: " + SCHEMA.getQueries().keySet().stream().map(Enum::name).collect(Collectors.joining(", ")));
+                schema.load("com/saicone/savedata/module/data/schema");
+                SaveData.log(4, "Sql schema load queries for " + schema.getQueries().size() + " sql types: " + schema.getQueries().keySet().stream().map(Enum::name).collect(Collectors.joining(", ")));
             } catch (IOException e) {
                 SaveData.logException(1, e, "Cannot load SQL schema");
             }
         }
-        if (SCHEMA.getQueries().containsKey(this.type)) {
-            SaveData.log(4, "Using sql type '" + this.type.name() + "' with queries: " + String.join(", ", SCHEMA.getQueries().get(this.type).keySet()));
+        if (schema.getQueries().containsKey(this.type)) {
+            SaveData.log(4, "Using sql type '" + this.type.name() + "' with queries: " + String.join(", ", schema.getQueries().get(this.type).keySet()));
         }
 
         this.hikariConfig = new HikariConfig();
@@ -129,7 +129,7 @@ public class HikariClient implements DataClient {
             if (isTablePresent(con, tableName)) {
                 return;
             }
-            SaveData.log(43, "The table '" + tableName + "' doesn't exist, so will be created");
+            SaveData.log(3, "The table '" + tableName + "' doesn't exist, so will be created");
 
             final List<String> list = schema.getList(type, "create:data_table", "{table_name}", tableName);
             boolean fail = false;
