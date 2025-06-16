@@ -146,7 +146,7 @@ public class SaveDataBukkit extends SaveData {
                             return top.formatted(uniqueId);
                         }
                         if (uniqueId == null) {
-                            return null;
+                            return getUserValue(params[4]);
                         }
                         return getUserValue(uniqueId, params[4]);
                     default:
@@ -176,6 +176,21 @@ public class SaveDataBukkit extends SaveData {
                 }
                 return getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str), SaveData.get().getLang().getLanguageFor(player)).join();
             });
+        }
+    }
+
+    @Nullable
+    private Object getUserValue(@NotNull String key) {
+        switch (key.toLowerCase()) {
+            case "uuid":
+                return DataUser.SERVER_ID;
+            case "id":
+                return DataUser.SERVER_ID.toString().replace('-', '\0');
+            case "name":
+            case "display_name":
+                return "---";
+            default:
+                return null;
         }
     }
 
