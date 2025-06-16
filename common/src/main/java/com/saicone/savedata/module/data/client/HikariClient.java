@@ -237,7 +237,9 @@ public class HikariClient implements DataClient {
 
     @Override
     public void onClose() {
-        this.hikari.close();
+        if (this.hikari != null) {
+            this.hikari.close();
+        }
     }
 
     @NotNull

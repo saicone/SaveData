@@ -130,7 +130,7 @@ public class TopEntry<T extends Number> {
     public void update(@NotNull UUID user, @Nullable Object value) {
         if (value == null) {
             this.data.remove(user);
-            this.sorted.remove(user);
+            this.sorted.removeIf(user::equals);
             if (this.indexMapping) {
                 this.indexes.remove(user);
             }
@@ -175,7 +175,7 @@ public class TopEntry<T extends Number> {
         this.data.put(user, parsedValue);
 
         // Update index
-        this.sorted.remove(user);
+        this.sorted.removeIf(user::equals);
         int index = Collections.binarySearch(this.sorted, user, Comparator.comparing(this.data::get, this.type.reversed()));
         if (index < 0) {
             index = -index - 1;
