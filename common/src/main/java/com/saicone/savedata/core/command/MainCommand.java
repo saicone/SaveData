@@ -8,7 +8,6 @@ import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.util.DurationFormatter;
-import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,9 +140,9 @@ public interface MainCommand {
                     default:
                         break;
                 }
-            } else if (getResult && result instanceof Pair) {
+            } else if (getResult && result instanceof Dual) {
                 final long time = System.currentTimeMillis() - before;
-                Lang.COMMAND_DATA_EDIT.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, ((Pair<?, ?>) result).getValue0(), ((Pair<?, ?>) result).getValue1(), time);
+                Lang.COMMAND_DATA_EDIT.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, ((Dual<?, ?>) result).getLeft(), ((Dual<?, ?>) result).getRight(), time);
             }
         });
     }

@@ -1,6 +1,7 @@
 package com.saicone.savedata.core.data;
 
 import com.saicone.mcode.module.task.Task;
+import com.saicone.mcode.util.Dual;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataEntry;
 import com.saicone.savedata.api.data.DataNode;
@@ -15,7 +16,6 @@ import com.saicone.settings.Settings;
 import com.saicone.settings.SettingsData;
 import com.saicone.settings.SettingsNode;
 import com.saicone.settings.node.MapNode;
-import org.javatuples.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -293,7 +293,7 @@ public class DataCore {
             }
             final DataEntry<Object> finalEntry = entry;
             Task.runAsync(() -> databases.get(database).saveDataEntry(uniqueId, finalEntry));
-            return Pair.with(oldValue, result);
+            return Dual.of(oldValue, result);
         });
     }
 

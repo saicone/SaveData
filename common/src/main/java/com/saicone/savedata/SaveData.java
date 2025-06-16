@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Dependencies(value = {
-        // Javatuples
-        @Dependency(value = "org.javatuples:javatuples:1.2", relocate = {"org.javatuples", "{package}.libs.javatuples"}),
         // Hikari
         @Dependency(value = "com.zaxxer:HikariCP:6.1.0", relocate = {
                 "com.zaxxer.hikari", "{package}.libs.hikari",
