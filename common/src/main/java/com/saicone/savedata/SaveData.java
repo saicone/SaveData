@@ -18,31 +18,31 @@ import java.util.List;
 
 @Dependencies(value = {
         // Hikari
-        @Dependency(value = "com.zaxxer:HikariCP:6.1.0", relocate = {
-                "com.zaxxer.hikari", "{package}.libs.hikari",
-                "org.slf4j", "{package}.libs.slf4j"
+        @Dependency(value = "com{}zaxxer:HikariCP:6.1.0", relocate = {
+                "com{}zaxxer{}hikari", "{package}.libs.hikari",
+                "org{}slf4j", "{package}.libs.slf4j"
         }),
-        @Dependency(value = "org.slf4j:slf4j-nop:1.7.36", relocate = {"org.slf4j", "{package}.libs.slf4j"}),
+        @Dependency(value = "org{}slf4j:slf4j-nop:1.7.36", relocate = {"org{}slf4j", "{package}.libs.slf4j"}),
         // EvalEx
-        @Dependency(value = "com.ezylang:EvalEx:3.2.0", relocate = {"com.ezylang.evalex", "{package}.libs.evalex"}),
+        @Dependency(value = "com{}ezylang:EvalEx:3.2.0", relocate = {"com{}ezylang{}evalex", "{package}.libs.evalex"}),
         // Settings
-        @Dependency("com.saicone.settings:settings:1.0.1"),
-        @Dependency("com.saicone.settings:settings-gson:1.0.1"),
-        @Dependency("com.saicone.settings:settings-hocon:1.0.1"),
-        @Dependency("com.saicone.settings:settings-toml:1.0.1"),
-        @Dependency(value = "com.saicone.settings:settings-yaml:1.0.1", transitive = false),
+        @Dependency("com{}saicone{}settings:settings:1.0.1"),
+        @Dependency("com{}saicone{}settings:settings-gson:1.0.1"),
+        @Dependency("com{}saicone{}settings:settings-hocon:1.0.1"),
+        @Dependency("com{}saicone{}settings:settings-toml:1.0.1"),
+        @Dependency(value = "com{}saicone{}settings:settings-yaml:1.0.1", transitive = false),
         // Delivery4j
-        @Dependency("com.saicone.delivery4j:delivery4j:1.1"),
-        @Dependency(value = "com.saicone.delivery4j:broker-sql-hikari:1.1",
+        @Dependency("com{}saicone{}delivery4j:delivery4j:1.1"),
+        @Dependency(value = "com{}saicone{}delivery4j:broker-sql-hikari:1.1",
                 exclude = "com.zaxxer:HikariCP",
                 relocate = {
-                "com.zaxxer.hikari", "{package}.libs.hikari",
-                "org.slf4j", "{package}.libs.slf4j"
+                "com{}zaxxer{}hikari", "{package}.libs.hikari",
+                "org{}slf4j", "{package}.libs.slf4j"
         })
 }, relocations = {
-        "com.saicone.types", "{package}.libs.types",
-        "com.saicone.settings", "{package}.libs.settings",
-        "com.saicone.delivery4j", "{package}.libs.delivery4j"
+        "com{}saicone{}types", "{package}.libs.types",
+        "com{}saicone{}settings", "{package}.libs.settings",
+        "com{}saicone{}delivery4j", "{package}.libs.delivery4j"
 })
 public abstract class SaveData extends Plugin {
 
