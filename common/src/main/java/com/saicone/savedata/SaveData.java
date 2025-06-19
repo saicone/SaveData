@@ -22,15 +22,21 @@ import java.util.List;
                 "com{}zaxxer{}hikari", "{package}.libs.hikari",
                 "org{}slf4j", "{package}.libs.slf4j"
         }),
-        @Dependency(value = "org{}slf4j:slf4j-nop:1.7.36", relocate = {"org{}slf4j", "{package}.libs.slf4j"}),
+        @Dependency(value = "org{}slf4j:slf4j-nop:1.7.36", relocate = {
+                "org{}slf4j", "{package}.libs.slf4j"
+        }),
         // EvalEx
-        @Dependency(value = "com{}ezylang:EvalEx:3.2.0", relocate = {"com{}ezylang{}evalex", "{package}.libs.evalex"}),
+        @Dependency(value = "com{}ezylang:EvalEx:3.2.0", relocate = {
+                "com{}ezylang{}evalex", "{package}.libs.evalex"
+        }),
         // Settings
         @Dependency("com{}saicone{}settings:settings:1.0.1"),
         @Dependency("com{}saicone{}settings:settings-gson:1.0.1"),
         @Dependency("com{}saicone{}settings:settings-hocon:1.0.1"),
         @Dependency("com{}saicone{}settings:settings-toml:1.0.1"),
-        @Dependency(value = "com{}saicone{}settings:settings-yaml:1.0.1", transitive = false),
+        @Dependency(value = "com{}saicone{}settings:settings-yaml:1.0.1", relocate = {
+                "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml"
+        }),
         // Delivery4j
         @Dependency("com{}saicone{}delivery4j:delivery4j:1.1"),
         @Dependency(value = "com{}saicone{}delivery4j:broker-sql-hikari:1.1",
@@ -38,6 +44,9 @@ import java.util.List;
                 relocate = {
                 "com{}zaxxer{}hikari", "{package}.libs.hikari",
                 "org{}slf4j", "{package}.libs.slf4j"
+        }),
+        @Dependency(value = "com{}google{}guava:guava:33.4.8-jre", relocate = {
+                "com{}google{}common", "{package}.libs.guava"
         })
 }, relocations = {
         "com{}saicone{}types", "{package}.libs.types",
