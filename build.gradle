@@ -57,6 +57,7 @@ jar {
 }
 
 shadowJar {
+    archiveClassifier.set('')
     exclude 'com/saicone/mcode/**'
     exclude 'com/saicone/savedata/core/**'
     exclude 'com/saicone/savedata/module/**'
@@ -69,7 +70,7 @@ publishing {
     publications {
         api(MavenPublication) {
             groupId project.group
-            artifactId 'API'
+            artifactId project.name
             version project.version
             from components.shadow
         }
