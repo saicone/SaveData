@@ -1,9 +1,15 @@
 plugins {
-    id 'com.gradleup.shadow' version '8.3.5' apply false
+    id 'maven-publish'
+    id 'com.gradleup.shadow' version '8.3.5'
 }
 
 allprojects {
     apply plugin: 'java'
+
+    repositories {
+        maven { url 'https://jitpack.io' }
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -14,11 +20,6 @@ subprojects {
             downloadJavadoc = true
             downloadSources = true
         }
-    }
-
-    repositories {
-        maven { url 'https://jitpack.io' }
-        mavenCentral()
     }
 
     dependencies {
@@ -46,6 +47,31 @@ subprojects {
     }
 }
 
+dependencies {
+    implementation project(':common')
+}
+
 jar {
     enabled = false
+    dependsOn (shadowJar)
+}
+
+shadowJar {
+    exclude 'com/saicone/mcode/**'
+    exclude 'com/saicone/savedata/core/**'
+    exclude 'com/saicone/savedata/module/**'
+    exclude 'com/saicone/savedata/util/**'
+    exclude 'com/saicone/savedata/SaveData.*'
+    exclude '**/*.yml'
+}
+
+publishing {
+    publications {
+        api(MavenPublication) {
+            groupId project.group
+            artifactId 'API'
+            version project.version
+            from components.shadow
+        }
+    }
 }
