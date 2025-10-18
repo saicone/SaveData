@@ -14,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -92,10 +90,10 @@ public class DataType<T> {
                         case "list":
                         case "array":
                         case "arraylist":
-                            return ListDataType.builder(id, TypeParser.collection(elementParser, ArrayList::new), elementParser);
+                            return ListDataType.builder(id, elementParser.list(), elementParser);
                         case "set":
                         case "hashset":
-                            return SetDataType.builder(id, TypeParser.collection(elementParser, HashSet::new), elementParser);
+                            return SetDataType.builder(id, elementParser.set(), elementParser);
                     }
                 }
                 if (type.contains(".")) {

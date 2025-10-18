@@ -1,6 +1,6 @@
 package com.saicone.savedata.module.settings;
 
-import com.saicone.types.ValueType;
+import com.saicone.types.AnyObject;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -41,8 +41,8 @@ public class BukkitSettings extends YamlConfiguration {
     }
 
     @NotNull
-    public ValueType<Object> getOptional(@NotNull String path) {
-        return ValueType.of(get(path));
+    public AnyObject<Object> getOptional(@NotNull String path) {
+        return AnyObject.of(get(path));
     }
 
     public void set(@NotNull ConfigurationSection section) {

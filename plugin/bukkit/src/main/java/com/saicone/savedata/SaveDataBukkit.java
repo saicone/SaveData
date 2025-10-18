@@ -23,7 +23,7 @@ import java.util.Set;
         authors = { "Rubenicos" },
         platform = { PlatformType.BUKKIT },
         addons = { Addon.MODULE_TASK, Addon.MODULE_LANG },
-        compatibility = "1.8.8 - 1.21.1",
+        compatibility = "1.8.8 - 1.21.8",
         foliaSupported = true,
         softDepend = { "PlaceholderAPI", "LuckPerms", "Essentials" }
 )

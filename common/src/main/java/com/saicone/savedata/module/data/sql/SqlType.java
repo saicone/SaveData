@@ -37,32 +37,32 @@ public enum SqlType implements ClientType {
     MYSQL(
             true,
             "jdbc:mysql://{host}:{port}/{database}{flags}",
-            "com{}mysql:mysql-connector-j:8.2.0",
+            "com{}mysql:mysql-connector-j:8.4.0",
             Map.of("com{}mysql{}cj{}jdbc{}Driver", "com.mysql.cj.jdbc.Driver",
                     "com{}mysql{}jdbc{}Driver", "com.mysql.jdbc.Driver")
     ),
     MARIADB(
             true,
             "jdbc:mariadb://{host}:{port}/{database}{flags}",
-            "org{}mariadb{}jdbc:mariadb-java-client:3.2.0",
+            "org{}mariadb{}jdbc:mariadb-java-client:3.5.6",
             Map.of("org{}mariadb{}jdbc{}Driver", "org.mariadb.jdbc.Driver")
     ),
     POSTGRESQL(
             true,
             "jdbc:mariadb://{host}:{port}/{database}{flags}",
-            "org{}postgresql:postgresql:42.6.0",
+            "org{}postgresql:postgresql:42.7.8",
             Map.of("org{}postgresql{}Driver", "org.postgresql.Driver")
     ),
     H2(
             false,
             "jdbc:h2:./{path}",
-            "com{}h2database:h2:2.2.224",
+            "com{}h2database:h2:2.4.240",
             Map.of("org{}h2{}Driver", "org.h2.Driver")
     ),
     SQLITE(
             false,
             "jdbc:sqlite:{path}.db",
-            "org{}xerial:sqlite-jdbc:3.43.2.2",
+            "org{}xerial:sqlite-jdbc:3.50.3.0",
             Map.of("org{}sqlite{}JDBC", "org.sqlite.JDBC")
     );
 

@@ -1,6 +1,6 @@
 plugins {
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '8.3.5'
+    id 'com.gradleup.shadow' version '8.3.9'
 }
 
 allprojects {
@@ -29,8 +29,8 @@ subprojects {
         compileOnly libs.mcode.module.lang
 
         // Implementation
-        compileOnly 'com.saicone.settings:settings:1.0.1'
-        compileOnly 'com.google.guava:guava:33.4.8-jre'
+        compileOnly 'com.saicone.settings:settings:1.0.3'
+        compileOnly 'com.google.guava:guava:33.5.0-jre'
 
         compileOnly 'org.jetbrains:annotations:26.0.2'
 
