@@ -2,6 +2,7 @@ package com.saicone.savedata.api.top;
 
 import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
+import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.api.data.type.NumberDataType;
 import com.saicone.savedata.module.data.DataClient;
 import org.jetbrains.annotations.ApiStatus;
@@ -128,6 +129,9 @@ public class TopEntry<T extends Number> {
     }
 
     public void update(@NotNull UUID user, @Nullable Object value) {
+        if (user == DataUser.SERVER_ID) {
+            return;
+        }
         if (value == null) {
             this.data.remove(user);
             this.sorted.removeIf(user::equals);
@@ -199,7 +203,9 @@ public class TopEntry<T extends Number> {
             this.indexes = new HashMap<>();
             return;
         }
-        var stream = data.entrySet().stream().sorted(Map.Entry.comparingByValue(this.type.reversed()));
+        var stream = data.entrySet().stream()
+                .filter(entry -> entry.getKey() != DataUser.SERVER_ID)
+                .sorted(Map.Entry.comparingByValue(this.type.reversed()));
         if (this.limit > 0) {
             stream = stream.limit(this.limit);
         }
