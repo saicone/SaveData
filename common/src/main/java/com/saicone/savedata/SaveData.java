@@ -22,11 +22,11 @@ import java.util.List;
                 "com{}ezylang{}evalex", "{package}.libs.evalex"
         }),
         // Settings
-        @Dependency("com{}saicone{}settings:settings:1.0.3"),
-        @Dependency("com{}saicone{}settings:settings-gson:1.0.3"),
-        @Dependency("com{}saicone{}settings:settings-hocon:1.0.3"),
-        @Dependency("com{}saicone{}settings:settings-toml:1.0.3"),
-        @Dependency(value = "com{}saicone{}settings:settings-yaml:1.0.3", relocate = {
+        @Dependency("com{}saicone{}settings:settings:1.0.4"),
+        @Dependency("com{}saicone{}settings:settings-gson:1.0.4"),
+        @Dependency("com{}saicone{}settings:settings-hocon:1.0.4"),
+        @Dependency("com{}saicone{}settings:settings-toml:1.0.4"),
+        @Dependency(value = "com{}saicone{}settings:settings-yaml:1.0.4", relocate = {
                 "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml"
         }),
         // Delivery4j
