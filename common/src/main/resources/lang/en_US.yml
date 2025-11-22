@@ -8,6 +8,7 @@ command:
     - '&e/{0} reload'
     - '&e/{0} global <database> <data id> <operator> [provided value] [expiration]'
     - '&e/{0} player <name> <database> <data id> <operator> [provided value] [expiration]'
+    - '&e/{0} players <condition> <database> <data id> <operator> [provided value] [expiration]'
     - ''
     - '&6Operators:'
     - '&eget &8- &7Get the value'

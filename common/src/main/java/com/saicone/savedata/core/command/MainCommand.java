@@ -15,30 +15,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public interface MainCommand {
 
     List<String> TYPE = List.of(
             "reload",
             "player",
+            "players",
             "global",
             "server"
     );
 
-    List<String> OPERATOR = List.of(
-            "get",
-            "contains",
-            "delete",
-            "set",
-            "add",
-            "substract",
-            "multiply",
-            "divide"
-    );
+    List<String> OPERATOR = Arrays.stream(DataOperator.values()).map(value -> value.name().toLowerCase()).collect(Collectors.toList());
 
     @NotNull
     UUID getUniqueId(@NotNull String name);
+
+    void getUniqueId(@NotNull String condition, @NotNull BiConsumer<UUID, Function<String, String>> consumer);
 
     @NotNull
     Function<String, String> getUserParser(@Nullable UUID uniqueId);
@@ -63,7 +59,7 @@ public interface MainCommand {
             return;
         }
 
-        final UUID uniqueId;
+        final Object uniqueId;
         final String database;
         final String dataType;
         final DataOperator operator;
@@ -81,7 +77,19 @@ public interface MainCommand {
             dataType = args[3];
             operator = DataOperator.valueOf(args[4].toUpperCase());
             value = parseValue(5, args);
-            userParser = getUserParser(uniqueId);
+            userParser = getUserParser((UUID) uniqueId);
+        } else if (args[0].equalsIgnoreCase("players")) {
+            SaveData.log(4, "Using player condition");
+            if (args.length < 5 || !OPERATOR.contains(args[4].toLowerCase())) {
+                Lang.COMMAND_HELP.sendTo(sender, cmd);
+                return;
+            }
+            uniqueId = args[1];
+            database = args[2];
+            dataType = args[3];
+            operator = DataOperator.valueOf(args[4].toUpperCase());
+            value = parseValue(5, args);
+            userParser = null;
         } else {
             SaveData.log(4, "Using server ID");
             if (!OPERATOR.contains(args[3].toLowerCase())) {
@@ -108,7 +116,11 @@ public interface MainCommand {
 
         if (operator.isEval()) {
             SaveData.log(4, "The operator is an evaluation");
-            SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value.getLeft(), userParser, SaveData.get().getLang().getLanguageFor(sender)).thenAccept(result -> {
+            if (!(uniqueId instanceof UUID)) {
+                Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, args[2]);
+                return;
+            }
+            SaveData.get().getDataCore().userValue((UUID) uniqueId, operator, database, dataType, value.getLeft(), userParser, SaveData.get().getLang().getLanguageFor(sender)).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);
                 } else if (result instanceof Boolean) {
@@ -120,31 +132,37 @@ public interface MainCommand {
             return;
         }
 
-        final long before = System.currentTimeMillis();
-        final boolean getResult = args[args.length - 1].equalsIgnoreCase("-result");
-        SaveData.get().getDataCore().executeUpdate(uniqueId, operator, database, dataType, value.getLeft(), value.getRight(), userParser).thenAccept(result -> {
-            if (result instanceof DataResult) {
-                switch ((DataResult) result) {
-                    case INVALID_OPERATOR:
-                        Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, args[2]);
-                        break;
-                    case INVALID_TYPE:
-                        Lang.COMMAND_DATA_ERROR_ID.sendTo(sender, args[4]);
-                        break;
-                    case INVALID_VALUE:
-                        Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value.getLeft());
-                        break;
-                    case CANNOT_MODIFY:
-                        Lang.COMMAND_DATA_ERROR_MODIFY.sendTo(sender);
-                        break;
-                    default:
-                        break;
+        if (uniqueId instanceof UUID) {
+            final long before = System.currentTimeMillis();
+            final boolean getResult = args[args.length - 1].equalsIgnoreCase("-result");
+            SaveData.get().getDataCore().executeUpdate((UUID) uniqueId, operator, database, dataType, value.getLeft(), value.getRight(), userParser).thenAccept(result -> {
+                if (result instanceof DataResult) {
+                    switch ((DataResult) result) {
+                        case INVALID_OPERATOR:
+                            Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, args[2]);
+                            break;
+                        case INVALID_TYPE:
+                            Lang.COMMAND_DATA_ERROR_ID.sendTo(sender, args[4]);
+                            break;
+                        case INVALID_VALUE:
+                            Lang.COMMAND_DATA_ERROR_VALUE.sendTo(sender, value.getLeft());
+                            break;
+                        case CANNOT_MODIFY:
+                            Lang.COMMAND_DATA_ERROR_MODIFY.sendTo(sender);
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (getResult && result instanceof Dual) {
+                    final long time = System.currentTimeMillis() - before;
+                    Lang.COMMAND_DATA_EDIT.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, ((Dual<?, ?>) result).getLeft(), ((Dual<?, ?>) result).getRight(), time);
                 }
-            } else if (getResult && result instanceof Dual) {
-                final long time = System.currentTimeMillis() - before;
-                Lang.COMMAND_DATA_EDIT.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, ((Dual<?, ?>) result).getLeft(), ((Dual<?, ?>) result).getRight(), time);
-            }
-        });
+            });
+        } else {
+            getUniqueId((String) uniqueId, (uuid, parser) -> {
+                SaveData.get().getDataCore().executeUpdate(uuid, operator, database, dataType, value.getLeft(), value.getRight(), parser);
+            });
+        }
     }
 
     @NotNull

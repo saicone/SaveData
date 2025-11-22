@@ -1,20 +1,24 @@
 package com.saicone.savedata.core.command;
 
+import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
+import com.saicone.types.parser.BooleanParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class SaveDataCommand extends Command implements MainCommand {
@@ -27,6 +31,21 @@ public class SaveDataCommand extends Command implements MainCommand {
     @Override
     public @NotNull UUID getUniqueId(@NotNull String name) {
         return PlayerProvider.getUniqueId(name);
+    }
+
+    @Override
+    public void getUniqueId(@NotNull String condition, @NotNull BiConsumer<UUID, Function<String, String>> consumer) {
+        Task.async(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!player.hasPermission(condition)) {
+                    final Boolean result = BooleanParser.INSTANCE.parse(Placeholders.parse(player, condition));
+                    if (result == null || !result) {
+                        continue;
+                    }
+                }
+                consumer.accept(player.getUniqueId(), s -> Placeholders.parse(player, s));
+            }
+        });
     }
 
     @Override
