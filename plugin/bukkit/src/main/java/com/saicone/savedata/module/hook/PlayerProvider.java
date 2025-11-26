@@ -40,20 +40,20 @@ import java.util.function.Supplier;
 
 public class PlayerProvider {
 
-    private static PlayerProvider INSTANCE = new PlayerProvider();
+    private static PlayerProvider INSTANCE = null;
     private static final Cache<String, UUID> ID_CACHE = CacheBuilder.newBuilder().expireAfterAccess(3L, TimeUnit.HOURS).build();
     private static final Cache<UUID, String> NAME_CACHE = CacheBuilder.newBuilder().expireAfterAccess(3L, TimeUnit.HOURS).build();
     private static final Map<String, Supplier<PlayerProvider>> SUPPLIERS = new LinkedHashMap<>();
 
     static {
         SUPPLIERS.put("LUCKPERMS", () -> {
-            if (Bukkit.getPluginManager().isPluginEnabled("LuckPerms")) {
+            if (Bukkit.getPluginManager().getPlugin("LuckPerms") != null) {
                 return new LuckPermsProvider();
             }
             return null;
         });
         SUPPLIERS.put("ESSENTIALS", () -> {
-            if (Bukkit.getPluginManager().isPluginEnabled("Essentials")) {
+            if (Bukkit.getPluginManager().getPlugin("Essentials") != null) {
                 return new EssentialsProvider();
             }
             return null;
@@ -89,6 +89,9 @@ public class PlayerProvider {
 
     @NotNull
     public static PlayerProvider get() {
+        if (INSTANCE == null) {
+            compute("AUTO");
+        }
         return INSTANCE;
     }
 
@@ -100,7 +103,7 @@ public class PlayerProvider {
             if (player != null) {
                 cached = player.getUniqueId();
             } else {
-                cached = INSTANCE.uniqueId(name);
+                cached = get().uniqueId(name);
             }
             ID_CACHE.put(name, cached);
         }
@@ -116,7 +119,7 @@ public class PlayerProvider {
             if (player != null) {
                 name = player.getName();
             } else {
-                name = INSTANCE.name(uniqueId);
+                name = get().name(uniqueId);
             }
             NAME_CACHE.put(uniqueId, name == null ? "" : name);
             cached = NAME_CACHE.getIfPresent(uniqueId);
