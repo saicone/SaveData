@@ -18,6 +18,7 @@ subprojects {
         archiveBaseName.set(rootProject.name + '-' + project.name)
         destinationDirectory.set(file(rootProject.layout.buildDirectory.dir('libs')))
 
+        // implementation
         relocate 'com.saicone.ezlib', project.group + '.ezlib'
         relocate 'com.saicone.mcode', project.group + '.mcode'
         relocate 'com.zaxxer.hikari', project.group + '.libs.hikari'
@@ -26,5 +27,10 @@ subprojects {
         relocate 'com.saicone.types', project.group + '.libs.types'
         relocate 'com.saicone.settings', project.group + '.libs.settings'
         relocate 'com.google.common', project.group + '.libs.guava'
+
+        // drivers
+        relocate 'org.mariadb.jdbc', project.group + '.libs.mariadb'
+        relocate 'org.postgresql', project.group + '.libs.postgresql'
+        relocate 'org.h2', project.group + '.libs.h2'
     }
 }
