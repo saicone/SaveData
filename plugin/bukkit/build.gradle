@@ -1,19 +1,22 @@
 plugins {
-    id 'net.kyori.blossom' version '1.3.1'
+    id 'net.raphimc.class-token-replacer' version '1.1.7'
 }
 
-blossom {
-    replaceTokenIn('src/main/java/com/saicone/savedata/SaveDataBukkit.java')
-    replaceToken '${version}', project.version
+sourceSets {
+    main {
+        classTokenReplacer {
+            property("\${version}", project.version)
+        }
+    }
 }
 
 repositories {
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url 'https://oss.sonatype.org/content/repositories/central' }
-    maven { url 'https://repo.codemc.io/repository/nms/' }
-    maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-    maven { url 'https://repo.essentialsx.net/snapshots/' }
+    maven { url = uri('https://hub.spigotmc.org/nexus/content/repositories/snapshots/') }
+    maven { url = uri('https://oss.sonatype.org/content/repositories/snapshots') }
+    maven { url = uri('https://oss.sonatype.org/content/repositories/central') }
+    maven { url = uri('https://repo.codemc.io/repository/nms/') }
+    maven { url = uri('https://repo.extendedclip.com/content/repositories/placeholderapi/') }
+    maven { url = uri('https://repo.essentialsx.net/snapshots/') }
 }
 
 dependencies {

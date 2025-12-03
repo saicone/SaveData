@@ -1,14 +1,14 @@
 plugins {
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '8.3.9'
+    id 'com.gradleup.shadow' version '9.2.2'
 }
 
 allprojects {
     apply plugin: 'java'
 
     repositories {
-        maven { url 'https://jitpack.io' }
         mavenCentral()
+        maven { url = uri('https://jitpack.io') }
     }
 }
 
@@ -69,9 +69,9 @@ shadowJar {
 publishing {
     publications {
         api(MavenPublication) {
-            groupId project.group
-            artifactId project.name
-            version project.version
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
             from components.shadow
         }
     }
