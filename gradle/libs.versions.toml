@@ -2,18 +2,55 @@ metadata.format.version = "1.1"
 
 [versions]
 
-# Libraries
+# --- framework
 mcode = "49e75c4a84"
+
+# --- platforms
+spigot = "1.21.10-R0.1-SNAPSHOT"
+bungeecord = "1.21-R0.5-SNAPSHOT"
+velocity = "3.4.0-SNAPSHOT"
+
+# --- libraries
+annotations = "26.0.2"
+delivery4j = "1.1.4"
+evalex = "3.5.0"
+guava = "33.5.0-jre"
+settings = "1.0.4"
+
+# --- plugins
+essentials = "2.22.0-SNAPSHOT"
+luckperms = "5.4"
+placeholderapi = "2.11.6"
 
 [libraries]
 
-# Annotations
+# --- framework
+
+# annotations
 mcode-annotations = { module = "com.saicone.mcode:bootstrap-annotations", version.ref = "mcode" }
 
-# Bootstrap
+# bootstrap
 mcode-bootstrap = { module = "com.saicone.mcode:bootstrap", version.ref = "mcode" }
 mcode-bootstrap-bukkit = { module = "com.saicone.mcode:bootstrap-bukkit", version.ref = "mcode" }
 
-# Modules
+# modules
 mcode-module-task = { module = "com.saicone.mcode:module-task", version.ref = "mcode" }
 mcode-module-lang = { module = "com.saicone.mcode:module-lang", version.ref = "mcode" }
+
+# --- platforms
+spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+bungeecord-api = { module = "net.md-5:bungeecord-api", version.ref = "bungeecord" }
+velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
+
+# --- libraries
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+delivery4j = { module = "com.saicone.delivery4j:delivery4j", version.ref = "delivery4j" }
+delivery4j-sql-hikari = { module = "com.saicone.delivery4j:broker-sql-hikari", version.ref = "delivery4j" }
+evalex = { module = "com.ezylang:EvalEx", version.ref = "evalex" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+settings = { module = "com.saicone.settings:settings", version.ref = "settings" }
+
+# --- plugins
+essentials = { module = "net.essentialsx:EssentialsX", version.ref = "essentials" }
+luckperms = { module = "net.luckperms:api", version.ref = "luckperms" }
+placeholderapi = { module = "me.clip:placeholderapi", version.ref = "placeholderapi" }

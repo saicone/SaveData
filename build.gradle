@@ -1,6 +1,7 @@
 plugins {
     id 'maven-publish'
     id 'com.gradleup.shadow' version '9.2.2'
+    id 'net.raphimc.class-token-replacer' version '1.1.7' apply false
 }
 
 allprojects {
@@ -29,10 +30,10 @@ subprojects {
         compileOnly libs.mcode.module.lang
 
         // Implementation
-        compileOnly 'com.saicone.settings:settings:1.0.4'
-        compileOnly 'com.google.guava:guava:33.5.0-jre'
+        compileOnly libs.settings
+        compileOnly libs.guava
 
-        compileOnly 'org.jetbrains:annotations:26.0.2'
+        compileOnly libs.annotations
 
         compileOnly fileTree(dir: 'libs', includes: ['*.jar'])
     }

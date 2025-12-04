@@ -30,8 +30,8 @@ import java.util.List;
                 "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml"
         }),
         // Delivery4j
-        @Dependency("com{}saicone{}delivery4j:delivery4j:1.1.3"),
-        @Dependency(value = "com{}saicone{}delivery4j:broker-sql-hikari:1.1.3",
+        @Dependency("com{}saicone{}delivery4j:delivery4j:1.1.4"),
+        @Dependency(value = "com{}saicone{}delivery4j:broker-sql-hikari:1.1.4",
                 relocate = {
                 "com{}zaxxer{}hikari", "{package}.libs.hikari",
                 "org{}slf4j", "{package}.libs.slf4j"

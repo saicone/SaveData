@@ -1,8 +1,8 @@
 dependencies {
-    compileOnly 'com.google.guava:guava:33.5.0-jre'
+    compileOnly libs.guava
 
     // Implementation
-    compileOnly 'com.ezylang:EvalEx:3.5.0'
-    compileOnly 'com.saicone.delivery4j:delivery4j:1.1.3'
-    compileOnly('com.saicone.delivery4j:broker-sql-hikari:1.1.3')
+    compileOnly libs.evalex
+    compileOnly libs.delivery4j
+    compileOnly libs.delivery4j.sql.hikari
 }
