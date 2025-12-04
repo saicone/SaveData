@@ -10,6 +10,7 @@ import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataType;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.api.data.type.CollectionDataType;
+import com.saicone.savedata.api.data.type.StringDataType;
 import com.saicone.savedata.api.top.TopEntry;
 import com.saicone.savedata.util.DurationFormatter;
 import com.saicone.settings.Settings;
@@ -187,7 +188,7 @@ public class DataCore {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
         }
         return getTransitiveUser(uniqueId, db -> db.getName().equals(database)).thenApply(user -> {
-            DataEntry<Object> entry = (DataEntry<Object>) user.getEntry(database, dataType);
+            DataEntry entry = user.getEntry(database, dataType);
             if (entry == null) {
                 final DataType<Object> type = (DataType<Object>) dataTypes.get(dataType);
                 if (type == null) {
@@ -196,29 +197,40 @@ public class DataCore {
                 entry = new DataEntry<>(type);
                 user.setEntry(database, entry);
             }
-            if (operator == DataOperator.GET) {
-                return entry.getUserValue(userParser);
-            } else if (operator == DataOperator.CONTAINS && entry.getType() instanceof CollectionDataType) {
-                if (value == null || entry.getValue() == null) {
-                    return null;
-                }
-                final Object element;
-                try {
-                    element = ((CollectionDataType<?, ?>) entry.getType()).loadElement(value);
-                } catch (Throwable t) {
-                    return DataResult.INVALID_VALUE;
-                }
-                return entry.getType().test(entry.getValue(), element);
-            } else if (operator == DataOperator.EXPIRY) {
-                if (entry.isTemporary()) {
-                    final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
-                    if (duration.isNegative()) {
+            switch (operator) {
+                case GET:
+                    return entry.getUserValue(userParser);
+                case CONTAINS:
+                    if (entry.getType() instanceof CollectionDataType) {
+                        if (value == null || entry.getValue() == null) {
+                            return false;
+                        }
+                        final Object element;
+                        try {
+                            element = ((CollectionDataType<?, ?>) entry.getType()).loadElement(value);
+                        } catch (Throwable t) {
+                            return DataResult.INVALID_VALUE;
+                        }
+                        return entry.getType().test(entry.getValue(), element);
+                    } else if (entry.getType() instanceof StringDataType) {
+                        if (value == null || entry.getValue() == null) {
+                            return false;
+                        }
+                        return entry.getType().test(entry.getValue(), value);
+                    }
+                    break;
+                case EXPIRY:
+                    if (entry.isTemporary()) {
+                        final Duration duration = Duration.between(Instant.now(), Instant.ofEpochMilli(entry.getExpiration()));
+                        if (duration.isNegative()) {
+                            return 0;
+                        }
+                        return DurationFormatter.format(language, duration, value instanceof String ? (String) value : "time");
+                    } else {
                         return 0;
                     }
-                    return DurationFormatter.format(language, duration, value instanceof String ? (String) value : "time");
-                } else {
-                    return 0;
-                }
+                default:
+                    break;
             }
             return null;
         });
