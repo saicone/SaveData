@@ -6,12 +6,12 @@ Plugin:
   # Available languages: en_US, es_ES
   # If you want to use other language go to "lang" folder and create new file
   Language: 'en_US'
-  # Player information provider:
-  # AUTO       = Choose automatically the best available option
+  # Player information provider priority:
   # LUCKPERMS  = Use LuckPerms plugin.
   # ESSENTIALS = Use EssentialsX plugin.
-  # BUKKIT     = Use the default Bukkit offline player methods (it also acts like fallback value)
-  PlayerProvider: AUTO
+  PlayerProvider:
+    - LuckPerms
+    - Essentials
 
 # Lang configuration
 Lang:

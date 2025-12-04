@@ -15,7 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
 
 @PluginDescription(
         name = "SaveData",
@@ -35,8 +34,6 @@ public class SaveDataBukkit extends SaveData {
     }
 
     private SaveDataCommand command;
-
-    private Set<String> placeholderNames;
 
     @Override
     protected @NotNull AbstractLang<?> initLang() {
