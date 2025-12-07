@@ -29,8 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public enum SqlType implements ClientType {
 
@@ -38,32 +38,37 @@ public enum SqlType implements ClientType {
             true,
             "jdbc:mysql://{host}:{port}/{database}{flags}",
             "com{}mysql:mysql-connector-j:8.4.0",
-            Map.of("com{}mysql{}cj{}jdbc{}Driver", "com.mysql.cj.jdbc.Driver",
-                    "com{}mysql{}jdbc{}Driver", "com.mysql.jdbc.Driver")
+            List.of("com.mysql.cj.jdbc.Driver", "com.mysql.jdbc.Driver"),
+            Map.of("com{}mysql{}cj", "com.mysql.cj",
+                    "com{}mysql{}jdbc", "com.mysql.jdbc")
     ),
     MARIADB(
             true,
             "jdbc:mariadb://{host}:{port}/{database}{flags}",
             "org{}mariadb{}jdbc:mariadb-java-client:3.5.6",
-            Map.of("org{}mariadb{}jdbc{}Driver", "org.mariadb.jdbc.Driver")
+            "org.mariadb.jdbc.Driver",
+            Map.of("org{}mariadb{}jdbc", "org.mariadb.jdbc")
     ),
     POSTGRESQL(
             true,
             "jdbc:mariadb://{host}:{port}/{database}{flags}",
             "org{}postgresql:postgresql:42.7.8",
-            Map.of("org{}postgresql{}Driver", "org.postgresql.Driver")
+            "org.postgresql.Driver",
+            Map.of("org{}postgresql", "org.postgresql")
     ),
     H2(
             false,
             "jdbc:h2:./{path}",
             "com{}h2database:h2:2.4.240",
-            Map.of("org{}h2{}Driver", "org.h2.Driver")
+            "org.h2.Driver",
+            Map.of("org{}h2", "org.h2")
     ),
     SQLITE(
             false,
             "jdbc:sqlite:{path}.db",
             "org{}xerial:sqlite-jdbc:3.50.3.0",
-            Map.of("org{}sqlite{}JDBC", "org.sqlite.JDBC")
+            "org.sqlite.JDBC",
+            Map.of("org{}sqlite", "org.sqlite")
     );
 
     public static final SqlType[] VALUES = values();
@@ -71,12 +76,18 @@ public enum SqlType implements ClientType {
     private final boolean external;
     private final String format;
     private final String dependency;
+    private final List<String> drivers;
     private final Map<String, String> relocations;
 
-    SqlType(boolean external, @NotNull String format, @NotNull String dependency, @NotNull Map<String, String> relocations) {
+    SqlType(boolean external, @NotNull String format, @NotNull String dependency, @NotNull String drivers, @NotNull Map<String, String> relocations) {
+        this(external, format, dependency, List.of(drivers), relocations);
+    }
+
+    SqlType(boolean external, @NotNull String format, @NotNull String dependency, @NotNull List<String> drivers, @NotNull Map<String, String> relocations) {
         this.external = external;
         this.format = format;
         this.dependency = dependency.replace("{}", ".");
+        this.drivers = drivers;
         this.relocations = new HashMap<>();
         relocations.forEach((key, value) -> this.relocations.put(key.replace("{}", "."), value));
     }
@@ -87,9 +98,9 @@ public enum SqlType implements ClientType {
 
     @Override
     public boolean isDependencyPresent() {
-        for (Map.Entry<String, String> entry : relocations.entrySet()) {
+        for (String driver : drivers) {
             try {
-                Class.forName(entry.getValue());
+                Class.forName(driver);
                 return true;
             } catch (ClassNotFoundException ignored) { }
         }
@@ -119,16 +130,16 @@ public enum SqlType implements ClientType {
     }
 
     @NotNull
-    public Set<String> getDrivers() {
-        return relocations.keySet();
+    public List<String> getDrivers() {
+        return drivers;
     }
 
     @NotNull
     public String getDriver() {
-        for (Map.Entry<String, String> entry : relocations.entrySet()) {
+        for (String driver : drivers) {
             try {
-                Class.forName(entry.getValue());
-                return entry.getValue();
+                Class.forName(driver);
+                return driver;
             } catch (ClassNotFoundException ignored) { }
         }
         throw new RuntimeException("Cannot find driver class name for sql type: " + name());

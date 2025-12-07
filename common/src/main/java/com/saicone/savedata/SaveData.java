@@ -26,9 +26,7 @@ import java.util.List;
         @Dependency("com{}saicone{}settings:settings-gson:1.0.4"),
         @Dependency("com{}saicone{}settings:settings-hocon:1.0.4"),
         @Dependency("com{}saicone{}settings:settings-toml:1.0.4"),
-        @Dependency(value = "com{}saicone{}settings:settings-yaml:1.0.4", relocate = {
-                "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml"
-        }),
+        @Dependency("com{}saicone{}settings:settings-yaml:1.0.4"),
         // Delivery4j
         @Dependency("com{}saicone{}delivery4j:delivery4j:1.1.4"),
         @Dependency(value = "com{}saicone{}delivery4j:broker-sql-hikari:1.1.4",
