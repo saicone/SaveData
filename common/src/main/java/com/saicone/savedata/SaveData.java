@@ -43,7 +43,8 @@ import java.util.List;
 }, relocations = {
         "com{}saicone{}types", "{package}.libs.types",
         "com{}saicone{}settings", "{package}.libs.settings",
-        "com{}saicone{}delivery4j", "{package}.libs.delivery4j"
+        "com{}saicone{}delivery4j", "{package}.libs.delivery4j",
+        "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml"
 })
 public abstract class SaveData extends Plugin {
 

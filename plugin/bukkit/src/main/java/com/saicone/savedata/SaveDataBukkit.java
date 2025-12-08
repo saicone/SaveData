@@ -53,7 +53,7 @@ public class SaveDataBukkit extends SaveData {
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), plugin());
         if (command == null) {
             command = new SaveDataCommand();
-            BukkitCommand.register(command);
+            BukkitCommand.register(plugin(), command);
         }
     }
 
