@@ -165,7 +165,11 @@ public class SaveDataPlaceholder implements BiFunction<OfflinePlayer, String, Ob
                 case "id":
                     return user.toString().replace('-', '\0');
                 case "name":
-                    return PlayerProvider.getName(user);
+                    try {
+                        return PlayerProvider.getName(user);
+                    } catch (Throwable t) {
+                        return "<unknown>";
+                    }
                 default:
                     return null;
             }
