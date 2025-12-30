@@ -270,7 +270,7 @@ public class DataCore {
                         providedValue = entry.getType().parse(value, userParser);
                     }
                 } catch (Throwable t) {
-                    SaveData.log(4, "Cannot parse provided value", t);
+                    SaveData.logException(4, t, "Cannot parse provided value");
                     return DataResult.INVALID_VALUE;
                 }
                 if (operator == DataOperator.SET) {
