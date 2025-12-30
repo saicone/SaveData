@@ -18,33 +18,33 @@ import java.util.List;
 
 @Dependencies(value = {
         // EvalEx
-        @Dependency(value = "com{}ezylang:EvalEx:3.5.0", relocate = {
-                "com{}ezylang{}evalex", "{package}.libs.evalex"
-        }),
+        @Dependency("com{}ezylang:EvalEx:3.5.0"),
         // Settings
         @Dependency("com{}saicone{}settings:settings:1.0.4"),
         @Dependency("com{}saicone{}settings:settings-gson:1.0.4"),
         @Dependency("com{}saicone{}settings:settings-hocon:1.0.4"),
         @Dependency("com{}saicone{}settings:settings-toml:1.0.4"),
         @Dependency("com{}saicone{}settings:settings-yaml:1.0.4"),
+        @Dependency("org.yaml:snakeyaml:2.5"),
         // Delivery4j
         @Dependency("com{}saicone{}delivery4j:delivery4j:1.1.4"),
-        @Dependency(value = "com{}saicone{}delivery4j:broker-sql-hikari:1.1.4",
-                relocate = {
-                "com{}zaxxer{}hikari", "{package}.libs.hikari",
-                "org{}slf4j", "{package}.libs.slf4j"
-        }),
-        @Dependency(value = "com{}google{}guava:guava:33.5.0-jre", relocate = {
-                "com{}google{}common", "{package}.libs.guava"
-        }),
-        @Dependency(value = "org{}slf4j:slf4j-nop:1.7.36", relocate = {
-                "org{}slf4j", "{package}.libs.slf4j"
-        }),
+        @Dependency("com{}saicone{}delivery4j:broker-sql-hikari:1.1.4"),
+        @Dependency("com{}google{}guava:guava:33.5.0-jre"),
+        @Dependency("org{}slf4j:slf4j-nop:1.7.36"),
 }, relocations = {
+        // implementation
+        "com{}ezylang{}evalex", "{package}.libs.evalex",
         "com{}saicone{}types", "{package}.libs.types",
         "com{}saicone{}settings", "{package}.libs.settings",
         "com{}saicone{}delivery4j", "{package}.libs.delivery4j",
-        "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml"
+        "org{}yaml{}snakeyaml", "{package}.libs.snakeyaml",
+        "com{}zaxxer{}hikari", "{package}.libs.hikari",
+        "org{}slf4j", "{package}.libs.slf4j",
+        "com{}google{}common", "{package}.libs.guava",
+        // drivers
+        "org.mariadb.jdbc", "{package}.libs.mariadb",
+        "org.postgresql", "{package}.libs.postgresql",
+        "org.h2", "{package}.libs.h2",
 })
 public abstract class SaveData extends Plugin {
 
