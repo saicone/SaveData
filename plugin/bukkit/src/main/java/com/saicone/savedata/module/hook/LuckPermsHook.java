@@ -6,9 +6,9 @@ import com.saicone.mcode.env.Executes;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 @Awake(when = Executes.LOAD, dependsOn = "LuckPerms")
@@ -21,12 +21,12 @@ public class LuckPermsHook extends PlayerProvider {
     }
 
     @Override
-    public @Nullable UUID computeUniqueId(@NotNull String name) {
-        return LUCKPERMS.get().getUserManager().lookupUniqueId(name).join();
+    public @NotNull CompletableFuture<UUID> computeUniqueId(@NotNull String name) {
+        return LUCKPERMS.get().getUserManager().lookupUniqueId(name);
     }
 
     @Override
-    public @Nullable String computeName(@NotNull UUID uniqueId) {
-        return LUCKPERMS.get().getUserManager().lookupUsername(uniqueId).join();
+    public @NotNull CompletableFuture<String> computeName(@NotNull UUID uniqueId) {
+        return LUCKPERMS.get().getUserManager().lookupUsername(uniqueId);
     }
 }

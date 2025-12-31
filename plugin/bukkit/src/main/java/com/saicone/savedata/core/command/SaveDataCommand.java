@@ -30,7 +30,7 @@ public class SaveDataCommand extends Command implements MainCommand {
 
     @Override
     public @NotNull UUID getUniqueId(@NotNull String name) {
-        return PlayerProvider.getUniqueId(name);
+        return PlayerProvider.getUniqueId(name).orElseThrow(() -> new IllegalArgumentException("Cannot find UUID from name: " + name));
     }
 
     @Override

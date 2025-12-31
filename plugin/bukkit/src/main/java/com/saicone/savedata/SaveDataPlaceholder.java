@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 // <type>_<database>_<data type>
@@ -166,7 +167,8 @@ public class SaveDataPlaceholder implements BiFunction<OfflinePlayer, String, Ob
                     return user.toString().replace('-', '\0');
                 case "name":
                     try {
-                        return PlayerProvider.getName(user);
+                        final CompletableFuture<String> future = PlayerProvider.getNameAsync(user);
+                        return future.isDone() ? future.join() == null ? "<unknown>" : future.join() : "<loading...>";
                     } catch (Throwable t) {
                         return "<unknown>";
                     }

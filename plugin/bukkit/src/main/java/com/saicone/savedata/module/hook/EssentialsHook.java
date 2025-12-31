@@ -7,9 +7,9 @@ import com.saicone.mcode.env.Executes;
 import net.ess3.api.IEssentials;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 @Awake(when = Executes.LOAD, dependsOn = "Essentials")
@@ -22,14 +22,14 @@ public class EssentialsHook extends PlayerProvider {
     }
 
     @Override
-    public @Nullable UUID computeUniqueId(@NotNull String name) {
+    public @NotNull CompletableFuture<UUID> computeUniqueId(@NotNull String name) {
         final User user = ESSENTIALS.get().getOfflineUser(name);
-        return user == null ? null : user.getUUID();
+        return CompletableFuture.completedFuture(user == null ? null : user.getUUID());
     }
 
     @Override
-    public @Nullable String computeName(@NotNull UUID uniqueId) {
+    public @NotNull CompletableFuture<String> computeName(@NotNull UUID uniqueId) {
         final User user = ESSENTIALS.get().getUser(uniqueId);
-        return user == null ? null : user.getName();
+        return CompletableFuture.completedFuture(user == null ? null : user.getName());
     }
 }
