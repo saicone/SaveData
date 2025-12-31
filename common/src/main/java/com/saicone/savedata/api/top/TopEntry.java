@@ -184,7 +184,11 @@ public class TopEntry<T extends Number> {
         if (index < 0) {
             index = -index - 1;
         }
-        this.sorted.add(index, user);
+        if (this.sorted.isEmpty()) {
+            this.sorted.add(user);
+        } else {
+            this.sorted.add(index, user);
+        }
 
         if (this.indexMapping) {
             this.indexes.put(user, index);
