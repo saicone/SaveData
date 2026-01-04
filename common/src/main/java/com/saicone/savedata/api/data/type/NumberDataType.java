@@ -56,10 +56,10 @@ public abstract class NumberDataType<T extends Number> extends DataType<T> imple
     }
 
     @Override
-    public @NotNull T parse(@Nullable Object object, @NotNull Function<String, String> userParser) {
+    public @NotNull T parse(@Nullable Object object, boolean raw, @NotNull Function<String, String> userParser) {
         String s = getExpression();
-        if (s == null) {
-            return super.parse(object, userParser);
+        if (s == null || raw) {
+            return super.parse(object, raw, userParser);
         }
         if (object != null) {
             s = s.replace("{value}", object.toString());

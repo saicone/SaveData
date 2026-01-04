@@ -75,7 +75,7 @@ public interface MainCommand {
             uniqueId = args[1].contains("-") ? UUID.fromString(args[1]) : getUniqueId(args[1]);
             database = args[2];
             dataType = args[3];
-            operator = DataOperator.valueOf(args[4].toUpperCase());
+            operator = DataOperator.of(args[4]);
             value = parseValue(5, args);
             userParser = getUserParser((UUID) uniqueId);
         } else if (args[0].equalsIgnoreCase("players")) {
@@ -87,7 +87,7 @@ public interface MainCommand {
             uniqueId = args[1];
             database = args[2];
             dataType = args[3];
-            operator = DataOperator.valueOf(args[4].toUpperCase());
+            operator = DataOperator.of(args[4]);
             value = parseValue(5, args);
             userParser = null;
         } else {
@@ -99,7 +99,7 @@ public interface MainCommand {
             uniqueId = DataUser.SERVER_ID;
             database = args[1];
             dataType = args[2];
-            operator = DataOperator.valueOf(args[3].toUpperCase());
+            operator = DataOperator.of(args[3]);
             value = parseValue(4, args);
             userParser = getUserParser(null);
         }
@@ -139,7 +139,7 @@ public interface MainCommand {
                 if (result instanceof DataResult) {
                     switch ((DataResult) result) {
                         case INVALID_OPERATOR:
-                            Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, args[2]);
+                            Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, operator.name());
                             break;
                         case INVALID_TYPE:
                             Lang.COMMAND_DATA_ERROR_ID.sendTo(sender, args[4]);

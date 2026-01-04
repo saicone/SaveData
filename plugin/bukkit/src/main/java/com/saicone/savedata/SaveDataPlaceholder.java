@@ -112,7 +112,7 @@ public class SaveDataPlaceholder implements BiFunction<OfflinePlayer, String, Ob
         final String value;
         if (params.length > 4) {
             try {
-                operator = DataOperator.valueOf(params[3].toUpperCase());
+                operator = DataOperator.of(params[3]);
             } catch (IllegalArgumentException e) {
                 return "The string '" + params[3] + "' is not a valid operator";
             }

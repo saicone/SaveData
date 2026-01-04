@@ -204,7 +204,7 @@ public class DataType<T> {
     }
 
     @NotNull
-    public T parse(@Nullable Object object, @NotNull Function<String, String> userParser) {
+    public T parse(@Nullable Object object, boolean raw, @NotNull Function<String, String> userParser) {
         return load(userParseable && object instanceof String ? userParser.apply((String) object) : object);
     }
 

@@ -264,16 +264,16 @@ public class DataCore {
             } else {
                 final Object providedValue;
                 try {
-                    if (operator != DataOperator.SET && entry.getType() instanceof CollectionDataType) {
+                    if (!operator.isSet() && entry.getType() instanceof CollectionDataType) {
                         providedValue = ((CollectionDataType<?, ?>) entry.getType()).parseElement(value, userParser);
                     } else {
-                        providedValue = entry.getType().parse(value, userParser);
+                        providedValue = entry.getType().parse(value, operator.isRaw(), userParser);
                     }
                 } catch (Throwable t) {
                     SaveData.logException(4, t, "Cannot parse provided value");
                     return DataResult.INVALID_VALUE;
                 }
-                if (operator == DataOperator.SET) {
+                if (operator.isSet()) {
                     result = providedValue;
                 } else {
                     final Object entryValue = entry.getValue() == null ? entry.getType().getDefaultValue() : entry.getValue();
@@ -282,15 +282,19 @@ public class DataCore {
                     }
                     switch (operator) {
                         case ADD:
+                        case RAW_ADD:
                             result = entry.getType().add(entryValue, providedValue);
                             break;
-                        case SUBSTRACT:
+                        case SUBTRACT:
+                        case RAW_SUBTRACT:
                             result = entry.getType().remove(entryValue, providedValue);
                             break;
                         case MULTIPLY:
+                        case RAW_MULTIPLY:
                             result = entry.getType().multiply(entryValue, providedValue);
                             break;
                         case DIVIDE:
+                        case RAW_DIVIDE:
                             result = entry.getType().divide(entryValue, providedValue);
                             break;
                         default:
