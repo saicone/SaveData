@@ -128,7 +128,20 @@ public class SaveDataPlaceholder implements BiFunction<OfflinePlayer, String, Ob
             dataType = params[2];
             value = params.length > 3 ? params[3] : null;
         }
-        return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, str -> Placeholders.parse(player, str), SaveData.get().getLang().getLanguageFor(player)).join();
+        final CompletableFuture<Object> future = SaveData.get().getDataCore().userValue(
+                uniqueId,
+                operator,
+                database,
+                dataType,
+                value,
+                str -> Placeholders.parse(player, str),
+                SaveData.get().getLang().getLanguageFor(player)
+        );
+        if (future.isDone() || !Bukkit.isPrimaryThread()) {
+            return future.join();
+        } else {
+            return "<loading...>";
+        }
     }
 
     @Nullable
@@ -168,7 +181,7 @@ public class SaveDataPlaceholder implements BiFunction<OfflinePlayer, String, Ob
                 case "name":
                     try {
                         final CompletableFuture<String> future = PlayerProvider.getNameAsync(user);
-                        return future.isDone() ? future.join() == null ? "<unknown>" : future.join() : "<loading...>";
+                        return future.isDone() || !Bukkit.isPrimaryThread() ? future.join() == null ? "<unknown>" : future.join() : "<loading...>";
                     } catch (Throwable t) {
                         return "<unknown>";
                     }

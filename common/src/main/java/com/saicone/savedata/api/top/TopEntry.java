@@ -168,7 +168,7 @@ public class TopEntry<T extends Number> {
         }
     }
 
-    private void updateUser(@NotNull UUID user, @NotNull Object value) {
+    private synchronized void updateUser(@NotNull UUID user, @NotNull Object value) {
         final T parsedValue;
         try {
             parsedValue = this.type.load(value);
