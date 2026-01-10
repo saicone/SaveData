@@ -29,6 +29,8 @@ public class Database {
     private final Map<String, TopEntry<?>> tops = new HashMap<>();
     private Messenger messenger;
 
+    private transient boolean enabled = false;
+
     public Database(@NotNull String databaseName, @NotNull String type) {
         this.type = type;
         if (type.equalsIgnoreCase("FILE")) {
@@ -97,12 +99,14 @@ public class Database {
         for (Map.Entry<String, TopEntry<?>> entry : this.tops.entrySet()) {
             entry.getValue().update(this.client, entry.getValue().getType().getId());
         }
+        this.enabled = true;
         if (this.messenger != null) {
             this.messenger.onStart();
         }
     }
 
     public void onDisable() {
+        this.enabled = false;
         if (this.messenger != null) {
             this.messenger.onClose();
         }
@@ -111,6 +115,10 @@ public class Database {
         }
         this.tops.clear();
         this.client.onClose();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     @NotNull

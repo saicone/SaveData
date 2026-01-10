@@ -57,7 +57,11 @@ public class DataCore {
                         continue;
                     }
                     final Database database = new Database(entry.getKey(), type);
-                    database.onLoad(node);
+                    try {
+                        database.onLoad(node);
+                    } catch (Throwable t) {
+                        SaveData.logException(2, t, "An error occurred while loading database '" + database.getName() + "'");
+                    }
                     if (database.getMessenger() != null) {
                         database.getMessenger().subscribe((lines) -> {
                             if (lines.length < 2) {
@@ -96,7 +100,11 @@ public class DataCore {
 
     public void onEnable() {
         for (Map.Entry<String, Database> entry : databases.entrySet()) {
-            entry.getValue().onEnable();
+            try {
+                entry.getValue().onEnable();
+            } catch (Throwable t) {
+                SaveData.logException(2, t, "An error occurred while enabling database '" + entry.getKey() + "'");
+            }
         }
         loadUser(DataUser.SERVER_ID);
     }
@@ -104,7 +112,11 @@ public class DataCore {
     public void onDisable() {
         saveAllUsers();
         for (Map.Entry<String, Database> entry : databases.entrySet()) {
-            entry.getValue().onDisable();
+            try {
+                entry.getValue().onDisable();
+            } catch (Throwable t) {
+                SaveData.logException(2, t, "An error occurred while disabling database '" + entry.getKey() + "'");
+            }
         }
     }
 
