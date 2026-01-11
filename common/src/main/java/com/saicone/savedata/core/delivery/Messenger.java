@@ -3,6 +3,7 @@ package com.saicone.savedata.core.delivery;
 import com.saicone.delivery4j.AbstractMessenger;
 import com.saicone.delivery4j.Broker;
 import com.saicone.delivery4j.broker.HikariBroker;
+import com.saicone.delivery4j.util.LogFilter;
 import com.saicone.mcode.module.task.Task;
 import com.saicone.mcode.module.task.TaskExecutor;
 import com.saicone.savedata.SaveData;
@@ -13,9 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-public class Messenger extends AbstractMessenger implements Broker.Logger, Executor {
+public class Messenger extends AbstractMessenger implements Executor {
 
     private final HikariClient client;
 
@@ -64,27 +64,8 @@ public class Messenger extends AbstractMessenger implements Broker.Logger, Execu
         final HikariBroker broker = new HikariBroker(this.client.getHikari());
         broker.setTablePrefix(this.prefix);
         broker.setExecutor(new TaskExecutor());
+        broker.setLogger(LogFilter.valueOf(SaveData.bootstrap().logger(), () -> SaveData.get().getLogLevel()));
         return broker;
-    }
-
-    @Override
-    public void log(int level, @NotNull String msg) {
-        SaveData.log(level, msg);
-    }
-
-    @Override
-    public void log(int level, @NotNull Supplier<String> msg) {
-        SaveData.log(level, msg);
-    }
-
-    @Override
-    public void log(int level, @NotNull String msg, @NotNull Throwable throwable) {
-        SaveData.log(level, msg, throwable);
-    }
-
-    @Override
-    public void log(int level, @NotNull Supplier<String> msg, @NotNull Throwable throwable) {
-        SaveData.logException(level, throwable, msg);
     }
 
     @Override

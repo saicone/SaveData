@@ -3,24 +3,24 @@ metadata.format.version = "1.1"
 [versions]
 
 # --- framework
-mcode = "49e75c4a84"
+mcode = "cbb14a1abc"
 
 # --- platforms
-spigot = "1.21.10-R0.1-SNAPSHOT"
+spigot = "1.21.11-R0.1-SNAPSHOT"
 bungeecord = "1.21-R0.5-SNAPSHOT"
 velocity = "3.4.0-SNAPSHOT"
 
 # --- libraries
 annotations = "26.0.2"
-delivery4j = "1.1.4"
-evalex = "3.5.0"
+delivery4j = "1.1.5"
+evalex = "3.6.0"
 guava = "33.5.0-jre"
-settings = "1.0.4"
+settings = "1.0.5"
 
 # --- plugins
 essentials = "2.22.0-SNAPSHOT"
 luckperms = "5.4"
-placeholderapi = "2.11.6"
+placeholderapi = "2.11.7"
 
 [libraries]
 
