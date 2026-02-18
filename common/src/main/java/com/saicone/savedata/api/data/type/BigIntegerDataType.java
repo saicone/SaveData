@@ -61,6 +61,6 @@ public class BigIntegerDataType extends NumberDataType<BigInteger> {
 
     @Override
     public int compare(BigInteger o1, BigInteger o2) {
-        return o1.compareTo(o2);
+        return o2 == null ? 1 : o1.compareTo(o2);
     }
 }

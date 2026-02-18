@@ -409,7 +409,12 @@ public class DataCore {
         }
         final DataUser user = new DataUser(uniqueId);
         for (Map.Entry<String, Database> entry : databases.entrySet()) {
-            user.setNode(entry.getKey(), entry.getValue().getClient().loadData(uniqueId, key -> (DataType<Object>) dataTypes.get(key)));
+            final DataNode node = entry.getValue().getClient().loadData(uniqueId, key -> (DataType<Object>) dataTypes.get(key));
+            if (node == null) {
+                SaveData.log(2, "Cannot load data node for player " + uniqueId + " from database '" + entry.getKey() + "'");
+                continue;
+            }
+            user.setNode(entry.getKey(), node);
         }
         SaveData.log(4, "Saving user " + uniqueId + " into cache...");
         userData.put(uniqueId, user);
