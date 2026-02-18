@@ -31,6 +31,5 @@ subprojects {
         // drivers
         relocate 'org.mariadb.jdbc', project.group + '.libs.mariadb'
         relocate 'org.postgresql', project.group + '.libs.postgresql'
-        relocate 'org.h2', project.group + '.libs.h2'
     }
 }

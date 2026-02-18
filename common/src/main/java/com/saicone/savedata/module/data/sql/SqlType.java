@@ -61,7 +61,7 @@ public enum SqlType implements ClientType {
             "jdbc:h2:./{path}",
             "com{}h2database:h2:2.4.240",
             "org.h2.Driver",
-            Map.of("org{}h2", "org.h2")
+            Map.of()
     ),
     SQLITE(
             false,

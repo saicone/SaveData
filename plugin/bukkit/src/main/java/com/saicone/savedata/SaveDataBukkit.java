@@ -24,7 +24,8 @@ import java.util.List;
         addons = { Addon.MODULE_TASK, Addon.MODULE_LANG },
         compatibility = "1.8.8 - 1.21.8",
         foliaSupported = true,
-        softDepend = { "PlaceholderAPI", "LuckPerms", "Essentials" }
+        softDepend = { "PlaceholderAPI", "LuckPerms", "Essentials" },
+        loadBefore = "QuickShop-Hikari"
 )
 public class SaveDataBukkit extends SaveData {
 

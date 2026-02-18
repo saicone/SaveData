@@ -44,7 +44,6 @@ import java.util.List;
         // drivers
         "org.mariadb.jdbc", "{package}.libs.mariadb",
         "org.postgresql", "{package}.libs.postgresql",
-        "org.h2", "{package}.libs.h2",
 })
 public abstract class SaveData extends Plugin {
 
