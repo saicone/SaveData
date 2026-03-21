@@ -23,6 +23,10 @@ SELECT {column_set} FROM `{table_name}` WHERE `user` = ? AND `key` = ?;
 
 SELECT {column_set} FROM `{table_name}` WHERE `key` = ?;
 
+-- select:entries
+
+SELECT {column_set} FROM `{table_name}`;
+
 -- insert:data
 
 INSERT INTO `{table_name}` (

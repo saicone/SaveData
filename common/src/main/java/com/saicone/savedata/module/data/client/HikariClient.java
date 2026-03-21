@@ -26,24 +26,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class HikariClient implements DataClient {
 
     private static final SqlSchema SCHEMA = new SqlSchema(SqlType.MYSQL);
-    private static final Map<String, ColumnFunction<?>> COLUMNS = Map.of(
-            "id", ColumnFunction.of(Types.INTEGER, PreparedStatement::setInt),
-            "user", ColumnFunction.of(Types.STRING, PreparedStatement::setString),
-            "type", ColumnFunction.of(Types.STRING, PreparedStatement::setString),
-            "key", ColumnFunction.of(Types.STRING, PreparedStatement::setString),
-            "value", ColumnFunction.of(Types.STRING, PreparedStatement::setString),
-            "expiration", ColumnFunction.of(Types.LONG, PreparedStatement::setLong)
-    );
+    private static final Map<String, ColumnFunction<?>> COLUMNS = new LinkedHashMap<>();
+    static {
+        COLUMNS.put("id", ColumnFunction.of(Types.INTEGER, ResultSet::getInt, PreparedStatement::setInt));
+        COLUMNS.put("user", ColumnFunction.of(Types.STRING, ResultSet::getString, PreparedStatement::setString));
+        COLUMNS.put("type", ColumnFunction.of(Types.STRING, ResultSet::getString, PreparedStatement::setString));
+        COLUMNS.put("key", ColumnFunction.of(Types.STRING, ResultSet::getString, PreparedStatement::setString));
+        COLUMNS.put("value", ColumnFunction.of(Types.STRING, ResultSet::getString, PreparedStatement::setString));
+        COLUMNS.put("expiration", ColumnFunction.of(Types.LONG, ResultSet::getLong, PreparedStatement::setLong));
+    }
 
     private final SqlSchema schema;
     private final String databaseName;
@@ -272,6 +276,11 @@ public class HikariClient implements DataClient {
     @NotNull
     public String getSelectTopStatement() {
         return this.schema.getSelect(this.type, "select:top_entry", List.of("user", "value"), "{table_name}", tableName);
+    }
+
+    @NotNull
+    public String getSelectEntries() {
+        return this.schema.getSelect(this.type, "select:entries", List.of("*"), "{table_name}", tableName);
     }
 
     @NotNull
@@ -556,6 +565,94 @@ public class HikariClient implements DataClient {
         }
     }
 
+    @Override
+    public @NotNull Iterator<Map<String, Object>> exportData() {
+        try {
+            return new EntriesIterator(this);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class EntriesIterator implements Iterator<Map<String, Object>> {
+
+        final Map<String, ColumnFunction<?>> columns;
+        private final Connection con;
+        private final PreparedStatement stmt;
+        private final ResultSet resultSet;
+
+        public EntriesIterator(@NotNull HikariClient client) throws SQLException {
+            this.columns = new LinkedHashMap<>(HikariClient.COLUMNS);
+            this.columns.remove("id");
+
+            this.con = client.getHikari().getConnection();
+            this.stmt = this.con.prepareStatement(client.getSelectEntries());
+            this.resultSet = this.stmt.executeQuery();
+        }
+
+        @Override
+        public boolean hasNext() {
+            try {
+                if (this.con.isClosed()) {
+                    return false;
+                }
+                boolean result = this.resultSet.next();
+                if (!result) {
+                    this.stmt.close();
+                    this.con.close();
+                }
+                return result;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public Map<String, Object> next() {
+            try {
+                final Map<String, Object> data = new LinkedHashMap<>();
+                for (Map.Entry<String, ColumnFunction<?>> entry : this.columns.entrySet()) {
+                    data.put(entry.getKey(), entry.getValue().get(this.resultSet, entry.getKey()));
+                }
+                return data;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void importData(@NotNull Iterator<Map<String, Object>> iterator, int batchSize, @NotNull Consumer<Integer> notification) {
+        connect(con -> {
+            try (PreparedStatement stmt = con.prepareStatement(getInsertStatement())) {
+                int count = 0;
+
+                while (iterator.hasNext()) {
+                    final Map<String, Object> data = iterator.next();
+                    int index = 1;
+                    for (Map.Entry<String, Object> entry : data.entrySet()) {
+                        final ColumnFunction<Object> function = (ColumnFunction<Object>) COLUMNS.get(entry.getKey());
+                        function.set(stmt, index, entry.getValue());
+                        index++;
+                    }
+
+                    stmt.addBatch();
+
+                    if (++count % batchSize == 0) {
+                        stmt.executeBatch();
+                        stmt.clearBatch();
+                        notification.accept(count);
+                    }
+                }
+
+                stmt.executeBatch();
+                stmt.clearBatch();
+                notification.accept(count);
+            }
+        });
+    }
+
     private static boolean isTablePresent(@NotNull Connection con, @NotNull String tableName) throws SQLException {
         try (ResultSet set = con.getMetaData().getTables(con.getCatalog(), null, "%", null)) {
             while (set.next()) {
@@ -603,27 +700,45 @@ public class HikariClient implements DataClient {
         R apply(@NotNull Connection connection) throws SQLException;
     }
 
-    @FunctionalInterface
     private interface ColumnFunction<T> {
         @NotNull
-        static <T> ColumnFunction<T> of(@NotNull TypeParser<T> parser, @NotNull ColumnFunction<T> function) {
+        static <T> ColumnFunction<T> of(@NotNull TypeParser<T> parser, @NotNull ColumnGetter<T> getter, @NotNull ColumnSetter<T> setter) {
             return new ColumnFunction<T>() {
                 @Override
+                public T get(@NotNull ResultSet resultSet, @NotNull String name) throws SQLException {
+                    return getter.get(resultSet, name);
+                }
+
+                @Override
                 public void set(@NotNull PreparedStatement statement, int index, T value) throws SQLException {
-                    function.set(statement, index, value);
+                    setter.set(statement, index, value);
                 }
 
                 @Override
                 public void setAny(@NotNull PreparedStatement statement, int index, Object value) throws SQLException {
-                    function.set(statement, index, parser.parse(value));
+                    setter.set(statement, index, parser.parse(value));
                 }
             };
         }
+
+        T get(@NotNull ResultSet resultSet, @NotNull String name) throws SQLException;
 
         void set(@NotNull PreparedStatement statement, int index, T value) throws SQLException;
 
         default void setAny(@NotNull PreparedStatement statement, int index, Object value) throws SQLException {
             // empty default method
         }
+    }
+
+    @FunctionalInterface
+    private interface ColumnGetter<T> {
+
+        T get(@NotNull ResultSet resultSet, @NotNull String name) throws SQLException;
+    }
+
+    @FunctionalInterface
+    private interface ColumnSetter<T> {
+
+        void set(@NotNull PreparedStatement statement, int index, T value) throws SQLException;
     }
 }

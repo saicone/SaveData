@@ -18,17 +18,17 @@ import java.util.List;
 
 @Dependencies(value = {
         // EvalEx
-        @Dependency("com{}ezylang:EvalEx:3.5.0"),
+        @Dependency("com{}ezylang:EvalEx:3.6.0"),
         // Settings
-        @Dependency("com{}saicone{}settings:settings:1.0.4"),
-        @Dependency("com{}saicone{}settings:settings-gson:1.0.4"),
-        @Dependency("com{}saicone{}settings:settings-hocon:1.0.4"),
-        @Dependency("com{}saicone{}settings:settings-toml:1.0.4"),
-        @Dependency("com{}saicone{}settings:settings-yaml:1.0.4"),
+        @Dependency("com{}saicone{}settings:settings:1.0.5"),
+        @Dependency("com{}saicone{}settings:settings-gson:1.0.5"),
+        @Dependency("com{}saicone{}settings:settings-hocon:1.0.5"),
+        @Dependency("com{}saicone{}settings:settings-toml:1.0.5"),
+        @Dependency("com{}saicone{}settings:settings-yaml:1.0.5"),
         @Dependency("org.yaml:snakeyaml:2.5"),
         // Delivery4j
-        @Dependency("com{}saicone{}delivery4j:delivery4j:1.1.4"),
-        @Dependency("com{}saicone{}delivery4j:broker-sql-hikari:1.1.4"),
+        @Dependency("com{}saicone{}delivery4j:delivery4j:1.1.5"),
+        @Dependency("com{}saicone{}delivery4j:broker-sql-hikari:1.1.5"),
         @Dependency("com{}google{}guava:guava:33.5.0-jre"),
         @Dependency("org{}slf4j:slf4j-nop:1.7.36"),
 }, relocations = {

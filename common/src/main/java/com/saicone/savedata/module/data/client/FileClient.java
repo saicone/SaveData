@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -281,6 +282,16 @@ public class FileClient implements DataClient {
 
     @Override
     public void deleteData(@NotNull Map<String, Object> columns) {
+        throw new RuntimeException("Not yet supported");
+    }
+
+    @Override
+    public @NotNull Iterator<Map<String, Object>> exportData() {
+        throw new RuntimeException("Not yet supported");
+    }
+
+    @Override
+    public void importData(@NotNull Iterator<Map<String, Object>> iterator, int batchSize, @NotNull Consumer<Integer> notification) {
         throw new RuntimeException("Not yet supported");
     }
 }

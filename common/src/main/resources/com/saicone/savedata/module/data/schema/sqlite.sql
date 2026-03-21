@@ -1,7 +1,7 @@
 -- create:data_table
 
 CREATE TABLE `{table_name}` (
-  `id`         INT PRIMARY KEY NOT NULL,
+  `id`         INTEGER PRIMARY KEY NOT NULL,
   `user`       VARCHAR(36)     NOT NULL,
   `type`       VARCHAR(255),
   `key`        VARCHAR(255)    NOT NULL,
@@ -21,6 +21,10 @@ SELECT {column_set} FROM `{table_name}` WHERE `user` = ? AND `key` = ?;
 -- select:top_entry
 
 SELECT {column_set} FROM `{table_name}` WHERE `key` = ?;
+
+-- select:entries
+
+SELECT {column_set} FROM `{table_name}`;
 
 -- insert:data
 

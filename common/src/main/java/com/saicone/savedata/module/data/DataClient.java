@@ -7,8 +7,10 @@ import com.saicone.settings.node.MapNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface DataClient {
@@ -39,4 +41,9 @@ public interface DataClient {
     void saveDataEntry(@NotNull UUID user, @NotNull DataEntry<?> entry);
 
     void deleteData(@NotNull Map<String, Object> columns);
+
+    @NotNull
+    Iterator<Map<String, Object>> exportData();
+
+    void importData(@NotNull Iterator<Map<String, Object>> iterator, int batchSize, @NotNull Consumer<Integer> notification);
 }

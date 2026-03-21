@@ -7,6 +7,7 @@ import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.Lang;
+import com.saicone.savedata.core.data.Database;
 import com.saicone.savedata.util.DurationFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +24,7 @@ public interface MainCommand {
 
     List<String> TYPE = List.of(
             "reload",
+            "transfer",
             "player",
             "players",
             "global",
@@ -51,6 +53,23 @@ public interface MainCommand {
                 });
                 return;
             }
+        } else if (args.length > 2 && args[0].equalsIgnoreCase("transfer")) {
+            final Database originDatabase = SaveData.get().getDataCore().getDatabase(args[1]);
+            if (originDatabase == null) {
+                Lang.COMMAND_ERROR_DATABASE.sendTo(sender, args[1]);
+                return;
+            }
+            final Database finalDatabase = SaveData.get().getDataCore().getDatabase(args[2]);
+            if (finalDatabase == null) {
+                Lang.COMMAND_ERROR_DATABASE.sendTo(sender, args[2]);
+                return;
+            }
+            Task.runAsync(() -> {
+                finalDatabase.getClient().importData(originDatabase.getClient().exportData(), 1000, count -> {
+                    System.out.println("Migration count: " + count);
+                });
+            });
+            return;
         }
 
         SaveData.log(4, "Check");

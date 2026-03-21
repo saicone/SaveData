@@ -126,6 +126,11 @@ public class DataCore {
         onEnable();
     }
 
+    @Nullable
+    public Database getDatabase(@NotNull String id) {
+        return databases.get(id);
+    }
+
     @NotNull
     public Map<String, Database> getDatabases() {
         return databases;

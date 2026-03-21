@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class SqlSchema {
     }
 
     @NotNull
-    public String getSelect(@NotNull SqlType sql, @NotNull String type, @NotNull List<String> columns, @NotNull String... replacements) {
+    public String getSelect(@NotNull SqlType sql, @NotNull String type, @NotNull Collection<String> columns, @NotNull String... replacements) {
         final String query = get(sql, type, replacements);
         if (columns.contains("*")) {
             return query.replace("{column_set}", "*");
@@ -88,7 +89,7 @@ public class SqlSchema {
     }
 
     @NotNull
-    public String getUpdate(@NotNull SqlType sql, @NotNull String type, @NotNull List<String> columns, @NotNull String... replacements) {
+    public String getUpdate(@NotNull SqlType sql, @NotNull String type, @NotNull Collection<String> columns, @NotNull String... replacements) {
         final String query = get(sql, type, replacements);
         final StringJoiner joiner = new StringJoiner(", ");
         if (sql == SqlType.POSTGRESQL) {
@@ -104,7 +105,7 @@ public class SqlSchema {
     }
 
     @NotNull
-    public String getDelete(@NotNull SqlType sql, @NotNull String type, @NotNull List<String> columns, @NotNull String... replacements) {
+    public String getDelete(@NotNull SqlType sql, @NotNull String type, @NotNull Collection<String> columns, @NotNull String... replacements) {
         final String query = get(sql, type, replacements);
         final StringJoiner joiner = new StringJoiner(" AND ");
         if (sql == SqlType.POSTGRESQL) {
