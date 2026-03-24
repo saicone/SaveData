@@ -35,6 +35,11 @@ public class StringDataType extends DataType<String> {
     }
 
     @Override
+    public int getSize(@NotNull String s) {
+        return s.length();
+    }
+
+    @Override
     public @NotNull Object eval(@NotNull String s) {
         return colored ? MStrings.color(s) : s;
     }

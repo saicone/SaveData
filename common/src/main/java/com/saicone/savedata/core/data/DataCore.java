@@ -222,6 +222,8 @@ public class DataCore {
             switch (operator) {
                 case GET:
                     return entry.getUserValue(userParser);
+                case SIZE:
+                    return entry.getSize();
                 case CONTAINS:
                     if (entry.getType() instanceof CollectionDataType) {
                         if (value == null || entry.getValue() == null) {

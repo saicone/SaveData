@@ -31,6 +31,11 @@ public class ListDataType<E> extends CollectionDataType<List<E>, E> {
     }
 
     @Override
+    public int getSize(@NotNull List<E> a) {
+        return a.size();
+    }
+
+    @Override
     public boolean test(@NotNull List<E> a, @NotNull Object b) {
         return a.contains(loadElement(b));
     }

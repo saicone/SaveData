@@ -97,6 +97,14 @@ public class DataEntry<T> {
         return userValue;
     }
 
+    public int getSize() {
+        final T t = getValue();
+        if (t == null) {
+            return 0;
+        }
+        return getType().getSize(t);
+    }
+
     @Nullable
     public Long getExpiration() {
         return expiration;

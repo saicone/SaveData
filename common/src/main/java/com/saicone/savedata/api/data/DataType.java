@@ -203,6 +203,10 @@ public class DataType<T> {
         return expression;
     }
 
+    public int getSize(@NotNull T a) {
+        return 0;
+    }
+
     @NotNull
     public T parse(@Nullable Object object, boolean raw, @NotNull Function<String, String> userParser) {
         return load(userParseable && object instanceof String ? userParser.apply((String) object) : object);

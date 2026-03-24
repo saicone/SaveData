@@ -31,6 +31,11 @@ public class SetDataType<E> extends CollectionDataType<Set<E>, E> {
     }
 
     @Override
+    public int getSize(@NotNull Set<E> a) {
+        return a.size();
+    }
+
+    @Override
     public boolean test(@NotNull Set<E> a, @NotNull Object b) {
         return a.contains(loadElement(b));
     }
