@@ -20,7 +20,7 @@ command:
     - '&eset &8- &7Reemplazar el valor de la data'
     - ''
     - '&eadd &8- &7Agregar un valor al valor de la data'
-    - '&esubstract &8- &7Remover un valor al valor de la data'
+    - '&esubtract &8- &7Remover un valor al valor de la data'
     - '&emultiply &8- &7Multiplicar el valor de data data por otro valor'
     - '&edivide &8- &7Dividir el valor de data data por otro valor'
   reload: '&aEl plugin ha sido recargado con éxito! [&f{0} ms&a]'

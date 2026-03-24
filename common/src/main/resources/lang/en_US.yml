@@ -20,7 +20,7 @@ command:
     - '&eset &8- &7Set the data value as provided value'
     - ''
     - '&eadd &8- &7Add provided value to data value'
-    - '&esubstract &8- &7Remove provided value from data value'
+    - '&esubtract &8- &7Remove provided value from data value'
     - '&emultiply &8- &7Multiply data value by provided value'
     - '&edivide &8- &7Divide data value by provided value'
   reload: '&aThe plugin was successfully reloaded! [&f{0} ms&a]'

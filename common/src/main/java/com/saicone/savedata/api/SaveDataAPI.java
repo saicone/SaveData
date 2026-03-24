@@ -36,6 +36,16 @@ public class SaveDataAPI {
     }
 
     @NotNull
+    public static DataUser getGlobalData() {
+        return SaveData.get().getDataCore().getGlobalData();
+    }
+
+    @Nullable
+    public static DataUser getUserData(@NotNull UUID uniqueId) {
+        return SaveData.get().getDataCore().getUser(uniqueId);
+    }
+
+    @NotNull
     public static CompletableFuture<Object> value(@NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value) {
         return value(DataUser.SERVER_ID, operator, database, dataType, value, s -> s);
     }

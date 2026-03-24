@@ -141,8 +141,13 @@ public class DataCore {
         return dataTypes;
     }
 
+    @Nullable
+    public DataUser getUser(@NotNull UUID uniqueId) {
+        return userData.get(uniqueId);
+    }
+
     @NotNull
-    public CompletableFuture<DataUser> getUser(@NotNull UUID uniqueId) {
+    public CompletableFuture<DataUser> getUserOrLoad(@NotNull UUID uniqueId) {
         final DataUser user = userData.get(uniqueId);
         if (user != null) {
             return CompletableFuture.completedFuture(user);
@@ -193,7 +198,7 @@ public class DataCore {
     }
 
     @NotNull
-    public DataUser getServerUser() {
+    public DataUser getGlobalData() {
         return userData.get(DataUser.SERVER_ID);
     }
 
