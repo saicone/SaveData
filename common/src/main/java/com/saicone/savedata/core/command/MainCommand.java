@@ -33,6 +33,8 @@ public interface MainCommand {
 
     List<String> OPERATOR = Arrays.stream(DataOperator.values()).map(value -> value.name().toLowerCase()).collect(Collectors.toList());
 
+    String RESULT_ARG = "--result";
+
     @NotNull
     UUID getUniqueId(@NotNull String name);
 
@@ -153,7 +155,7 @@ public interface MainCommand {
 
         if (uniqueId instanceof UUID) {
             final long before = System.currentTimeMillis();
-            final boolean getResult = args[args.length - 1].equalsIgnoreCase("-result");
+            final boolean getResult = args[args.length - 1].equalsIgnoreCase(RESULT_ARG);
             SaveData.get().getDataCore().executeUpdate((UUID) uniqueId, operator, database, dataType, value.getLeft(), value.getRight(), userParser).thenAccept(result -> {
                 if (result instanceof DataResult) {
                     switch ((DataResult) result) {
@@ -216,6 +218,9 @@ public interface MainCommand {
 
     @Nullable
     private Long parseExpiration(@NotNull String expiration) {
+        if (expiration.equals(RESULT_ARG)) {
+            return null;
+        }
         try {
             final long time = DurationFormatter.format(expiration, TimeUnit.MILLISECONDS);
             if (time <= 0L) {
