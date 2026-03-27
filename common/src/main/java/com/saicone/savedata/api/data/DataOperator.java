@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public enum DataOperator {
 
@@ -35,6 +36,11 @@ public enum DataOperator {
         ALIASES.put("RAW_SUBSTRACT", SUBTRACT);
         ALIASES.put("RAWSUBSTRACT", SUBTRACT);
         ALIASES.put("RAW-SUBSTRACT", SUBTRACT);
+    }
+
+    @NotNull
+    public static Set<String> aliases() {
+        return ALIASES.keySet();
     }
 
     public boolean isEval() {

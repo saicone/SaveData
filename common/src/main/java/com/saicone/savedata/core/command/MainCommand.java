@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public interface MainCommand {
 
@@ -30,8 +29,6 @@ public interface MainCommand {
             "global",
             "server"
     );
-
-    List<String> OPERATOR = Arrays.stream(DataOperator.values()).map(value -> value.name().toLowerCase()).collect(Collectors.toList());
 
     String RESULT_ARG = "--result";
 
@@ -88,7 +85,7 @@ public interface MainCommand {
         final Function<String, String> userParser;
         if (args[0].equalsIgnoreCase("player")) {
             SaveData.log(4, "Using player ID");
-            if (args.length < 5 || !OPERATOR.contains(args[4].toLowerCase())) {
+            if (args.length < 5 || !DataOperator.aliases().contains(args[4].toUpperCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return;
             }
@@ -101,7 +98,7 @@ public interface MainCommand {
             userParser = getUserParser((UUID) uniqueId);
         } else if (args[0].equalsIgnoreCase("players")) {
             SaveData.log(4, "Using player condition");
-            if (args.length < 5 || !OPERATOR.contains(args[4].toLowerCase())) {
+            if (args.length < 5 || !DataOperator.aliases().contains(args[4].toUpperCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return;
             }
@@ -113,7 +110,7 @@ public interface MainCommand {
             userParser = null;
         } else {
             SaveData.log(4, "Using server ID");
-            if (!OPERATOR.contains(args[3].toLowerCase())) {
+            if (!DataOperator.aliases().contains(args[3].toUpperCase())) {
                 Lang.COMMAND_HELP.sendTo(sender, cmd);
                 return;
             }

@@ -2,6 +2,7 @@ package com.saicone.savedata.core.command;
 
 import com.saicone.mcode.module.task.Task;
 import com.saicone.savedata.SaveData;
+import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.module.hook.Placeholders;
 import com.saicone.savedata.module.hook.PlayerProvider;
@@ -16,12 +17,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class SaveDataCommand extends Command implements MainCommand {
+
+    private static final List<String> OPERATOR = Arrays.stream(DataOperator.values()).map(value -> value.name().toLowerCase()).collect(Collectors.toList());
 
     public SaveDataCommand() {
         super("savedata", "Main command for SaveData plugin", "/savedata", List.of("sd", "sdata"));
@@ -84,7 +89,7 @@ public class SaveDataCommand extends Command implements MainCommand {
         if (args.length < 3) {
             return OPERATOR;
         }
-        if (!OPERATOR.contains(args[2])) {
+        if (!DataOperator.aliases().contains(args[2].toUpperCase())) {
             return List.of();
         }
         if (args.length == 4) {
