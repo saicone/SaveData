@@ -138,7 +138,15 @@ public interface MainCommand {
                 Lang.COMMAND_DATA_ERROR_OPERATOR.sendTo(sender, args[2]);
                 return;
             }
-            SaveData.get().getDataCore().userValue((UUID) uniqueId, operator, database, dataType, value.getLeft(), userParser, SaveData.get().getLang().getLanguageFor(sender)).thenAccept(result -> {
+            SaveData.get().getDataCore().userValue(
+                    (UUID) uniqueId,
+                    operator,
+                    database,
+                    dataType,
+                    value.getLeft(),
+                    userParser,
+                    operator == DataOperator.EXPIRY ? SaveData.get().getLang().getLanguageFor(sender) : null
+            ).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);
                 } else if (result instanceof Boolean) {

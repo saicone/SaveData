@@ -1,6 +1,7 @@
 package com.saicone.savedata.core;
 
 import com.saicone.mcode.module.lang.LangSupplier;
+import com.saicone.mcode.platform.MC;
 import com.saicone.savedata.SaveData;
 import com.saicone.settings.SettingsNode;
 import com.saicone.types.Types;
@@ -51,7 +52,7 @@ public class Lang implements LangSupplier {
 
     @Override
     public @NotNull String getLanguageFor(@Nullable Object object) {
-        if (object == null) {
+        if (object == null || MC.version().isOlderThanOrEquals(MC.V_1_11_2)) {
             return consoleLanguage;
         }
         return LangSupplier.super.getLanguageFor(object);

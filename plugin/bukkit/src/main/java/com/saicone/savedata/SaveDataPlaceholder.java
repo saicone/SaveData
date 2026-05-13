@@ -135,7 +135,7 @@ public class SaveDataPlaceholder implements BiFunction<OfflinePlayer, String, Ob
                 dataType,
                 value,
                 str -> Placeholders.parse(player, str),
-                SaveData.get().getLang().getLanguageFor(player)
+                operator == DataOperator.EXPIRY ? SaveData.get().getLang().getLanguageFor(player) : null
         );
         if (future.isDone() || !Bukkit.isPrimaryThread()) {
             return future.join();
