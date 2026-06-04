@@ -347,6 +347,8 @@ public class DataCore {
                 } catch (IOException e) {
                     SaveData.logException(2, e, "Cannot create " + path + " directory");
                 }
+            } else {
+                SaveData.log(2, "The data type file " + path + " doesn't exist");
             }
             return;
         }
@@ -359,6 +361,7 @@ public class DataCore {
                 SaveData.logException(2, e, "Cannot read " + path + " directory");
             }
         } else {
+            SaveData.log(3, "Loading data types from file " + path);
             final Settings settings = SettingsData.of(path.getFileName().toString()).load(path.getParent().toFile());
             for (Map.Entry<String, SettingsNode> entry : settings.getValue().entrySet()) {
                 if (entry.getValue().isObject()) {

@@ -318,8 +318,7 @@ public class HikariClient implements DataClient {
                     }
                     final DataType<Object> dataType = dataProvider.apply(key);
                     if (dataType == null) {
-                        SaveData.log(2, "Found invalid data type '" + key + "' for user " + user + ", deleting it...");
-                        toDelete.add(id);
+                        SaveData.log(2, "Found invalid data type '" + key + "' for user " + user);
                         continue;
                     }
                     final String value = result.getString("value");
