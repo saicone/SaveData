@@ -9,10 +9,13 @@ import com.saicone.mcode.module.task.TaskExecutor;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.module.data.client.HikariClient;
 import com.saicone.settings.node.MapNode;
+import com.saicone.types.Types;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Messenger extends AbstractMessenger implements Executor {
@@ -21,6 +24,7 @@ public class Messenger extends AbstractMessenger implements Executor {
 
     private String prefix = "savedata_";
     private String channel = "savedata:main";
+    private Duration interval = Duration.ofSeconds(1);
 
     public Messenger(@NotNull HikariClient client) {
         this.client = client;
@@ -30,6 +34,7 @@ public class Messenger extends AbstractMessenger implements Executor {
         close();
         this.prefix = config.getRegex("(?i)(table-?)?prefix").asString("savedata_");
         this.channel = config.getIgnoreCase("channel").asString("savedata:main");
+        this.interval = Types.DURATION.parse(config.getRegex("(?i)(poll-?)?interval"), Duration.ofSeconds(1));
     }
 
     public void onStart() {
@@ -65,6 +70,7 @@ public class Messenger extends AbstractMessenger implements Executor {
         broker.setTablePrefix(this.prefix);
         broker.setExecutor(new TaskExecutor());
         broker.setLogger(LogFilter.valueOf(SaveData.bootstrap().logger(), () -> SaveData.get().getLogLevel()));
+        broker.setPollInterval((int) this.interval.toMillis(), TimeUnit.MILLISECONDS);
         return broker;
     }
 
