@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -24,6 +26,7 @@ public interface MainCommand {
     List<String> TYPE = List.of(
             "reload",
             "transfer",
+            "database",
             "player",
             "players",
             "global",
@@ -42,7 +45,12 @@ public interface MainCommand {
 
     default void run(@NotNull Object sender, @NotNull String cmd, @NotNull String... args) {
         SaveData.log(4, "Before argument check");
-        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
+        if (args.length < 1) {
+            Lang.COMMAND_HELP.sendTo(sender, cmd);
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("reload")) {
             final long before = System.currentTimeMillis();
             if (args[0].equalsIgnoreCase("reload")) {
                 Task.runAsync(() -> {
@@ -52,7 +60,11 @@ public interface MainCommand {
                 });
                 return;
             }
-        } else if (args.length > 2 && args[0].equalsIgnoreCase("transfer")) {
+        } else if (args[0].equalsIgnoreCase("transfer")) {
+            if (args.length < 3) {
+                Lang.COMMAND_HELP.sendTo(sender, cmd);
+                return;
+            }
             final Database originDatabase = SaveData.get().getDataCore().getDatabase(args[1]);
             if (originDatabase == null) {
                 Lang.COMMAND_ERROR_DATABASE.sendTo(sender, args[1]);
@@ -68,6 +80,35 @@ public interface MainCommand {
                     System.out.println("Migration count: " + count);
                 });
             });
+            return;
+        } else if (args[0].equalsIgnoreCase("database")) {
+            if (args.length < 4) {
+                Lang.COMMAND_HELP.sendTo(sender, cmd);
+                return;
+            }
+
+            final Database database = SaveData.get().getDataCore().getDatabase(args[1]);
+            if (database == null) {
+                Lang.COMMAND_ERROR_DATABASE.sendTo(sender, args[1]);
+                return;
+            }
+
+            if (args[2].equalsIgnoreCase("delete")) {
+                final Map<String, Object> columns = new HashMap<>();
+                for (int i = 3; i < args.length; i++) {
+                    final String[] split = args[i].split("=", 2);
+                    if (split.length != 2) {
+                        Lang.COMMAND_HELP.sendTo(sender, cmd);
+                        return;
+                    }
+                    columns.put(split[0], split[1]);
+                }
+                Task.runAsync(() -> {
+                    SaveData.log(3, "Running bulk delete with conditions: " + columns);
+                    database.getClient().deleteData(columns);
+                    SaveData.log(3, "Bulk delete completed");
+                });
+            }
             return;
         }
 
