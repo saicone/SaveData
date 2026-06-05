@@ -34,7 +34,7 @@ public class Messenger extends AbstractMessenger implements Executor {
         close();
         this.prefix = config.getRegex("(?i)(table-?)?prefix").asString("savedata_");
         this.channel = config.getIgnoreCase("channel").asString("savedata:main");
-        this.interval = Types.DURATION.parse(config.getRegex("(?i)(poll-?)?interval"), Duration.ofSeconds(1));
+        this.interval = Types.DURATION.parse(config.getRegex("(?i)(poll-?)?interval").getValue(), Duration.ofSeconds(1));
     }
 
     public void onStart() {
