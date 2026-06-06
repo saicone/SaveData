@@ -83,7 +83,7 @@ public class DurationFormatter {
                 }
                 time += TimeUnit.valueOf(unit).convert(Long.parseLong(split[0]), timeUnit);
             } catch (Throwable t) {
-                throw new IllegalArgumentException("The duration '" + duration + "' cannot be parsed as " + timeUnit.name());
+                throw new IllegalArgumentException("The duration '" + duration + "' cannot be parsed as " + timeUnit.name(), t);
             }
         }
         return time;
@@ -155,7 +155,7 @@ public class DurationFormatter {
     private String formatPart(@Nullable Object language, long amount, @NotNull ChronoUnit unit) {
         final String format = this.concise ? "short" : amount == 1 ? "singular" : "plural";
         final String translationKey = "duration.unit." + unit.name().toLowerCase(Locale.ROOT) + "." + format;
-        return amount + SaveData.get().getLang().getDisplay(language, translationKey).getText().getAsString().getValue();
+        return amount + SaveData.get().getLang().getDisplay(language, translationKey).getText().getAsString().getValue().replace("\"", "");
     }
 
 }

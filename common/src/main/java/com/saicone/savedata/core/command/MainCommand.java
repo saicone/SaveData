@@ -8,7 +8,7 @@ import com.saicone.savedata.api.data.DataResult;
 import com.saicone.savedata.api.data.DataUser;
 import com.saicone.savedata.core.Lang;
 import com.saicone.savedata.core.data.Database;
-import com.saicone.savedata.util.DurationFormatter;
+import com.saicone.types.Types;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -268,7 +267,7 @@ public interface MainCommand {
             return null;
         }
         try {
-            final long time = DurationFormatter.format(expiration, TimeUnit.MILLISECONDS);
+            final long time = Types.DURATION.parse(expiration).toMillis();
             if (time <= 0L) {
                 return null;
             }
