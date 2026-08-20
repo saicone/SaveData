@@ -2,6 +2,7 @@ package com.saicone.savedata.core;
 
 import com.saicone.mcode.module.lang.LangSupplier;
 import com.saicone.mcode.platform.MC;
+import com.saicone.mcode.util.MLocale;
 import com.saicone.savedata.SaveData;
 import com.saicone.settings.SettingsNode;
 import com.saicone.types.Types;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,45 +30,49 @@ public class Lang implements LangSupplier {
     public static final Path COMMAND_ERROR_DATABASE = Path.of("command.error.database");
     public static final Path COMMAND_ERROR_DATATYPE = Path.of("command.error.datatype");
 
-    private String consoleLanguage = "en_us";
-    private String defaultLanguage = "en_us";
-    private final Map<String, String> languageAliases = new HashMap<>();
+    private Locale consoleLocale = LangSupplier.DEFAULT_LOCALE;
+    private Locale defaultLocale = LangSupplier.DEFAULT_LOCALE;
+    private final Set<Locale> defaultLocaleTypes = Set.of(
+            MLocale.fromMinecraftLocale("en_us"),
+            MLocale.fromMinecraftLocale("es_es")
+    );
+    private final Map<Locale, Locale> localeAliases = new HashMap<>();
 
     @Override
     public void load() {
-        this.languageAliases.clear();
+        this.localeAliases.clear();
 
-        this.consoleLanguage = SaveData.settings().getIgnoreCase("plugin", "language").asString("en_us").toLowerCase();
-        this.defaultLanguage = SaveData.settings().getIgnoreCase("lang", "default").asString("en_us").toLowerCase();
+        this.consoleLocale = MLocale.fromMinecraftLocale(SaveData.settings().getIgnoreCase("plugin", "language").asString("en_us"));
+        this.defaultLocale = MLocale.fromMinecraftLocale(SaveData.settings().getIgnoreCase("lang", "default").asString("en_us").toLowerCase());
         for (Map.Entry<String, SettingsNode> entry : SaveData.settings().getIgnoreCase("lang", "aliases").asMapNode()) {
             for (String locale : entry.getValue().asList(Types.STRING)) {
-                this.languageAliases.put(locale, entry.getKey());
+                this.localeAliases.put(MLocale.fromMinecraftLocale(locale), MLocale.fromMinecraftLocale(entry.getKey()));
             }
         }
     }
 
     @Override
-    public @NotNull String getLanguage() {
-        return defaultLanguage;
+    public @NotNull Locale getDefaultLocale() {
+        return defaultLocale;
     }
 
     @Override
-    public @NotNull String getLanguageFor(@Nullable Object object) {
-        if (object == null || MC.version().isOlderThanOrEquals(MC.V_1_11_2)) {
-            return consoleLanguage;
+    public @NotNull Locale getHolderLocale(@Nullable Object holder) {
+        if (holder == null || MC.version().isOlderThanOrEquals(MC.V_1_11_2)) {
+            return consoleLocale;
+        } else {
+            return LangSupplier.super.getHolderLocale(holder);
         }
-        return LangSupplier.super.getLanguageFor(object);
     }
 
     @Override
-    public @NotNull Set<String> getLanguageTypes() {
-        return Set.of("en_us", "es_es");
+    public @NotNull Set<Locale> getLocaleTypes() {
+        return defaultLocaleTypes;
     }
 
     @Override
-    @NotNull
-    public Map<String, String> getLanguageAliases() {
-        return languageAliases;
+    public @NotNull Map<Locale, Locale> getLocaleAliases() {
+        return localeAliases;
     }
 
     @Override

@@ -185,7 +185,7 @@ public interface MainCommand {
                     dataType,
                     value.getLeft(),
                     userParser,
-                    operator == DataOperator.EXPIRY ? SaveData.get().getLang().getLanguageFor(sender) : null
+                    operator == DataOperator.EXPIRY ? SaveData.get().getLang().getHolderLocale(sender) : null
             ).thenAccept(result -> {
                 if (operator == DataOperator.GET) {
                     Lang.COMMAND_DATA_GET.sendTo(sender, uniqueId == DataUser.SERVER_ID ? "GLOBAL" : args[1], database, dataType, result);

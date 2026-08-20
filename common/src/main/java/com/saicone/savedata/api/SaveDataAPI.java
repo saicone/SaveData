@@ -1,5 +1,6 @@
 package com.saicone.savedata.api;
 
+import com.saicone.mcode.util.MLocale;
 import com.saicone.savedata.SaveData;
 import com.saicone.savedata.api.data.DataOperator;
 import com.saicone.savedata.api.data.DataType;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -57,22 +59,42 @@ public class SaveDataAPI {
 
     @NotNull
     public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value) {
-        return value(uniqueId, operator, database, dataType, value, s -> s, null);
+        return value(uniqueId, operator, database, dataType, value, s -> s, (Locale) null);
     }
 
     @NotNull
     public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser) {
-        return value(uniqueId, operator, database, dataType, value, userParser, null);
+        return value(uniqueId, operator, database, dataType, value, userParser, (Locale) null);
     }
 
     @NotNull
+    @Deprecated(forRemoval = true)
     public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Object language) {
         return value(uniqueId, operator, database, dataType, value, s -> s, language);
     }
 
     @NotNull
+    @Deprecated(forRemoval = true)
     public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser, @Nullable Object language) {
-        return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser, language);
+        final Locale locale;
+        if (language instanceof Locale) {
+            locale = (Locale) language;
+        } else if (language instanceof String str) {
+            locale = MLocale.fromMinecraftLocale(str);
+        } else {
+            locale = null;
+        }
+        return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser, locale);
+    }
+
+    @NotNull
+    public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @Nullable Locale locale) {
+        return value(uniqueId, operator, database, dataType, value, s -> s, locale);
+    }
+
+    @NotNull
+    public static CompletableFuture<Object> value(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser, @Nullable Locale locale) {
+        return SaveData.get().getDataCore().userValue(uniqueId, operator, database, dataType, value, userParser, locale);
     }
 
     @NotNull

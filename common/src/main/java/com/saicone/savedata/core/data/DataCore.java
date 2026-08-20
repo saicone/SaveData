@@ -204,7 +204,7 @@ public class DataCore {
 
     @NotNull
     @SuppressWarnings("unchecked")
-    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser, @Nullable Object language) {
+    public CompletableFuture<Object> userValue(@NotNull UUID uniqueId, @NotNull DataOperator operator, @NotNull String database, @NotNull String dataType, @Nullable Object value, @NotNull Function<String, String> userParser, @Nullable Locale locale) {
         SaveData.log(4, "Executing userValue from DataCore");
         if (!operator.isEval()) {
             return CompletableFuture.completedFuture(DataResult.INVALID_OPERATOR);
@@ -249,7 +249,7 @@ public class DataCore {
                         if (duration.isNegative()) {
                             return 0;
                         }
-                        return DurationFormatter.format(language, duration, value instanceof String ? (String) value : "time");
+                        return DurationFormatter.format(locale, duration, value instanceof String ? (String) value : "time");
                     } else {
                         return 0;
                     }

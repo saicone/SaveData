@@ -90,20 +90,20 @@ public class DurationFormatter {
     }
 
     @NotNull
-    public static String format(@Nullable Object language, @NotNull Duration duration, @NotNull String type) {
+    public static String format(@Nullable Locale locale, @NotNull Duration duration, @NotNull String type) {
         switch (type.toLowerCase()) {
             case "time_long":
             case "long":
-                return LONG.format(language, duration);
+                return LONG.format(locale, duration);
             case "time":
             case "time_concise":
             case "concise":
-                return CONCISE.format(language, duration);
+                return CONCISE.format(locale, duration);
             case "time_concise_low_accuracy":
             case "concise_low_accuracy":
-                return CONCISE_LOW_ACCURACY.format(language, duration);
+                return CONCISE_LOW_ACCURACY.format(locale, duration);
         }
-        return CONCISE.format(language, duration);
+        return CONCISE.format(locale, duration);
     }
 
     /**
@@ -120,12 +120,12 @@ public class DurationFormatter {
     /**
      * Formats {@code duration} as a string.
      *
-     * @param language the texts language
+     * @param locale   the texts language
      * @param duration the duration
      * @return the formatted string
      */
     @NotNull
-    public String format(@Nullable Object language, @NotNull Duration duration) {
+    public String format(@Nullable Locale locale, @NotNull Duration duration) {
         long seconds = duration.getSeconds();
         StringBuilder builder = new StringBuilder();
         int outputSize = 0;
@@ -137,7 +137,7 @@ public class DurationFormatter {
                 if (outputSize != 0) {
                     builder.append(' ');
                 }
-                builder.append(formatPart(language, n, unit));
+                builder.append(formatPart(locale, n, unit));
                 outputSize++;
             }
             if (seconds <= 0 || outputSize >= this.accuracy) {
@@ -146,16 +146,16 @@ public class DurationFormatter {
         }
 
         if (outputSize == 0) {
-            return formatPart(language, 0, ChronoUnit.SECONDS);
+            return formatPart(locale, 0, ChronoUnit.SECONDS);
         }
         return builder.toString();
     }
 
     @NotNull
-    private String formatPart(@Nullable Object language, long amount, @NotNull ChronoUnit unit) {
+    private String formatPart(@Nullable Locale locale, long amount, @NotNull ChronoUnit unit) {
         final String format = this.concise ? "short" : amount == 1 ? "singular" : "plural";
         final String translationKey = "duration.unit." + unit.name().toLowerCase(Locale.ROOT) + "." + format;
-        return amount + SaveData.get().getLang().getDisplay(language, translationKey).getText().getAsString().getValue().replace("\"", "");
+        return amount + SaveData.get().getLang().getDisplay(locale, translationKey).getText().getAsString().getValue().replace("\"", "");
     }
 
 }

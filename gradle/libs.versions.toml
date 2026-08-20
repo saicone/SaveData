@@ -3,24 +3,24 @@ metadata.format.version = "1.1"
 [versions]
 
 # --- framework
-mcode = "cbb14a1abc"
+mcode = "7962ce738b"
 
 # --- platforms
-spigot = "1.21.11-R0.1-SNAPSHOT"
-bungeecord = "1.21-R0.5-SNAPSHOT"
-velocity = "3.4.0-SNAPSHOT"
+spigot = "26.2-R0.1-SNAPSHOT"
+bungeecord = "26.1-R0.1-SNAPSHOT"
+velocity = "4.1.0-SNAPSHOT"
 
 # --- libraries
-annotations = "26.0.2"
-delivery4j = "1.1.5"
+annotations = "26.1.0"
+delivery4j = "1.1.6"
 evalex = "3.6.0"
-guava = "33.5.0-jre"
-settings = "1.0.5"
+guava = "33.6.0-jre"
+settings = "1.0.6"
 
 # --- plugins
 essentials = "2.22.0-SNAPSHOT"
 luckperms = "5.4"
-placeholderapi = "2.11.7"
+placeholderapi = "2.12.3"
 
 [libraries]
 
@@ -44,11 +44,11 @@ velocity-api = { module = "com.velocitypowered:velocity-api", version.ref = "vel
 
 # --- libraries
 annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
-delivery4j = { module = "com.saicone.delivery4j:delivery4j", version.ref = "delivery4j" }
-delivery4j-sql-hikari = { module = "com.saicone.delivery4j:broker-sql-hikari", version.ref = "delivery4j" }
+delivery4j = { module = "com.saicone:delivery4j", version.ref = "delivery4j" }
+delivery4j-sql-hikari = { module = "com.saicone:delivery4j-broker-sql-hikari", version.ref = "delivery4j" }
 evalex = { module = "com.ezylang:EvalEx", version.ref = "evalex" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
-settings = { module = "com.saicone.settings:settings", version.ref = "settings" }
+settings = { module = "com.saicone:settings", version.ref = "settings" }
 
 # --- plugins
 essentials = { module = "net.essentialsx:EssentialsX", version.ref = "essentials" }
