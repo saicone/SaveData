@@ -3,7 +3,7 @@ metadata.format.version = "1.1"
 [versions]
 
 # --- framework
-mcode = "e123895b5d"
+mcode = "8ea5a136a1"
 
 # --- platforms
 spigot = "26.2-R0.1-SNAPSHOT"
